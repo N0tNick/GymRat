@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
 export default function HomeScreen() {
   return (
@@ -16,8 +16,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   text: {
-    color: '#ffffff',
+    color: '#fff',
     fontSize: 28,
     fontWeight: 'bold',
   },
 });
+
