@@ -8,8 +8,10 @@ export default function Layout() {
       <Stack.Screen name="nutsplash" options={{ 
         title: 'Personal Details', 
         headerShown: true,
-        headerLeft: () => (<Button title="Back" onPress={() => {router.replace('/')}} />), 
-        }}/>
+        headerTintColor: '#1a1b1c',
+        headerStyle: { backgroundColor: '#02ed12' },
+        headerLeft: () => (<Button title="Back" color={'#1a1b1c'} onPress={() => {router.replace('/')}} />), 
+      }}/>
       <Stack.Screen name="splash" />
     </Stack>
   )

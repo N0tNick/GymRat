@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet, Button, Image } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Button, StyleSheet, Text, View } from 'react-native';
 
 export default function SplashScreen() {
   const router = useRouter();
@@ -15,7 +15,7 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#001f3f',
+    backgroundColor: '#1a1b1c',
     justifyContent: 'center',
     alignItems: 'center',
   },
