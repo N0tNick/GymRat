@@ -1,6 +1,7 @@
-import React from 'react'
-import { FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native'
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
+import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 const data = [
     { id: 'weight', title: 'Current Weight', val: '0.0 lbs' },
@@ -21,11 +22,13 @@ const nutsplash = () => {
   return (
     <SafeAreaProvider>
         <SafeAreaView style={styles.container}>
-            <FlatList 
+            <LinearGradient style={styles.container} colors={["#32a852","#1a1b1c"]}>
+                <FlatList 
                 data={data}
                 renderItem={renderItem}
                 keyExtractor={item => item.id}
             />
+            </LinearGradient>
         </SafeAreaView>
     </SafeAreaProvider>
   )
