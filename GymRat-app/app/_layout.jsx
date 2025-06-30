@@ -16,7 +16,9 @@ export default function Layout() {
         headerTitleAlign: 'center',
         headerShadowVisible: false,
       }}/>
+      <Stack.Screen name="nutrition" options={{ headerShown: false}} />
+      <Stack.Screen name="profile" options={{ headerShown: false}} />
       <Stack.Screen name="splash" />
     </Stack>
-  )
+  );
 }

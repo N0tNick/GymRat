@@ -8,7 +8,14 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Home Screen</Text>
-      <Button title="Enter Nutrition Screen" onPress={() => router.replace('/nutsplash')} />
+      <Button
+        title="Enter Nutrition Screen"
+        onPress={() => router.replace('/nutsplash')}
+      />
+      <Button
+        title="Enter Profile Page"
+        onPress={() => router.replace('/profile')}
+      />
     </View>
   );
 }
