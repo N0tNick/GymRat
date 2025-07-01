@@ -18,6 +18,8 @@ export default function Layout() {
       }}/>
       <Stack.Screen name="nutrition" options={{ headerShown: false}} />
       <Stack.Screen name="profile" options={{ headerShown: false}} />
+      <Stack.Screen name="workout" options={{ headerShown: false }} />
+      <Stack.Screen name="barcodeScanner" options={{ headerShown: false }} />
       <Stack.Screen name="splash" />
     </Stack>
   );

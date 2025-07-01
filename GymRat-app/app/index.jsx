@@ -16,6 +16,14 @@ export default function HomeScreen() {
         title="Enter Profile Page"
         onPress={() => router.replace('/profile')}
       />
+      <Button
+        title="Enter Workout Page"
+        onPress={() => router.replace('/workout')}
+      />
+      <Button
+        title="Enter Barcode Scanner Page"
+        onPress={() => router.replace('/barcodeScanner')}
+      />
     </View>
   );
 }
