@@ -1,6 +1,11 @@
 import React, { useState } from 'react'
 import { useRouter } from 'expo-router';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Touchable } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native';
+
+// firebase auth
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebaseConfig.js';
+
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -15,9 +20,23 @@ export default function LoginScreen() {
       <Text style={styles.label}>Password</Text>
       <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry />
 
-      <TouchableOpacity style={styles.button} onPress={() => router.replace('/')}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={async () => {
+        try {
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          const user = userCredential.user;
+          if (!user.emailVerified) {
+            alert('Please verify your email before logging in.');
+            return;
+          }
+          router.replace('/'); // go to home screen
+          } catch (error) {
+            console.error(error);
+            alert(error.message);
+          }
+          }}>
+  <Text style={styles.buttonText}>Login</Text>
+</TouchableOpacity>
+
     </View>
   );
 }

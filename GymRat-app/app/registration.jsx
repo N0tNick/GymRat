@@ -2,6 +2,10 @@ import React, { useState } from 'react'
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native';
 
+// firebase auth
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { auth } from '../firebaseConfig.js'; // adjust path as needed
+
 export default function RegistrationScreen() {
     const router = useRouter();
     const [name, setName] = useState('');
@@ -19,9 +23,21 @@ export default function RegistrationScreen() {
             <Text style={styles.label}>Password</Text>
             <TextInput style={styles.input} value={password} onChangeText={setPassword} />
 
-            <TouchableOpacity style={styles.button} onPress={() => router.replace('/')}>
+            <TouchableOpacity style={styles.button} onPress={async () => {
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    await sendEmailVerification(user);
+                    alert('Verification email sent! Please check your inbox.');
+                    router.replace('/login'); // move to login
+                    } catch (error) {
+                    console.error(error);
+                    alert(error.message);
+                }
+            }}>               
                 <Text style={styles.buttonText}>Sign Up</Text>
             </TouchableOpacity>
+
 
             <TouchableOpacity onPress={() => router.push('/login')}>
                 <Text style={styles.linkText}>Already have an account? Login</Text>

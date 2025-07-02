@@ -10,7 +10,8 @@ export default function SplashScreen() {
     <View style={styles.container}>
       <Image source={require('../assets/images/undraw_athletes-training_koqa.png')} style={styles.logo} />
       <Text style={styles.title}>Welcome to GymRat</Text>
-      <Text style={{color: '#fff', fontSize: 19, padding: 10, textAlign: 'center'}}>Track workouts. Plan meals. Crush goals.      All in one place.</Text>
+      <Text style={{color: '#fff', fontSize: 19, padding: 10, textAlign: 'center'}}>Track workouts. Plan meals. Crush goals.</Text>
+      <Text style={{color: '#fff', fontSize: 19, padding: 10, textAlign: 'center'}}>All in one place.</Text>
       <Text style={{color: '#808080', fontSize: 13, padding: 5, textAlign: 'center', marginBottom: 20}}>Train hard, eat smart, and let your rat buddy lead the way.</Text>
       <TouchableOpacity style={styles.customButton} onPress={() => router.replace('/registration')}>
         <Text style={styles.buttonText}>Get Started</Text>
