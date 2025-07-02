@@ -4,7 +4,9 @@ import { Text, TouchableOpacity } from 'react-native';
 export default function Layout() {
   return (
     <Stack screenOptions={{headerShown: false}} initialRouteName="splash">
+      
       <Stack.Screen name="index" />
+
       <Stack.Screen name="nutsplash" options={{ 
         title: 'Personal Details', 
         headerShown: true,
@@ -16,11 +18,13 @@ export default function Layout() {
         headerTitleAlign: 'center',
         headerShadowVisible: false,
       }}/>
+
       <Stack.Screen name="nutrition" options={{ headerShown: false}} />
       <Stack.Screen name="profile" options={{ headerShown: false}} />
       <Stack.Screen name="workout" options={{ headerShown: false }} />
       <Stack.Screen name="barcodeScanner" options={{ headerShown: false }} />
       <Stack.Screen name="splash" />
+
     </Stack>
   );
 }

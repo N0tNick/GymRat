@@ -12,6 +12,14 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-, "app/nutsplash.jsx", "app/splash.jsx", "app/registration.jsx", "app/nutsplash.jsx", "app/login.jsx", "app/_layout.jsx", "app/nutsplash.jsx", "app/(tabs)/nutsplash.jsx", "app/(tabs)/nutsplash.jsx", "app/splash.jsx", "app/nutsplash.jsx", "app/index.jsx", "app/_layout.jsx"  ]
+    "expo-env.d.ts",
+    "app/nutsplash1.tsx",
+    "app/splash.jsx",
+    "app/registration.jsx",
+    "app/login.jsx",
+    "app/_layout.jsx",
+    "app/(tabs)/nutsplash.jsx",
+    "app/index.jsx",
+    "app/nutsplash1.jsx"
+  ]
 }
