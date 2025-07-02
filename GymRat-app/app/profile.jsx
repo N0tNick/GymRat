@@ -28,6 +28,13 @@ export default function ProfileScreen() {
           >
             <Text style={styles.text}>Profile Screen</Text>
             
+            <Image
+              style={styles.logo}
+              source={{
+              uri: 'https://cdn-icons-png.flaticon.com/512/6522/6522516.png',
+              }}
+            />
+
             <View style={styles.inputContainer}>
               <View style={styles.inputRow}>
                 <Text style={styles.inputLabel}>Height:</Text>
