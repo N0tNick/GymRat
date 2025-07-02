@@ -47,7 +47,7 @@ export default function ProfileScreen() {
                   style={styles.inputFieldTest}
                   value={weight}
                   onChangeText={setWeight}
-                  placeholder="kg"
+                  placeholder="lbs"
                   placeholderTextColor="white"
                   keyboardType="numeric"
                 />
