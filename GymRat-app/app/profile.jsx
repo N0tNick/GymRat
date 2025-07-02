@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import React from 'react';
 import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, TextInput, View, ScrollView } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -18,7 +19,7 @@ export default function ProfileScreen() {
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>        
         <LinearGradient
-          colors={['#0000FF', '#1a1b1c']}
+          colors={['#6a5acd', '#1a1b1c']}
           style={styles.container}
         >
            <ScrollView 
@@ -27,16 +28,15 @@ export default function ProfileScreen() {
           >
             <Text style={styles.text}>Profile Screen</Text>
             
-            {/* Input Fields */}
             <View style={styles.inputContainer}>
               <View style={styles.inputRow}>
                 <Text style={styles.inputLabel}>Height:</Text>
                 <TextInput
-                  style={styles.inputField}
+                  style={styles.inputFieldTest}
                   value={height}
                   onChangeText={setHeight}
                   placeholder="cm"
-                  placeholderTextColor="#888"
+                  placeholderTextColor="white"
                   keyboardType="numeric"
                 />
               </View>
@@ -44,11 +44,11 @@ export default function ProfileScreen() {
               <View style={styles.inputRow}>
                 <Text style={styles.inputLabel}>Weight:</Text>
                 <TextInput
-                  style={styles.inputField}
+                  style={styles.inputFieldTest}
                   value={weight}
                   onChangeText={setWeight}
                   placeholder="kg"
-                  placeholderTextColor="#888"
+                  placeholderTextColor="white"
                   keyboardType="numeric"
                 />
               </View>
@@ -56,11 +56,11 @@ export default function ProfileScreen() {
               <View style={styles.inputRow}>
                 <Text style={styles.inputLabel}>Age:</Text>
                 <TextInput
-                  style={styles.inputField}
+                  style={styles.inputFieldTest}
                   value={age}
                   onChangeText={setAge}
                   placeholder="years"
-                  placeholderTextColor="#888"
+                  placeholderTextColor="white"
                   keyboardType="numeric"
                 />
               </View>
@@ -68,11 +68,11 @@ export default function ProfileScreen() {
               <View style={styles.inputRow}>
                 <Text style={styles.inputLabel}>BMI:</Text>
                 <TextInput
-                  style={styles.inputField}
+                  style={styles.inputFieldTest}
                   value={bmi}
                   onChangeText={setBmi}
                   placeholder="kg/m²"
-                  placeholderTextColor="#888"
+                  placeholderTextColor="white"
                   keyboardType="decimal-pad"
                 />
               </View>
@@ -80,11 +80,11 @@ export default function ProfileScreen() {
               <View style={styles.inputRow}>
                 <Text style={styles.inputLabel}>Body Fat:</Text>
                 <TextInput
-                  style={styles.inputField}
+                  style={styles.inputFieldTest}
                   value={bodyFat}
                   onChangeText={setBodyFat}
                   placeholder="%"
-                  placeholderTextColor="#888"
+                  placeholderTextColor="white"
                   keyboardType="decimal-pad"
                 />
               </View>
@@ -127,9 +127,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 
-  inputButtonTest: {
-
+  inputFieldTest: {
+    height: 30,
+    borderColor: 'black',
+    borderWidth: 2,
   },
+
 });
 
 
