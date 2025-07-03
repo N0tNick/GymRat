@@ -51,7 +51,7 @@ const nutsplash = () => {
 
     // For Gender
     const [showGender, setShowGender] = React.useState(false)
-    const [genderVal, setgenderVal] = React.useState('')
+    const [genderVal, setGenderVal] = React.useState('')
 
     const handleGenderPress = () => {
         const genderItem = data.find(item => item.id === 'gender')
@@ -110,6 +110,8 @@ const nutsplash = () => {
                     {showWeight && <CurrentWeight weight={weightVal} />}
                     {showHeight && <Height height={heightVal} />}
                     {showDob && <DOB dob={dobVal} />}
+                    {showGender && <Gender gender={genderVal} />}
+                    {showActLevel && <ActivityLevel actLevel={actLevelVal} />}
                 </LinearGradient>
             </SafeAreaView>
         </SafeAreaProvider>
@@ -137,7 +139,7 @@ const CurrentWeight = ({ weight }) => {
                     </TouchableOpacity>
                     <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '50%'}}>
                         <TextInput 
-                            style={[styles.numInput, { width: '30%' }]}
+                            style={[styles.numInput, { width: '35%' }]}
                             keyboardType="numeric"
                             placeholder='0'
                             value={tempWeight.toString()}
@@ -212,7 +214,7 @@ const Height = ({ height }) => {
                         <Text style={styles.text}> ' </Text>
 
                         <TextInput 
-                            style={[styles.numInput, { width: '20%' }]}
+                            style={[styles.numInput, { width: '23%' }]}
                             keyboardType="numeric"
                             value={tempHeight[1].toString()}
                             placeholder='0'
@@ -252,7 +254,7 @@ const DOB = ({ dob }) => {
                 <View style={{color: '#232f30', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingHorizontal: 20, paddingVertical: 10}}>
                     <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '100%'}}>
                         <TextInput
-                            style={[styles.numInput, { width: '15%' }]}
+                            style={[styles.numInput, { width: '17%' }]}
                                 keyboardType="numeric"
                                 value={tempDob[0].toString()}
                                 placeholder='MM'
@@ -270,7 +272,7 @@ const DOB = ({ dob }) => {
                         />
                         <Text style={styles.text}>/</Text>
                         <TextInput
-                            style={[styles.numInput, { width: '12%' }]}
+                            style={[styles.numInput, { width: '15%' }]}
                                 keyboardType="numeric"
                                 value={tempDob[1].toString()}
                                 placeholder='DD'
@@ -285,7 +287,7 @@ const DOB = ({ dob }) => {
                         />
                         <Text style={styles.text}>/</Text>
                         <TextInput
-                            style={[styles.numInput, { width: '20%' }]}
+                            style={[styles.numInput, { width: '25%' }]}
                                 keyboardType="numeric"
                                 value={tempDob[2].toString()}
                                 placeholder='YYYY'
@@ -302,6 +304,124 @@ const DOB = ({ dob }) => {
                 <TouchableOpacity style={styles.saveButton} onPress={() => {
                     if (tempDob[2] >= 1900) {
                         dob = tempDob
+                        router.replace('/nutsplash')
+                    }
+                }}>
+                    <Text style={styles.navButtonText}>Save</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+    )
+}
+
+const Gender = ({ gender }) => {
+    const [isMalePressed, setIsMalePressed] = React.useState(false);
+    const [isFemalePressed, setIsFemalePressed] = React.useState(false);
+
+    const handlePressed = (tempGender) => {
+        if (tempGender === 'male') {
+            setIsMalePressed(!isMalePressed);
+            setIsFemalePressed(false);
+        }
+        else if (tempGender === 'female') {
+            setIsFemalePressed(!isFemalePressed);
+            setIsMalePressed(false);
+        }
+    }
+
+    return(
+        <View style={{color: 'transparent', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
+            <View style={styles.inputContainer}>
+                <Text style={{color: '#fff', fontSize: 28, fontWeight: 'bold'}}>Gender</Text>
+
+                <View style={{color: '#232f30', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingHorizontal: 20, paddingVertical: 10}}>
+                    <TouchableOpacity
+                    style={{backgroundColor: isMalePressed ? '#32a852' : '#1a1b1c', borderRadius: 10, width: '40%', alignItems: 'center', paddingVertical: 10, marginRight: 10}}
+                    onPress={() => handlePressed('male')}>
+                        <Text style={{color: '#fff', fontSize: 20}}>Male</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                    style={{backgroundColor: isFemalePressed ? '#32a852' : '#1a1b1c', borderRadius: 10, width: '40%', alignItems: 'center', paddingVertical: 10, marginRight: 10}}
+                    onPress={() => handlePressed('female')}>
+                        <Text style={{color: '#fff', fontSize: 20}}>Female</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity style={styles.saveButton} onPress={() => {
+                    if (isMalePressed || isFemalePressed) {
+                        gender = isMalePressed ? 'Male' : isFemalePressed ? 'Female': '';
+                        router.replace('/nutsplash')
+                    }
+                }}>
+                    <Text style={styles.navButtonText}>Save</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+    )
+}
+
+const ActivityLevel = ({ actLevel }) => {
+    const [isLow, setIsLow] = React.useState(false);
+    const [isModerate, setIsModerate] = React.useState(false);
+    const [isHigh, setIsHigh] = React.useState(false);
+    const [isVeryHigh, setIsVeryHigh] = React.useState(false);
+
+    const handlePress = (tempActLevel) => {
+        if (tempActLevel === 'Low') {
+            setIsLow(!isLow);
+            setIsModerate(false);
+            setIsHigh(false);
+            setIsVeryHigh(false);
+        } else if (tempActLevel === 'Moderate') {
+            setIsModerate(!isModerate);
+            setIsLow(false);
+            setIsHigh(false);
+            setIsVeryHigh(false);
+        } else if (tempActLevel === 'High') {
+            setIsHigh(!isHigh);
+            setIsLow(false);
+            setIsModerate(false);
+            setIsVeryHigh(false);
+        } else if (tempActLevel === 'Very High') {
+            setIsVeryHigh(!isVeryHigh);
+            setIsLow(false);
+            setIsModerate(false);
+            setIsHigh(false);
+        }
+    }
+
+    return(
+        <View style={{color: 'transparent', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
+            <View style={[styles.inputContainer, {height: '50%', width: '60%'}]}>
+                <Text style={{color: '#fff', fontSize: 28, fontWeight: 'bold'}}>Gender</Text>
+                    <TouchableOpacity
+                    style={{backgroundColor: isLow ? '#32a852' : '#1a1b1c', borderRadius: 10, width: '50%', alignItems: 'center', paddingVertical: 10, marginRight: 10}}
+                    onPress={() => handlePress('Low')}>
+                        <Text style={{color: '#fff', fontSize: 20}}>Low</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                    style={{backgroundColor: isModerate ? '#32a852' : '#1a1b1c', borderRadius: 10, width: '50%', alignItems: 'center', paddingVertical: 10, marginRight: 10}}
+                    onPress={() => handlePress('Moderate')}>
+                        <Text style={{color: '#fff', fontSize: 20}}>Moderate</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                    style={{backgroundColor: isHigh ? '#32a852' : '#1a1b1c', borderRadius: 10, width: '50%', alignItems: 'center', paddingVertical: 10, marginRight: 10}}
+                    onPress={() => handlePress('High')}>
+                        <Text style={{color: '#fff', fontSize: 20}}>High</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                    style={{backgroundColor: isVeryHigh ? '#32a852' : '#1a1b1c', borderRadius: 10, width: '50%', alignItems: 'center', paddingVertical: 10, marginRight: 10}}
+                    onPress={() => handlePress('Very High')}>
+                        <Text style={{color: '#fff', fontSize: 20}}>Very High</Text>
+                    </TouchableOpacity>
+                
+
+                <TouchableOpacity style={styles.saveButton} onPress={() => {
+                    if (isLow || isModerate || isHigh || isVeryHigh) {
+                        actLevel = isLow ? 'Low' : isModerate ? 'Moderate' : isHigh ? 'High' : isVeryHigh ? 'Very High' : '';
                         router.replace('/nutsplash')
                     }
                 }}>
