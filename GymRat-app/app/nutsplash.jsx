@@ -6,7 +6,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 const data = [
     { id: 'weight', title: 'Current Weight', val: 0.0 },
-    { id: 'height', title: 'Height', val: `0'0"` },
+    { id: 'height', title: 'Height', val: [0, 0] },
     { id: 'dob', title: 'Date of Birth', val: 'MM/DD/YYYY' },
     { id: 'gender', title: 'Gender', val: 'Gender'},
     { id: 'activityLevel', title: 'Activity Level', val: 'None' },
@@ -15,6 +15,7 @@ const data = [
 
 
 const nutsplash = () => {
+    // For Weight
     const [showWeight, setShowWeight] = React.useState(false)
     const [weightVal, setWeightVal] = React.useState('')
 
@@ -26,14 +27,36 @@ const nutsplash = () => {
         setShowWeight(true)
     }
 
-    const renderItem = ({ item }) => (
-        <TouchableOpacity 
-        style={styles.button} 
-        onPress={item.id === 'weight' ? handleWeightPress : undefined}>
-            <Text style={{color: '#fff', fontSize: 20, padding: 10}}>{item.title}</Text>
-            <Text style={{color: '#fff', fontSize: 20, padding: 10}}>{item.val}</Text>
-        </TouchableOpacity>
-    )
+    // For Height
+    const [showHeight, setShowHeight] = React.useState(false)
+    const [heightVal, setHeightVal] = React.useState(['', ''])
+
+    const handleHeightPress = () => {
+        const heightItem = data.find(item => item.id === 'height')
+        if (heightItem) {
+            setHeightVal(heightItem.val)
+        }
+        setShowHeight(true)
+    }
+
+    const renderItem = ({ item }) => {
+        let displayValue = item.val;
+        if (item.id === 'weight') { displayValue = item.val + " lbs" }
+        else if (item.id === 'height') { displayValue = item.val[0] + `'` + item.val[1] + `"`; }
+
+        return (
+            <TouchableOpacity 
+                style={styles.button} 
+                onPress={
+                    item.id === 'weight' ? handleWeightPress
+                    : item.id === 'height' ? handleHeightPress
+                    : undefined
+                }>
+                <Text style={{color: '#fff', fontSize: 20, padding: 10}}>{item.title}</Text>
+                <Text style={{color: '#fff', fontSize: 20, padding: 10}}>{displayValue}</Text>
+            </TouchableOpacity>
+        );
+    }
 
     return (
         <SafeAreaProvider>
@@ -45,6 +68,7 @@ const nutsplash = () => {
                     keyExtractor={item => item.id}
                     />
                     {showWeight && <CurrentWeight weight={weightVal} />}
+                    {showHeight && <Height height={heightVal} />}
                 </LinearGradient>
             </SafeAreaView>
         </SafeAreaProvider>
@@ -72,10 +96,11 @@ const CurrentWeight = ({ weight }) => {
                     </TouchableOpacity>
                     <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '50%'}}>
                         <TextInput 
-                            style={styles.numInput}
+                            style={[styles.numInput, { width: '30%' }]}
                             keyboardType="numeric"
+                            placeholder='0'
                             value={tempWeight.toString()}
-                            onChangeText={text => setTempWeight(parseInt(text) || 0)} // Ensure it stays a number
+                            onChangeText={text => setTempWeight(parseInt(text) || '')} // Ensure it stays a number
                             maxLength={3} // Limit to 3 digits
                         />
                         <Text style={styles.text}> lbs</Text>
@@ -87,6 +112,87 @@ const CurrentWeight = ({ weight }) => {
 
                 <TouchableOpacity style={styles.saveButton} onPress={() => {
                     weight = tempWeight
+                    router.replace('/nutsplash')
+                }}>
+                    <Text style={styles.navButtonText}>Save</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+    )
+}
+
+const Height = ({ height }) => {
+    const [tempHeight, setTempHeight] = React.useState(height)
+    const Increase = () => setTempHeight(prevHeight => {
+        if (prevHeight[1] > 10) {
+            return [prevHeight[0] + 1, 0]
+        }
+        else {
+            return [prevHeight[0],prevHeight[1] + 1]
+        }
+    });
+    const Decrease = () => setTempHeight(prevHeight => {
+        if (prevHeight[0] <= 0) {
+            if (prevHeight[1] <= 0) {
+                return [0, 0]
+            }
+            else {
+                return [0, prevHeight[1] - 1]
+            }
+        }
+        if (prevHeight[1] <= 0) {
+            return [prevHeight[0] - 1, 11] // Prevent going below 0
+        } else {
+            return [prevHeight[0], prevHeight[1] - 1]
+        }
+    });
+
+    return (
+        <View style={{color: 'transparent', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
+            <View style={styles.inputContainer}>
+                <Text style={{color: '#fff', fontSize: 28, fontWeight: 'bold'}}>Height</Text>
+
+                <View style={{color: '#232f30', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingHorizontal: 20, paddingVertical: 10}}>
+                    <TouchableOpacity onPress={Decrease}>
+                        <Text style={styles.text}>-</Text>
+                    </TouchableOpacity>
+                    <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '50%'}}>
+                        <TextInput 
+                            style={[styles.numInput, { width: '10%' }]}
+                            keyboardType="numeric"
+                            value={tempHeight[0].toString()}
+                            placeholder='0'
+                            onChangeText={ text => {
+                                const newFeet = parseInt(text) || '';
+                                setTempHeight([newFeet, tempHeight[1]])
+                            }} // Ensure it stays a number
+                            maxLength={1} // Limit to 1 digits
+                        />
+                        <Text style={styles.text}> ' </Text>
+
+                        <TextInput 
+                            style={[styles.numInput, { width: '20%' }]}
+                            keyboardType="numeric"
+                            value={tempHeight[1].toString()}
+                            placeholder='0'
+                            onChangeText={text => {
+                                let newInches = parseInt(text) || '';
+                                if (newInches > 11) {
+                                    newInches = 11;
+                                }
+                                setTempHeight([tempHeight[0], newInches]);
+                            }} // Ensure it stays a number
+                            maxLength={2} // Limit to 1 digits
+                        />
+                        <Text style={styles.text}>"</Text>
+                    </View>
+                    <TouchableOpacity onPress={Increase}>
+                        <Text style={styles.text}>+</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity style={styles.saveButton} onPress={() => {
+                    height = tempHeight
                     router.replace('/nutsplash')
                 }}>
                     <Text style={styles.navButtonText}>Save</Text>
@@ -156,6 +262,5 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 28,
         fontWeight: 'bold',
-        width: '30%',
     },
 })
