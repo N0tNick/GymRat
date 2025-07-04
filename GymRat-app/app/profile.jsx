@@ -2,18 +2,18 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, TextInput, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, TextInput, View, ScrollView, Image, Modal, Pressable } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
   const router = useRouter();
-  
-  // State for input fields
-  const [height, setHeight] = useState('');
-  const [weight, setWeight] = useState('');
-  const [age, setAge] = useState('');
-  const [bmi, setBmi] = useState('');
-  const [bodyFat, setBodyFat] = useState('');  
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [height, setHeight] = useState('');
+    const [weight, setWeight] = useState('');
+    const [age, setAge] = useState('');
+    const [bmi, setBmi] = useState('');
+    const [bodyFat, setBodyFat] = useState('');  
 
   return (
     <SafeAreaProvider>
@@ -27,13 +27,38 @@ export default function ProfileScreen() {
             showsVerticalScrollIndicator={false}
           >
             <Text style={styles.text}>Profile Screen</Text>
-            
-            <Image
+            <Modal
+              animationType="fade"
+              transparent={true}
+              visible={modalVisible}
+              onRequestClose={() => {
+                Alert.alert('Modal has been closed.');
+                setModalVisible(!modalVisible);
+              }}>
+              <View style={modalStyles.centeredView}>
+                <View style={modalStyles.modalView}>
+                  <Text style={modalStyles.modalText}>Change Profile Picture</Text>
+                  <Pressable
+                    style={[modalStyles.button, modalStyles.buttonClose]}
+                    onPress={() => setModalVisible(!modalVisible)}>
+                    <Text style={modalStyles.textStyle}>Hide Modal</Text>
+                  </Pressable>
+                </View>
+              </View>
+            </Modal>
+             <TouchableOpacity
+              style={styles.logo}
+              onPress={() => setModalVisible(true)}
+            >
+              <Image
               style={styles.logo}
               source={{
               uri: 'https://cdn-icons-png.flaticon.com/512/6522/6522516.png',
               }}
             />
+            </TouchableOpacity>
+
+            
 
             <View style={styles.inputContainer}>
               <View style={styles.inputRow}>
@@ -42,7 +67,8 @@ export default function ProfileScreen() {
                   style={styles.inputFieldTest}
                   value={height}
                   onChangeText={setHeight}
-                  placeholder="cm"
+                  placeholder="ft"
+                  maxLength={"3"}
                   placeholderTextColor="white"
                   keyboardType="numeric"
                 />
@@ -55,6 +81,7 @@ export default function ProfileScreen() {
                   value={weight}
                   onChangeText={setWeight}
                   placeholder="lbs"
+                  maxLength={"3"}
                   placeholderTextColor="white"
                   keyboardType="numeric"
                 />
@@ -67,6 +94,7 @@ export default function ProfileScreen() {
                   value={age}
                   onChangeText={setAge}
                   placeholder="years"
+                  maxLength={"3"}
                   placeholderTextColor="white"
                   keyboardType="numeric"
                 />
@@ -79,6 +107,7 @@ export default function ProfileScreen() {
                   value={bmi}
                   onChangeText={setBmi}
                   placeholder="kg/m²"
+                  maxLength={"2"}
                   placeholderTextColor="white"
                   keyboardType="decimal-pad"
                 />
@@ -91,6 +120,7 @@ export default function ProfileScreen() {
                   value={bodyFat}
                   onChangeText={setBodyFat}
                   placeholder="%"
+                  maxLength={"2"}
                   placeholderTextColor="white"
                   keyboardType="decimal-pad"
                 />
@@ -140,6 +170,58 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
 
+  logo: {
+    width: 180,
+    height: 180,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
 });
 
+const modalStyles = StyleSheet.create ({
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 30,
+    height: 650,
+    width: 350,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 10,
+      height: 10,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: '#F194FF',
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+})
 
+
+  
