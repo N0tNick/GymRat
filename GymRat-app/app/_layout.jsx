@@ -1,7 +1,32 @@
-import { Stack, router } from 'expo-router';
-import { Text, TouchableOpacity } from 'react-native';
+import { Stack } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../firebaseConfig';
 
 export default function Layout() {
+  // for persisten login
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser && currentUser.emailVerified ? currentUser : null);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#1a1b1c', justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ color: 'white', fontSize: 20 }}>Loading...</Text>
+      </View>
+    );
+  }
+  // end of persistent login
+
   return (
     <Stack screenOptions={{headerShown: false}} initialRouteName="splash">
       

@@ -19,3 +19,8 @@ const auth = getAuth(app);
 
 // repushing, this might help
 export { auth };
+
+
+// IOS: 467813529391-r54j585g28775613oglrohtr95seatvj.apps.googleusercontent.com
+// WEB: 467813529391-sg1j5mr6r75ae2fn9gnaf1jvcjjau7g8.apps.googleusercontent.com
+// ANDROID: 467813529391-nrsjikr6jga35neg0ijifu1ik0p0rs58.apps.googleusercontent.com
