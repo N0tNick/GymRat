@@ -1,9 +1,11 @@
+import React from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React from 'react';
 import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, TextInput, View, ScrollView, Image, Modal, Pressable } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import SettingsWheel from '../components/SettingsWheel.jsx';
+
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -16,12 +18,17 @@ export default function ProfileScreen() {
     const [bodyFat, setBodyFat] = useState('');  
 
   return (
+
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>        
         <LinearGradient
           colors={['#6a5acd', '#1a1b1c']}
           style={styles.container}
         >
+           <View style={styles.settingsWheelWrapper}>
+            <SettingsWheel />
+          </View>
+          
            <ScrollView 
             contentContainerStyle={styles.scrollContainer}
             showsVerticalScrollIndicator={false}
@@ -45,6 +52,7 @@ export default function ProfileScreen() {
                   </Pressable>
                 </View>
               </View>
+
             </Modal>
              <TouchableOpacity
               style={styles.logo}
@@ -57,8 +65,6 @@ export default function ProfileScreen() {
               }}
             />
             </TouchableOpacity>
-
-            
 
             <View style={styles.inputContainer}>
               <View style={styles.inputRow}>
