@@ -12,8 +12,7 @@ import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-nativ
 //  offlineAccess: true,
 //  forceCodeForRefreshToken: true,
 //  iosClientId: '467813529391-r54j585g28775613oglrohtr95seatvj.apps.googleusercontent.com',
-//});
-
+//})
 // firebase auth
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth } from '../firebaseConfig.js'; // adjust path as needed
@@ -53,12 +52,12 @@ export default function RegistrationScreen() {
             <TouchableOpacity onPress={() => router.push('/login')}>
                 <Text style={styles.linkText}>Already have an account? Login</Text>
             </TouchableOpacity>
-
+            
         </View>
     );
 }
 // PUT THIS UNDER TOUCHABLE OPACITY IN VIEW WHEN IN DEVELOPER MODE
-// <GoogleSignInButton size={GoogleSignInButton.Size.Wide} color={GoogleSignInButton.Color.Dark} onPress={gogsignIn} />
+ //<GoogleSignInButton size={GoogleSignInButton.Size.Wide} color={GoogleSignInButton.Color.Dark} onPress={gogsignIn} />
 
 const styles = StyleSheet.create({
     container: {

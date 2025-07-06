@@ -1,18 +1,44 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { Image, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../firebaseConfig';
 
-
-// look of the screen
 export default function SplashScreen() {
   const router = useRouter();
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && user.emailVerified) {
+        router.replace('/'); // go to Home
+      } else {
+        setCheckingAuth(false); // Show splash if not logged in
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (checkingAuth) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+        <Text style={{ color: '#fff', fontSize: 18, marginTop: 10 }}>Checking login...</Text>
+      </View>
+    );
+  }
+
+  // Show splash screen content if not logged in
   return (
     <View style={styles.container}>
       <Image source={require('../assets/images/undraw_athletes-training_koqa.png')} style={styles.logo} />
       <Text style={styles.title}>Welcome to GymRat</Text>
       <Text style={{color: '#fff', fontSize: 19, padding: 10, textAlign: 'center'}}>Track workouts. Plan meals. Crush goals.</Text>
       <Text style={{color: '#fff', fontSize: 19, padding: 10, textAlign: 'center'}}>All in one place.</Text>
-      <Text style={{color: '#808080', fontSize: 13, padding: 5, textAlign: 'center', marginBottom: 20}}>Train hard, eat smart, and let your rat buddy lead the way.</Text>
+      <Text style={{color: '#808080', fontSize: 13, padding: 5, textAlign: 'center', marginBottom: 20}}>
+        Train hard, eat smart, and let your rat buddy lead the way.
+      </Text>
       <TouchableOpacity style={styles.customButton} onPress={() => router.replace('/registration')}>
         <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
@@ -20,7 +46,7 @@ export default function SplashScreen() {
   );
 }
 
-// overall layout
+// layout
 const styles = StyleSheet.create({
   container: {
     flex: 1,

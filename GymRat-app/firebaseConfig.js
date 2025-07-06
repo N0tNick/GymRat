@@ -1,9 +1,9 @@
 // firebaseConfig.js
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyA1qnIUYIe48Uxl4X4ZTNENnGhalqVhKng",
   authDomain: "gymrat405-3afb8.firebaseapp.com",
@@ -13,13 +13,15 @@ const firebaseConfig = {
   appId: "1:467813529391:web:35d27d28d274ebd07a13da",
 };
 
-// initialize firebase
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 
-// repushing, this might help
+// Use persistent auth with AsyncStorage for React Native
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+});
+
 export { auth };
-
 
 // IOS: 467813529391-r54j585g28775613oglrohtr95seatvj.apps.googleusercontent.com
 // WEB: 467813529391-sg1j5mr6r75ae2fn9gnaf1jvcjjau7g8.apps.googleusercontent.com

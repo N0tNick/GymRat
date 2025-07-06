@@ -74,7 +74,7 @@ export default function ProfileScreen() {
                   value={height}
                   onChangeText={setHeight}
                   placeholder="ft"
-                  maxLength={"3"}
+                  maxLength={3}
                   placeholderTextColor="white"
                   keyboardType="numeric"
                 />
@@ -87,7 +87,7 @@ export default function ProfileScreen() {
                   value={weight}
                   onChangeText={setWeight}
                   placeholder="lbs"
-                  maxLength={"3"}
+                  maxLength={3}
                   placeholderTextColor="white"
                   keyboardType="numeric"
                 />
@@ -100,7 +100,7 @@ export default function ProfileScreen() {
                   value={age}
                   onChangeText={setAge}
                   placeholder="years"
-                  maxLength={"3"}
+                  maxLength={3}
                   placeholderTextColor="white"
                   keyboardType="numeric"
                 />
@@ -113,7 +113,7 @@ export default function ProfileScreen() {
                   value={bmi}
                   onChangeText={setBmi}
                   placeholder="kg/m²"
-                  maxLength={"2"}
+                  maxLength={2}
                   placeholderTextColor="white"
                   keyboardType="decimal-pad"
                 />
@@ -126,7 +126,7 @@ export default function ProfileScreen() {
                   value={bodyFat}
                   onChangeText={setBodyFat}
                   placeholder="%"
-                  maxLength={"2"}
+                  maxLength={2}
                   placeholderTextColor="white"
                   keyboardType="decimal-pad"
                 />
