@@ -4,13 +4,13 @@ import React from 'react';
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-const data = [
+export const data = [
     { id: 'weight', title: 'Current Weight', val: 0.0 },
     { id: 'height', title: 'Height', val: [0, 0] },
     { id: 'dob', title: 'Date of Birth', val: [1, 1, 1900] },
     { id: 'gender', title: 'Gender', val: 'Gender'},
     { id: 'activityLevel', title: 'Activity Level', val: 'None' },
-]
+];
 
 const nutsplash = () => {
     // For Weight
@@ -102,11 +102,18 @@ const nutsplash = () => {
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
                 <LinearGradient style={styles.container} colors={["#32a852","#1a1b1c"]}>
-                    <FlatList 
-                    data={data}
-                    renderItem={renderItem}
-                    keyExtractor={item => item.id}
-                    />
+                    {!(showWeight || showHeight || showDob || showGender || showActLevel) ? (
+                        <>
+                            <FlatList 
+                                data={data}
+                                renderItem={renderItem}
+                                keyExtractor={item => item.id}
+                            />
+                            <TouchableOpacity style={[styles.saveButton, {alignSelf: 'center', borderRadius: 10}]} onPress={() => router.replace('/goal')}>
+                                <Text style={[styles.text, {fontSize: '20'}]}>Next</Text>
+                            </TouchableOpacity>
+                        </>
+                    ) : null}
                     {showWeight && <CurrentWeight weight={weightVal} />}
                     {showHeight && <Height height={heightVal} />}
                     {showDob && <DOB dob={dobVal} />}
@@ -120,7 +127,7 @@ const nutsplash = () => {
 
 const CurrentWeight = ({ weight }) => {
     const [tempWeight, setTempWeight] = React.useState('')
-    const Increase = () => setTempWeight(prevWeight => prevWeight + 1);
+    const Increase = () => setTempWeight(prevWeight => Number(prevWeight) + 1);
     const Decrease = () => setTempWeight(prevWeight => {
         if (prevWeight <= 0) {
             return 0; // Prevent going below 0
@@ -154,7 +161,7 @@ const CurrentWeight = ({ weight }) => {
                 </View>
 
                 <TouchableOpacity style={styles.saveButton} onPress={() => {
-                    weight = tempWeight
+                    data.find(item => item.id === 'weight').val = tempWeight
                     router.replace('/nutsplash')
                 }}>
                     <Text style={styles.navButtonText}>Save</Text>
@@ -168,10 +175,10 @@ const Height = ({ height }) => {
     const [tempHeight, setTempHeight] = React.useState(['',''])
     const Increase = () => setTempHeight(prevHeight => {
         if (prevHeight[1] > 10) {
-            return [prevHeight[0] + 1, 0]
+            return [Number(prevHeight[0]) + 1, 0]
         }
         else {
-            return [prevHeight[0],prevHeight[1] + 1]
+            return [prevHeight[0],Number(prevHeight[1]) + 1]
         }
     });
     const Decrease = () => setTempHeight(prevHeight => {
@@ -233,7 +240,7 @@ const Height = ({ height }) => {
                 </View>
 
                 <TouchableOpacity style={styles.saveButton} onPress={() => {
-                    height = tempHeight
+                    data.find(item => item.id === 'height').val = tempHeight
                     router.replace('/nutsplash')
                 }}>
                     <Text style={styles.navButtonText}>Save</Text>
@@ -303,7 +310,7 @@ const DOB = ({ dob }) => {
 
                 <TouchableOpacity style={styles.saveButton} onPress={() => {
                     if (tempDob[2] >= 1900) {
-                        dob = tempDob
+                        data.find(item => item.id === 'dob').val = tempDob
                         router.replace('/nutsplash')
                     }
                 }}>
@@ -349,7 +356,7 @@ const Gender = ({ gender }) => {
 
                 <TouchableOpacity style={styles.saveButton} onPress={() => {
                     if (isMalePressed || isFemalePressed) {
-                        gender = isMalePressed ? 'Male' : isFemalePressed ? 'Female': '';
+                        data.find(item => item.id === 'gender').val = isMalePressed ? 'Male' : isFemalePressed ? 'Female': '';
                         router.replace('/nutsplash')
                     }
                 }}>
@@ -393,7 +400,7 @@ const ActivityLevel = ({ actLevel }) => {
     return(
         <View style={{color: 'transparent', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
             <View style={[styles.inputContainer, {height: '50%', width: '60%'}]}>
-                <Text style={{color: '#fff', fontSize: 28, fontWeight: 'bold'}}>Gender</Text>
+                <Text style={{color: '#fff', fontSize: 28, fontWeight: 'bold'}}>Activity Level</Text>
                     <TouchableOpacity
                     style={{backgroundColor: isLow ? '#32a852' : '#1a1b1c', borderRadius: 10, width: '50%', alignItems: 'center', paddingVertical: 10, marginRight: 10}}
                     onPress={() => handlePress('Low')}>
@@ -421,7 +428,7 @@ const ActivityLevel = ({ actLevel }) => {
 
                 <TouchableOpacity style={styles.saveButton} onPress={() => {
                     if (isLow || isModerate || isHigh || isVeryHigh) {
-                        actLevel = isLow ? 'Low' : isModerate ? 'Moderate' : isHigh ? 'High' : isVeryHigh ? 'Very High' : '';
+                        data.find(item => item.id === 'activityLevel').val = isLow ? 'Low' : isModerate ? 'Moderate' : isHigh ? 'High' : isVeryHigh ? 'Very High' : '';
                         router.replace('/nutsplash')
                     }
                 }}>

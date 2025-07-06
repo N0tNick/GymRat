@@ -1,8 +1,8 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { cals } from './goal';
 
 export default function Nutrition() {
   const router = useRouter();
@@ -12,6 +12,8 @@ export default function Nutrition() {
         <LinearGradient style={styles.gradient} colors={["#32a852", "#1a1b1c"]}>
           <View style={styles.content}>
             <Text style={styles.text}>Nutrition Screen</Text>
+            <Text style={[styles.text, {fontSize: 20}]}>Todays Calorie Goal:</Text>
+            <Text style={[styles.text, {fontSize: 20}]}>{cals}</Text>
             <TouchableOpacity
               style={styles.homeButton}
               onPress={() => router.replace('/')}

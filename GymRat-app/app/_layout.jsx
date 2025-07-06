@@ -43,7 +43,17 @@ export default function Layout() {
         headerTitleAlign: 'center',
         headerShadowVisible: false,
       }}/>
-
+      <Stack.Screen name="goal" options={{ 
+        title: 'Goal', 
+        headerShown: true,
+        headerTintColor: '#1a1b1c',
+        headerStyle: { backgroundColor: '#32a852' },
+        headerLeft: () => (<TouchableOpacity onPress={() => router.replace('/nutsplash')}>
+          <Text style={{color: "1a1b1c", paddingHorizontal: 10, fontSize: 15}}>Back</Text>
+        </TouchableOpacity>), 
+        headerTitleAlign: 'center',
+        headerShadowVisible: false,
+      }}/>
       <Stack.Screen name="nutrition" options={{ headerShown: false}} />
       <Stack.Screen name="profile" options={{ headerShown: false}} />
       <Stack.Screen name="workout" options={{ headerShown: false }} />
