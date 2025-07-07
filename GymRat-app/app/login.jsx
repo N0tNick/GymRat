@@ -28,7 +28,7 @@ export default function LoginScreen() {
             alert('Please verify your email before logging in.');
             return;
           }
-          router.replace('/'); // go to home screen
+          router.replace('/home'); // go to home screen
           } catch (error) {
             console.error(error);
             alert(error.message);

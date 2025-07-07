@@ -11,7 +11,7 @@ export default function SplashScreen() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user && user.emailVerified) {
-        router.replace('/'); // go to Home
+        router.replace('/home'); // go to Home
       } else {
         setCheckingAuth(false); // Show splash if not logged in
       }
