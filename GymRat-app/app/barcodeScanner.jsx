@@ -1,22 +1,18 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { signOut } from 'firebase/auth';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { signOut } from 'firebase/auth';
-import { auth } from '../firebaseConfig'; // ✅ adjust path if needed
+import NavBar from '../components/NavBar';
+import { auth } from '../firebaseConfig';
 
 export default function BarcodeScannerScreen() {
   const router = useRouter();
 
   const handleSignOut = () => {
     signOut(auth)
-      .then(() => {
-        console.log('User signed out');
-        router.replace('/login'); // ✅ Navigate to login screen after sign-out
-      })
-      .catch((error) => {
-        console.error('Sign out error:', error);
-      });
+      .then(() => router.replace('/login'))
+      .catch(console.error);
   };
 
   return (
@@ -27,14 +23,6 @@ export default function BarcodeScannerScreen() {
           style={styles.container}
         >
           <Text style={styles.text}>Barcode Scanner Screen</Text>
-
-          <TouchableOpacity
-            style={styles.homeButton}
-            onPress={() => router.replace('/')}
-          >
-            <Text style={styles.homeButtonText}>Enter home</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity
             style={styles.logoutButton}
             onPress={handleSignOut}
@@ -42,6 +30,7 @@ export default function BarcodeScannerScreen() {
             <Text style={styles.logoutButtonText}>Sign Out</Text>
           </TouchableOpacity>
         </LinearGradient>
+        <NavBar />
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -57,18 +46,6 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 28,
     fontWeight: 'bold',
-  },
-  homeButton: {
-    marginTop: 20,
-    backgroundColor: '#232f30',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  homeButtonText: {
-    color: '#fff',
-    fontSize: 18,
   },
   logoutButton: {
     marginTop: 20,

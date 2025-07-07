@@ -110,7 +110,7 @@ const nutsplash = () => {
                                 keyExtractor={item => item.id}
                             />
                             <TouchableOpacity style={[styles.saveButton, {alignSelf: 'center', borderRadius: 10}]} onPress={() => router.replace('/goal')}>
-                                <Text style={[styles.text, {fontSize: '20'}]}>Next</Text>
+                                <Text style={[styles.text, {fontSize: 20}]}>Next</Text>
                             </TouchableOpacity>
                         </>
                     ) : null}

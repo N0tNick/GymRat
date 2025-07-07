@@ -1,10 +1,9 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import NavBar from '../components/NavBar';
 
 export default function WorkoutScreen() {
-  const router = useRouter();
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
@@ -13,13 +12,8 @@ export default function WorkoutScreen() {
           style={styles.container}
         >
           <Text style={styles.text}>Workout Screen</Text>
-          <TouchableOpacity
-            style={styles.homeButton}
-            onPress={() => router.replace('/')}
-          >
-            <Text style={styles.homeButtonText}>Enter home</Text>
-          </TouchableOpacity>
         </LinearGradient>
+        <NavBar />
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -35,17 +29,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 28,
     fontWeight: 'bold',
-  },
-   homeButton: {
-    marginTop: 20,
-    backgroundColor: '#232f30',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  homeButtonText: {
-    color: '#fff',
-    fontSize: 18,
   },
 });

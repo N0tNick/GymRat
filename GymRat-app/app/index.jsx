@@ -1,30 +1,29 @@
 import { useRouter } from 'expo-router';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import NavBar from '../components/NavBar';
 
 export default function HomeScreen() {
   const router = useRouter();
 
-  // Button to navigate to the Nutrition screen can be removed/replaced when navbar is implemented.
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Home Screen</Text>
-      <Button
-        title="Enter Nutrition Screen"
-        onPress={() => router.replace('/nutsplash')}
-      />
-      <Button
-        title="Enter Profile Page"
-        onPress={() => router.replace('/profile')}
-      />
-      <Button
-        title="Enter Workout Page"
-        onPress={() => router.replace('/workout')}
-      />
-      <Button
-        title="Enter Barcode Scanner Page"
-        onPress={() => router.replace('/barcodeScanner')}
-      />
-    </View>
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.container}>
+          <Text style={styles.text}>Home Screen</Text>
+
+          <TouchableOpacity
+            style={styles.nutsplashButton}
+            onPress={() => router.push('/nutsplash')}
+          >
+            <Text style={styles.buttonText}>Go to Nutrition Splash Page</Text>
+          </TouchableOpacity>
+        </View>
+
+        <NavBar />
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
@@ -40,5 +39,16 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
   },
+  nutsplashButton: {
+    marginTop: 20,
+    backgroundColor: '#32a852',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
 });
-
