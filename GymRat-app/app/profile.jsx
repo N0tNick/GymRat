@@ -19,7 +19,7 @@ export default function ProfileScreen() {
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
         <LinearGradient colors={['#6a5acd', '#1a1b1c']} style={styles.container}>
-          <View style={styles.settingsWheelWrapper}>
+          <View style={stupidFuckingRetardStyles.settingsWheelWrapper}>
             <SettingsWheel />
           </View>
           <ScrollView
@@ -190,8 +190,8 @@ const modalStyles = StyleSheet.create ({
     margin: 20,
     backgroundColor: 'white',
     borderRadius: 30,
-    height: 650,
-    width: 350,
+    height: '80%',
+    width: '90%',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
