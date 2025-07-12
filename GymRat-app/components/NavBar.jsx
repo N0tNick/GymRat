@@ -1,5 +1,4 @@
 import { usePathname, useRouter } from 'expo-router';
-import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const tabs = [

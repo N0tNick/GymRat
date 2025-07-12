@@ -1,8 +1,9 @@
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
 
 export default function Layout() {
+  const router = useRouter();
   return (
     <Stack screenOptions={{ headerShown: false }} initialRouteName="splash">
       <Stack.Screen name="splash" />
@@ -18,7 +19,7 @@ export default function Layout() {
           headerTintColor: '#1a1b1c',
           headerStyle: { backgroundColor: '#32a852' },
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.replace('/')}>
+            <TouchableOpacity onPress={() => router.back()}>
               <Text style={{ color: "#1a1b1c", paddingHorizontal: 10, fontSize: 15 }}>Back</Text>
             </TouchableOpacity>
           ),
@@ -35,7 +36,7 @@ export default function Layout() {
           headerTintColor: '#1a1b1c',
           headerStyle: { backgroundColor: '#32a852' },
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.replace('/nutsplash')}>
+            <TouchableOpacity onPress={() => router.back()}>
               <Text style={{ color: "#1a1b1c", paddingHorizontal: 10, fontSize: 15 }}>Back</Text>
             </TouchableOpacity>
           ),
