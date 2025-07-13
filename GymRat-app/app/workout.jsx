@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState } from 'react';
-import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import exercises from '../assets/exercises.json';
 import NavBar from '../components/NavBar';
@@ -9,12 +9,24 @@ export default function WorkoutScreen() {
   const renderItem = ({ item }) => (
     <View style={styles.card}>
       <Text style={styles.title}>{item.name}</Text>
-      <Text style={styles.subtitle}>Level: {item.level}</Text>
       <Text style={styles.subtitle}>Category: {item.category}</Text>
+      <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscles}</Text>
     </View>
   );
 
-  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false)
+  const [searchText, setSearchText] = useState('')
+  const [filteredExercises, setFilteredExercises] = useState(exercises)
+  const [muscleFilter, setMuscleFilter] = useState(false)
+  const [equipmentFilter, setEquipmentFilter] = useState(false)
+
+    useEffect(() => {
+      const filtered = exercises.filter((exercise) =>
+        exercise.name.toLowerCase().includes(searchText.toLowerCase())
+      )
+      setFilteredExercises(filtered)
+    }, [searchText])
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
@@ -31,14 +43,25 @@ export default function WorkoutScreen() {
           }}>
             <View style={styles.centeredView}>
               <View style={styles.modalView}>
-                <TouchableOpacity style={{backgroundColor: '#808080', width: 25, alignItems: 'center', borderRadius: 5}} onPress={() => setModalVisible(false)}>
+                <TouchableOpacity style={{backgroundColor: '#999', width: 25, alignItems: 'center', borderRadius: 5}} onPress={() => setModalVisible(false)}>
                   <Text style={styles.xButton}>X</Text>
                 </TouchableOpacity>
 
                 <Text style={{color: '#000', fontSize: 40, fontWeight: 'bold'}}>Exercises</Text>
+                <TextInput
+                style={styles.searchBar}
+                onChangeText={setSearchText}
+                value={searchText}
+                placeholder='Search'
+                />
+
+                <View style={{flexDirection: 'row', justifyContent: 'space-evenly', padding: 10}}>
+                  <TouchableOpacity style={styles.filterButton} onPress={() => {setMuscleFilter(!muscleFilter)}}><Text style={styles.filterButtonText}>Any Body Part</Text></TouchableOpacity>
+                  <TouchableOpacity style={styles.filterButton} onPress={() => {setEquipmentFilter(!equipmentFilter)}}><Text style={styles.filterButtonText}>Any Equipment</Text></TouchableOpacity>
+                </View>
 
                 <FlatList
-                  data={exercises}
+                  data={filteredExercises}
                   keyExtractor={(item) => item.id}
                   renderItem={renderItem}
                 />
@@ -100,4 +123,24 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 4,
   },
+  searchBar: {
+    backgroundColor: '#999',
+    height: 35,
+    borderRadius: 10,
+    padding: 10,
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  filterButton: {
+    backgroundColor: '#999',
+    padding: 10,
+    borderRadius: 10,
+    height: 35,
+    justifyContent: 'center',
+    fontSize: 20
+  },
+  filterButtonText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+  }
 });
