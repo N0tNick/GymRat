@@ -37,7 +37,7 @@ const SettingsWheel = () => {
             useNativeDriver:true,
         }).start();
     }
-
+    
      const closeSidebar = () => {
         Animated.timing(sidebarTranslateX, {
             toValue:300,
@@ -76,6 +76,27 @@ const SettingsWheel = () => {
                             }}
                             />
                     </TouchableOpacity>
+
+                    <TouchableOpacity onPress={null}
+                        syle={{}}>
+                        {/*Settings Bar Component */}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={null}
+                        syle={{}}>
+                        {/*User Data Bar Component */}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={null}
+                        syle={{}}>
+                        {/*Etc Bar Component */}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={null}
+                        syle={{}}>
+                        {/*Etc Bar Component */}
+                    </TouchableOpacity>
+
                 </Animated.View>
             </Modal>                      
         )
