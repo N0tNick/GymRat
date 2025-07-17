@@ -1,6 +1,4 @@
-import React from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, TextInput, View, ScrollView, Image, Modal, Pressable } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -16,7 +14,7 @@ export default function ProfileScreen() {
   const [bodyFat, setBodyFat] = useState('');
 
   return (
-    <SafeAreaProvider>
+     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
         <LinearGradient colors={['#6a5acd', '#1a1b1c']} style={styles.container}>
           <View style={settingsStyles.settingsWheelWrapper}>
@@ -132,8 +130,6 @@ export default function ProfileScreen() {
             >
               <Text style={styles.homeButtonText}>Enter home</Text>
             </TouchableOpacity>
-            {/* your modal & inputs here… */}
-            {/* … */}
           </ScrollView>
         </LinearGradient>
         <NavBar />
