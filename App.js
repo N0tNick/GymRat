@@ -1,5 +1,4 @@
 import { SQLiteProvider } from "expo-sqlite"
-import RegistrationScreen from "../app/registration"
 
 
 export default function app() {
@@ -8,7 +7,7 @@ export default function app() {
       databaseName="UserDatabase.db"
       onInit={async (db) => {
         await db.execAsync(
-          'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, email TEXT NOT NULL UNIQUE, dob TEXT NOT NULL, profile_icon TEXT) PRAGMA journal_mode=WAL',
+          'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, email TEXT NOT NULL UNIQUE, dob TEXT NOT NULL, profile_icon TEXT NOT NULL UNIQUE) PRAGMA journal_mode=WAL',
         ); 
         await db.execAsync(
           'CREATE TABLE IF NOT EXISTS userSettings (user_id INTEGER NOT NULL, FOREIGN KEY(user_id) REFERENCES users(id)); PRAGMA journal_mode=WAL'
