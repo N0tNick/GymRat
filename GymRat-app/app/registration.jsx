@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native';
+import { useSQLiteContext } from 'expo-sqlite';
 
 // UNCOMMENT IF YOU ARE RUNNING DEVELOPMENT BUILD
 //import { GoogleSignIn, GoogleSignInButton, statusCodes, } from '@react-native-google-signin/google-signin'
@@ -22,13 +23,54 @@ export default function RegistrationScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    //database setup
+    const [user, setUser] = useState({
+        username: '',
+        email: '',
+        dob: '',
+        profile_icon: ''
+    });
+
+    const db = useSQLiteContext();
+
+    const handleSubmit = async () => {
+        try{
+            if(!user.username || !user.email || !user.dob) {
+                throw new Error('All fields are required');
+            }
+
+            await db.runAsync(
+                'INSERT INTO users (username, email, dob) VALUES (?, ?, ?)',
+                [user.username, user.email, user.dob]
+            );
+
+            Alert.alert('Success', 'User added successfully');
+            setUser({
+                username: '',
+                email: '',
+                dob: '',
+                profile_icon: '',
+            });
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Error', error.message || 'An error occurred while adding user.');
+        }
+    };
+
+
     return (
         <View style={styles.container}>
             <Text style={styles.label}>Name</Text>
-            <TextInput style={styles.input} value={name} onChangeText={setName} />
+            <TextInput style={styles.input} value={name} onChangeText={(text) => {
+                setName(text);
+                setUser({ ...user, username: text });
+            }} />
 
             <Text style={styles.label}>Email</Text>
-            <TextInput style={styles.input} value={email} onChangeText={setEmail} />
+            <TextInput style={styles.input} value={email} onChangeText={(text) => {
+                setEmail(text);
+                setUser({ ...user, email: text });
+            }} />
 
             <Text style={styles.label}>Password</Text>
             <TextInput style={styles.input} value={password} onChangeText={setPassword} />
