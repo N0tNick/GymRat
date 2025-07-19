@@ -42,6 +42,12 @@ export default function SplashScreen() {
       <TouchableOpacity style={styles.customButton} onPress={() => router.replace('/registration')}>
         <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => Linking.openURL("https://www.fatsecret.com")}>
+        {/*<!-- Begin fatsecret Platform API HTML Attribution Snippet -->*/}
+        <Text href="https://www.fatsecret.com">Powered by fatsecret</Text>
+        {/*<!-- End fatsecret Platform API HTML Attribution Snippet -->*/}
+      </TouchableOpacity>
     </View>
   );
 }

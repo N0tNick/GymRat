@@ -9,6 +9,7 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { encode as btoa } from 'base-64';
+import { Linking } from 'react-native';
 
 // configuration needed for fatsecret api 
 const FATSECRET_CONFIG = {
@@ -31,7 +32,7 @@ const getAccessToken = async () => {
       FATSECRET_CONFIG.tokenUrl,
       new URLSearchParams({
         grant_type: 'client_credentials',
-        scope: 'basic barcode' // SET TO BARCODE AFTER APPROVED HOPEFULLY
+        scope: 'premier barcode' // SET TO BARCODE AFTER APPROVED HOPEFULLY
       }).toString(),
       {
         headers: {
@@ -95,41 +96,40 @@ export default function BarcodeScannerScreen() {
     console.log('--- NEW SCAN ---');
     console.log('Raw barcode:', scanningResult.data, 'Type:', scanningResult.type, 'Length:', scanningResult.data.length);
 
-    let processedBarcode = scanningResult.data;
-    let searchAttempts = [];
-
-    // need to convert scanned upc-a 12 digit to ean-13 digit
-    if (scanningResult.type === 'upc_a' && scanningResult.data.length === 12) {
-      processedBarcode = '0' + scanningResult.data;
-      console.log('Converted to EAN-13:', processedBarcode);
-      searchAttempts.push(processedBarcode);
-    }
-
-    // also attempt the original scanned barcode
-    searchAttempts.push(scanningResult.data);
-
     setScanned(true);
-    setLoading(true);
-    setError(null);
 
-    // try searching for the product info by barcode attempts (both modified and original)
-    for (const barcode of searchAttempts) {
-      try {
-        console.log('Attempting search for barcode:', barcode);
-        const foodItem = await searchFatSecretByBarcode(barcode);
-        setProductInfo(foodItem); // save product info to state
-        setShowNutritionModal(true); // show nutrition modal
-        setLoading(false);
-        return;
-      } catch (err) {
-        console.log(`Barcode ${barcode} error:`, err);
+    setTimeout(async () => {
+      let processedBarcode = scanningResult.data;
+      let searchAttempts = [];
+
+      if (scanningResult.type === 'upc_a' && scanningResult.data.length === 12) {
+        processedBarcode = '0' + scanningResult.data;
+        console.log('Converted to EAN-13:', processedBarcode);
+        searchAttempts.push(processedBarcode);
       }
-    }
 
-    // if no product found on attempts
-    setError('Product not found');
-    setShowNutritionModal(true);
-    setLoading(false);
+      searchAttempts.push(scanningResult.data);
+
+      setLoading(true);
+      setError(null);
+
+      for (const barcode of searchAttempts) {
+        try {
+          console.log('Attempting search for barcode:', barcode);
+          const foodItem = await searchFatSecretByBarcode(barcode);
+          setProductInfo(foodItem);
+          setShowNutritionModal(true);
+          setLoading(false);
+          return;
+        } catch (err) {
+          console.log(`Barcode ${barcode} error:`, err);
+        }
+      }
+
+      setError('Product not found');
+      setShowNutritionModal(true);
+      setLoading(false);
+    }, 500);
   };
 
   // search fatsecret using food.find_id_for_barcode
@@ -220,7 +220,7 @@ export default function BarcodeScannerScreen() {
         }
       );
 
-      console.log('Food details response:', JSON.stringify(response.data, null, 2)); // Add this line
+      console.log('Food details response:', JSON.stringify(response.data, null, 2));
 
       if (!response.data.food) {
         throw new Error('No food data in response');
@@ -256,12 +256,19 @@ export default function BarcodeScannerScreen() {
               onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
             >
               <View style={styles.scanFrame} />
-              <Text style={styles.scanText}>Align barcode within the frame</Text>
+              <Text style={styles.scanText}>Align barcode within the frame</Text>  
             </CameraView>
 
             <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
               <Text style={styles.logoutButtonText}>Sign Out</Text>
             </TouchableOpacity>
+            <TouchableOpacity styles={styles.logoutButton} onPress={() => Linking.openURL("https://www.fatsecret.com")}>
+              {/*<!-- Begin fatsecret Platform API HTML Attribution Snippet -->*/}
+              <Text href="https://www.fatsecret.com">Powered by fatsecret</Text>
+              {/*<!-- End fatsecret Platform API HTML Attribution Snippet -->*/}
+            </TouchableOpacity>
+            
+            
           </View>
         </LinearGradient>
         <NavBar />
@@ -317,6 +324,14 @@ export default function BarcodeScannerScreen() {
                       <TouchableOpacity style={styles.rescanButton} onPress={resetScanner}>
                         <Text style={styles.rescanButtonText}>Scan Another Item</Text>
                       </TouchableOpacity>
+                      <TouchableOpacity style={styles.rescanButton} onPress={todo}>
+                        <Text style={styles.rescanButton}>Add to Food Log</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => Linking.openURL("https://www.fatsecret.com")}>
+                        {/*<!-- Begin fatsecret Platform API HTML Attribution Snippet -->*/}
+                        <Text href="https://www.fatsecret.com">Powered by fatsecret</Text>
+                        {/*<!-- End fatsecret Platform API HTML Attribution Snippet -->*/}
+                      </TouchableOpacity>
                     </>
                   );
                 })()
@@ -366,7 +381,7 @@ export default function BarcodeScannerScreen() {
                   padding: 10,
                   marginBottom: 10,
                 }}
-                placeholder="Enter food name or barcode"
+                placeholder="Enter food name"
                 value={manualQuery}
                 onChangeText={setManualQuery}
               />
@@ -387,7 +402,12 @@ export default function BarcodeScannerScreen() {
               >
                 <Text style={styles.rescanButtonText}>Search</Text>
               </TouchableOpacity>
-              
+
+              <TouchableOpacity onPress={() => Linking.openURL("https://www.fatsecret.com")}>
+                {/*<!-- Begin fatsecret Platform API HTML Attribution Snippet -->*/}
+                <Text href="https://www.fatsecret.com">Powered by fatsecret</Text>
+                {/*<!-- End fatsecret Platform API HTML Attribution Snippet -->*/}
+              </TouchableOpacity>
               {loading && <ActivityIndicator size="small" color="#0000ff" style={{ marginTop: 10 }} />}
               
               {error && <Text style={styles.errorText}>{error}</Text>}
