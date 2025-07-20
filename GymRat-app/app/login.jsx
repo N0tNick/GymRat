@@ -1,21 +1,22 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import { useSQLiteContext } from 'expo-sqlite';
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native';
-
-// firebase auth
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig.js';
-
+import { useUser } from '../UserContext.js';
 
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { setUserId } = useUser();
+  const db = useSQLiteContext();
 
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Email</Text>
-      <TextInput style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" />
+      <TextInput style={styles.input} value={email} onChangeText={setEmail} />
 
       <Text style={styles.label}>Password</Text>
       <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry />
@@ -24,19 +25,50 @@ export default function LoginScreen() {
         try {
           const userCredential = await signInWithEmailAndPassword(auth, email, password);
           const user = userCredential.user;
+          
           if (!user.emailVerified) {
             alert('Please verify your email before logging in.');
             return;
           }
-          router.replace('/home'); // go to home screen
-          } catch (error) {
-            console.error(error);
-            alert(error.message);
-          }
-          }}>
-  <Text style={styles.buttonText}>Login</Text>
-</TouchableOpacity>
 
+          // check if user exists in SQLite
+          const result = await db.getFirstAsync(
+            'SELECT id FROM users WHERE email = ?',
+            [email]
+          );
+
+          let userId;
+          if (result) {
+            userId = result.id;
+            console.log('Found existing user ID:', userId);
+          } else {
+            // create new user in local DB
+            const username = email.split('@')[0]; // take from email
+            const defaultIcon = 'default_icon'; // placeholder
+            const dob = '2000-01-01'; // placeholder
+            
+            const insertResult = await db.runAsync(
+              'INSERT INTO users (username, email, dob, profile_icon) VALUES (?, ?, ?, ?)',
+              [username, email, dob, defaultIcon]
+            );
+            
+            userId = insertResult.lastInsertRowId;
+            console.log('Created new user with ID:', userId);
+          }
+
+          setUserId(userId);
+          router.replace('/home');
+        } catch (error) {
+          console.error(error);
+          alert(error.message);
+        }
+      }}>
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => router.push('/registration')}>
+        <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
+      </TouchableOpacity>
     </View>
   );
 }

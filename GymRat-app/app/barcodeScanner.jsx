@@ -11,6 +11,9 @@ import axios from 'axios';
 import { encode as btoa } from 'base-64';
 import { Linking } from 'react-native';
 
+import { useSQLiteContext } from 'expo-sqlite';
+import { useUser } from '../UserContext';
+
 // configuration needed for fatsecret api 
 const FATSECRET_CONFIG = {
   clientId: '2bb8564827ba480ca37359d401027be6',
@@ -59,10 +62,98 @@ export default function BarcodeScannerScreen() {
   const [productInfo, setProductInfo] = useState(null);
   const [error, setError] = useState(null);
   const [type] = useState('back');
+  // nutrition modal
   const [showNutritionModal, setShowNutritionModal] = useState(false);
+  // manual food search modal
   const [manualQuery, setManualQuery] = useState('');
   const [manualModalVisible, setManualModalVisible] = useState(false);
   const [manualResults, setManualResults] = useState([]);
+  // logging test modal
+  const [showLogModal, setShowLogModal] = useState(false);
+  const [dailyTotals, setDailyTotals] = useState(null);
+
+  const { userId } = useUser();
+  const db = useSQLiteContext();
+
+  const loadTodaysTotals = async (userId) => {
+    const date = new Date().toISOString().split('T')[0];
+
+    try {
+      const result = await db.getAllAsync(
+        `SELECT 
+          SUM(CAST(calories AS REAL)) AS totalCalories,
+          SUM(CAST(protein AS REAL)) AS totalProtein,
+          SUM(CAST(total_Carbs AS REAL)) AS totalCarbs,
+          SUM(CAST(total_Fat AS REAL)) AS totalFat
+        FROM dailyNutLog
+        WHERE user_id = ? AND date = ?`,
+        [userId, date]
+      );
+
+      setDailyTotals(result[0]);
+      setShowLogModal(true);
+    } catch (error) {
+      console.error('Error loading totals:', error);
+    }
+  };
+
+  const insertIntoDailyLog = async (userId, productInfo) => {
+    const serving = Array.isArray(productInfo.servings.serving)
+      ? productInfo.servings.serving[0]
+      : productInfo.servings.serving;
+
+    const date = new Date().toISOString().split('T')[0];
+
+    try {
+      await db.runAsync(
+        `INSERT INTO dailyNutLog (
+            user_id, date, name, calories, protein,
+            cholesterol, sodium, total_Fat, saturated_Fat, trans_Fat,
+            polyunsaturated_Fat, monosaturated_Fat, total_Carbs, fiber, sugar,
+            vitamin_A, vitamin_C, vitamin_D, vitamin_E, vitamin_K,
+            vitamin_B1, vitamin_B2, vitamin_B3, vitamin_B5, vitamin_B6,
+            vitamin_B7, vitamin_B9, vitamin_B12, iron, calcium, potassium
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            userId,
+            date,
+            productInfo.food_name || '',
+            serving.calories || '0',
+            serving.protein || '0',
+            serving.cholesterol || '0',
+            serving.sodium || '0',
+            serving.fat || '0',
+            serving.saturated_fat || '0',
+            serving.trans_fat || '0',
+            serving.polyunsaturated_fat || '0',
+            serving.monounsaturated_fat || '0',
+            serving.carbohydrate || '0',
+            serving.fiber || '0',
+            serving.sugar || '0',
+            serving.vitamin_a || '0',
+            serving.vitamin_c || '0',
+            serving.vitamin_d || '0',
+            serving.vitamin_e || '0',
+            serving.vitamin_k || '0',
+            serving.thiamin || '0',
+            serving.riboflavin || '0',
+            serving.niacin || '0',
+            serving.pantothenic_acid || '0',
+            serving.vitamin_b6 || '0',
+            serving.biotin || '0',
+            serving.folate || '0',
+            serving.vitamin_b12 || '0',
+            serving.iron || '0',
+            serving.calcium || '0',
+            serving.potassium || '0',
+          ]
+      );
+      return true;
+    } catch (err) {
+      console.error('Insert error:', err);
+      throw err;
+    }
+  };
 
   // set scanner state to initial
   useEffect(() => {
@@ -321,12 +412,22 @@ export default function BarcodeScannerScreen() {
                           <Text style={styles.nutritionValue}>{serving?.fat ?? 'N/A'}g</Text>
                         </View>
                       </View>
+
                       <TouchableOpacity style={styles.rescanButton} onPress={resetScanner}>
                         <Text style={styles.rescanButtonText}>Scan Another Item</Text>
                       </TouchableOpacity>
-                      <TouchableOpacity style={styles.rescanButton} onPress={todo}>
-                        <Text style={styles.rescanButton}>Add to Food Log</Text>
+
+                      <TouchableOpacity onPress={async () => {
+                        try {
+                          await insertIntoDailyLog(userId, productInfo);
+                          await loadTodaysTotals(userId);
+                        } catch (e) {
+                          console.error('Error:', e);
+                        }
+                      }}>
+                        <Text>Log This Food</Text>
                       </TouchableOpacity>
+
                       <TouchableOpacity onPress={() => Linking.openURL("https://www.fatsecret.com")}>
                         {/*<!-- Begin fatsecret Platform API HTML Attribution Snippet -->*/}
                         <Text href="https://www.fatsecret.com">Powered by fatsecret</Text>
@@ -443,6 +544,37 @@ export default function BarcodeScannerScreen() {
                     </TouchableOpacity>
                   ))}
                 </View>
+              )}
+            </View>
+          </View>
+        </Modal>
+
+
+        {/* TODAYS TOTALS MODAL */}
+        <Modal
+          visible={showLogModal}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowLogModal(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <TouchableOpacity
+                onPress={() => setShowLogModal(false)}
+                style={styles.closeButton}
+              >
+                <Text style={styles.closeButtonText}>X</Text>
+              </TouchableOpacity>
+              <Text style={styles.modalTitle}>Today's Totals</Text>
+              {dailyTotals ? (
+                <>
+                  <Text>Calories: {dailyTotals.totalCalories}</Text>
+                  <Text>Protein: {dailyTotals.totalProtein}g</Text>
+                  <Text>Carbs: {dailyTotals.totalCarbs}g</Text>
+                  <Text>Fat: {dailyTotals.totalFat}g</Text>
+                </>
+              ) : (
+                <Text>Loading totals...</Text>
               )}
             </View>
           </View>
