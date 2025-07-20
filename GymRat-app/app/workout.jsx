@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
-import { FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import exercises from '../assets/exercises.json';
 import schema from '../assets/schema.json';
@@ -8,11 +8,16 @@ import NavBar from '../components/NavBar';
 
 export default function WorkoutScreen() {
   const renderItem = ({ item }) => (
-    <View style={styles.card}>
+    <TouchableOpacity 
+    style={styles.card}
+    onPress={() => {
+      setExerciseItem(item)
+      setExerciseInfoModal(true)
+      }}>
       <Text style={styles.title}>{item.name}</Text>
       <Text style={styles.subtitle}>Equipment: {item.equipment}</Text>
       <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscles}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
   const applyFilters = (muscle, equipment) => {
@@ -56,6 +61,15 @@ export default function WorkoutScreen() {
     );
   };
 
+  const displayInstructions = (instructions) => {
+    if (!Array.isArray(instructions)) return 'No instructions available.'
+    let instructionText = ''
+    for (let i = 0; i < instructions.length; i++) {
+      instructionText += i+1 + '. ' + instructions[i] + '\n\n'
+    }
+    return instructionText
+  }
+
   const [modalVisible, setModalVisible] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [filteredExercises, setFilteredExercises] = useState(exercises)
@@ -63,12 +77,16 @@ export default function WorkoutScreen() {
   const [equipmentFilterModal, setEquipmentFilterModal] = useState(false)
   const [mFilterButtonVal, setMFilterButtonVal] = useState('Any Muscle')
   const [eFilterButtonVal, setEFilterButtonVal] = useState('Any Equipment')
+  const [exerciseInfoModal, setExerciseInfoModal] = useState(false)
+  const [exerciseItem, setExerciseItem] = useState('')
 
     useEffect(() => {
       const filtered = exercises.filter((exercise) =>
         exercise.name.toLowerCase().includes(searchText.toLowerCase())
       )
       setFilteredExercises(filtered)
+      setEFilterButtonVal('Any Equipment')
+      setMFilterButtonVal('Any Muscle')
     }, [searchText])
 
   return (
@@ -149,6 +167,27 @@ export default function WorkoutScreen() {
                         renderItem={renderFilterItem('equipment')}
                       />
                       
+
+                    </View>
+                  </View>
+                </Modal>
+
+                <Modal
+                visible={exerciseInfoModal}
+                transparent={true}
+
+                onRequestClose={() => { setExerciseInfoModal(!exerciseInfoModal) }}>
+                  <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+
+                      <TouchableOpacity style={{backgroundColor: '#999', width: 25, alignItems: 'center', borderRadius: 5}} onPress={() => setExerciseInfoModal(false)}>
+                        <Text style={styles.xButton}>X</Text>
+                      </TouchableOpacity>
+                      <Text style={{color: '#000', fontSize: 40, fontWeight: 'bold'}}>{exerciseItem.name}</Text>
+                      <Text style={styles.title}>Instructions</Text>
+                      <ScrollView style={{scrollEnabled: true}}>
+                        <Text style={{fontSize: 18, color: '#000', paddingTop: 20}}>{displayInstructions(exerciseItem.instructions)}</Text>
+                      </ScrollView>
 
                     </View>
                   </View>
