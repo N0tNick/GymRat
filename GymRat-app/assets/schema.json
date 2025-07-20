@@ -38,6 +38,7 @@
       "type": [ "string", "null" ],
       "enum": [
         null,
+        "Any Equipment",
         "medicine ball",
         "dumbbell",
         "body only",
@@ -58,6 +59,7 @@
         {
           "type": "string",
           "enum": [
+            "Any Muscle",
             "abdominals",
             "abductors",
             "adductors",

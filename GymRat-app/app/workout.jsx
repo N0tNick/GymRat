@@ -3,22 +3,66 @@ import { useEffect, useState } from 'react';
 import { FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import exercises from '../assets/exercises.json';
+import schema from '../assets/schema.json';
 import NavBar from '../components/NavBar';
 
 export default function WorkoutScreen() {
   const renderItem = ({ item }) => (
     <View style={styles.card}>
       <Text style={styles.title}>{item.name}</Text>
-      <Text style={styles.subtitle}>Category: {item.category}</Text>
+      <Text style={styles.subtitle}>Equipment: {item.equipment}</Text>
       <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscles}</Text>
     </View>
   );
 
+  const applyFilters = (muscle, equipment) => {
+    let filtered = exercises
+
+    if (muscle && muscle !== 'Any Muscle') {
+      filtered = filtered.filter(ex => ex.primaryMuscles.includes(muscle))
+    }
+    if (equipment && equipment !== 'Any Equipment') {
+      if (equipment && equipment === 'No Equipment') {
+        filtered = filtered.filter(ex => ex.equipment === null)
+      }
+      else {
+        filtered = filtered.filter(ex => ex.equipment === equipment)
+      }
+    }
+
+    setFilteredExercises(filtered)
+  }
+
+  const renderFilterItem = (filterType) => ({ item }) => {
+    const displayLabel = item == null ? 'No Equipment' : item
+
+    return (
+      <TouchableOpacity
+        style={styles.filterButton}
+        onPress={() => {
+          if (filterType === 'muscle') {
+            setMFilterButtonVal(item)
+            applyFilters(item, eFilterButtonVal)
+            setMuscleFilterModal(false)
+          } else if (filterType === 'equipment') {
+            setEFilterButtonVal(displayLabel)
+            applyFilters(mFilterButtonVal, displayLabel)
+            setEquipmentFilterModal(false)
+          }
+        }}
+      >
+        <Text style={styles.filterButtonText}>{displayLabel}</Text>
+      </TouchableOpacity>
+    );
+  };
+
   const [modalVisible, setModalVisible] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [filteredExercises, setFilteredExercises] = useState(exercises)
-  const [muscleFilter, setMuscleFilter] = useState(false)
-  const [equipmentFilter, setEquipmentFilter] = useState(false)
+  const [muscleFilterModal, setMuscleFilterModal] = useState(false)
+  const [equipmentFilterModal, setEquipmentFilterModal] = useState(false)
+  const [mFilterButtonVal, setMFilterButtonVal] = useState('Any Muscle')
+  const [eFilterButtonVal, setEFilterButtonVal] = useState('Any Equipment')
 
     useEffect(() => {
       const filtered = exercises.filter((exercise) =>
@@ -41,7 +85,7 @@ export default function WorkoutScreen() {
           onRequestClose={() => {
             setModalVisible(!modalVisible)
           }}>
-            <View style={styles.centeredView}>
+            <View style={[styles.centeredView]}>
               <View style={styles.modalView}>
                 <TouchableOpacity style={{backgroundColor: '#999', width: 25, alignItems: 'center', borderRadius: 5}} onPress={() => setModalVisible(false)}>
                   <Text style={styles.xButton}>X</Text>
@@ -56,8 +100,12 @@ export default function WorkoutScreen() {
                 />
 
                 <View style={{flexDirection: 'row', justifyContent: 'space-evenly', padding: 10}}>
-                  <TouchableOpacity style={styles.filterButton} onPress={() => {setMuscleFilter(!muscleFilter)}}><Text style={styles.filterButtonText}>Any Body Part</Text></TouchableOpacity>
-                  <TouchableOpacity style={styles.filterButton} onPress={() => {setEquipmentFilter(!equipmentFilter)}}><Text style={styles.filterButtonText}>Any Equipment</Text></TouchableOpacity>
+                  <TouchableOpacity style={styles.filterButton} onPress={() => {setMuscleFilterModal(true)}}>
+                    <Text style={styles.filterButtonText}>{mFilterButtonVal}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.filterButton} onPress={() => {setEquipmentFilterModal(true)}}>
+                    <Text style={styles.filterButtonText}>{eFilterButtonVal}</Text>
+                  </TouchableOpacity>
                 </View>
 
                 <FlatList
@@ -65,6 +113,46 @@ export default function WorkoutScreen() {
                   keyExtractor={(item) => item.id}
                   renderItem={renderItem}
                 />
+
+                <Modal
+                visible={muscleFilterModal}
+                transparent={true}
+
+                onRequestClose={() => { setMuscleFilterModal(!muscleFilterModal) }}>
+                  <View style={[styles.centeredView]}>
+                    <View style={[styles.filterView, {maxHeight: 595}]}>
+                      
+                      <FlatList
+                        scrollEnabled={false}
+                        data={schema.properties.primaryMuscles.items[0].enum}
+                        keyExtractor={(item, index) => (item == null ? `null-${index}` : item.toString())}
+                        renderItem={renderFilterItem('muscle')}
+                      />
+                      
+
+                    </View>
+                  </View>
+                </Modal>
+
+                <Modal
+                visible={equipmentFilterModal}
+                transparent={true}
+
+                onRequestClose={() => { setEquipmentFilterModal(!equipmentFilterModal) }}>
+                  <View style={[styles.centeredView]}>
+                    <View style={[styles.filterView, {maxHeight: 490}]}>
+                      
+                      <FlatList
+                        scrollEnabled={false}
+                        data={schema.properties.equipment.enum}
+                        keyExtractor={(item, index) => (item == null ? `null-${index}` : item.toString())}
+                        renderItem={renderFilterItem('equipment')}
+                      />
+                      
+
+                    </View>
+                  </View>
+                </Modal>
 
               </View>
             </View>
@@ -102,6 +190,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)'
   },
   xButton: {
     fontSize: 20,
@@ -138,6 +227,12 @@ const styles = StyleSheet.create({
     height: 35,
     justifyContent: 'center',
     fontSize: 20
+  },
+  filterView: {
+    backgroundColor: '#999',
+    borderRadius: 10,
+    justifyContent: 'center',
+    fontSize: 20,
   },
   filterButtonText: {
     fontSize: 15,
