@@ -1,10 +1,11 @@
 import { Picker } from '@react-native-picker/picker';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../components/NavBar';
 import { cals } from './goal';
+import { useLocalSearchParams } from 'expo-router';
 
 const nutrientOptions = [
   { label: 'Calories (kcal)',    value: 'calories' },
@@ -20,6 +21,14 @@ export default function Nutrition() {
   const [modalVisible, setModalVisible] = useState(false);
   const [foodName, setFoodName] = useState('');
   const [entries, setEntries] = useState([]);
+  const { openModal } = useLocalSearchParams();
+
+  // used to open the modal from barcode scanner screen via a button
+  useEffect(() => {
+    if (openModal === 'true') {
+      setModalVisible(true);
+    }
+  }, [openModal]);
 
   const addEntry = () => {
     setEntries(prev => [

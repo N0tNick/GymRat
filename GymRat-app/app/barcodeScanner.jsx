@@ -417,7 +417,7 @@ export default function BarcodeScannerScreen() {
                         <Text style={styles.rescanButtonText}>Scan Another Item</Text>
                       </TouchableOpacity>
 
-                      <TouchableOpacity onPress={async () => {
+                      <TouchableOpacity style={[styles.rescanButton, { backgroundColor: '#888' }]} onPress={async () => {
                         try {
                           await insertIntoDailyLog(userId, productInfo);
                           await loadTodaysTotals(userId);
@@ -425,7 +425,7 @@ export default function BarcodeScannerScreen() {
                           console.error('Error:', e);
                         }
                       }}>
-                        <Text>Log This Food</Text>
+                        <Text style={styles.rescanButton}>Log This Food</Text>
                       </TouchableOpacity>
 
                       <TouchableOpacity onPress={() => Linking.openURL("https://www.fatsecret.com")}>
@@ -448,6 +448,14 @@ export default function BarcodeScannerScreen() {
                     }}
                   >
                     <Text style={styles.rescanButtonText}>Search Manually</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.rescanButton}
+                    onPress={() => {
+                      router.replace('/nutrition?openModal=true');
+                    }}
+                  >
+                    <Text style={styles.rescanButtonText}>Manual Entry</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={[styles.rescanButton, { backgroundColor: '#888' }]} onPress={resetScanner}>
                     <Text style={styles.rescanButtonText}>Try Again</Text>
