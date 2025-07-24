@@ -1,11 +1,14 @@
 import { Picker } from '@react-native-picker/picker';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState, useEffect } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+import { useContext, useEffect, useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../components/NavBar';
+import { UserContext } from '../UserContext';
 import { cals } from './goal';
-import { useLocalSearchParams } from 'expo-router';
+
 
 const nutrientOptions = [
   { label: 'Calories (kcal)',    value: 'calories' },
@@ -18,10 +21,15 @@ const nutrientOptions = [
 ];
 
 export default function Nutrition() {
+  const db = useSQLiteContext();
+  const { user } = useContext(UserContext);
   const [modalVisible, setModalVisible] = useState(false);
   const [foodName, setFoodName] = useState('');
   const [entries, setEntries] = useState([]);
   const { openModal } = useLocalSearchParams();
+
+  const totalCalories = entries.reduce((sum, entry) => sum + Number(entry.calories || 0), 0);
+  const percent = Math.round((totalCalories / cals) * 100);
 
   // used to open the modal from barcode scanner screen via a button
   useEffect(() => {
@@ -29,6 +37,21 @@ export default function Nutrition() {
       setModalVisible(true);
     }
   }, [openModal]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const today = new Date().toISOString().slice(0, 10);
+    db.transaction(tx => {
+      tx.executeSql(
+        `SELECT * FROM dailyNutLog WHERE user_id = ? AND date = ?;`,
+        [user.id, today],
+        (_, { rows }) => {
+          setEntries(rows._array || []);
+        },
+        (_, err) => console.error(err)
+      );
+    });
+  }, [user?.id, modalVisible]);
 
   const addEntry = () => {
     setEntries(prev => [
@@ -42,6 +65,7 @@ export default function Nutrition() {
       prev.map(e => e.id === id ? { ...e, [key]: val } : e)
     );
   };
+  
 
   return (
     <SafeAreaProvider>
@@ -52,7 +76,23 @@ export default function Nutrition() {
             <Text style={[styles.text, { fontSize: 20 }]}>
               Today's Calorie Goal: {cals}
             </Text>
-          </View>
+            <View style={styles.progressRow}>
+  
+            <View style={styles.progressBarContainer}>
+            <View
+                style={[
+                  styles.progressBarFill,
+                { width: `${percent}%` }
+                  ]}
+              />
+            </View>
+
+            <Text style={[styles.text, styles.progressText]}>
+              {totalCalories} / {cals} {percent}%
+            </Text>
+            </View>
+
+            </View>
 
           <TouchableOpacity
             style={styles.addButton}
@@ -153,6 +193,7 @@ const styles = StyleSheet.create({
   content: { justifyContent: 'center', alignItems: 'center' },
   text: { color: '#fff', fontSize: 28, fontWeight: 'bold' },
 
+
   addButton: {
     position: 'absolute',
     bottom: 100,
@@ -233,4 +274,34 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   closeButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+
+    progressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    width: '80%',
+  },
+
+
+  progressBarContainer: {
+    flex: 1,
+    height: 12,
+    backgroundColor: '#444',
+    borderRadius: 6,
+    overflow: 'hidden',
+    marginRight: 8,
+  },
+
+
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#f5a623',
+  },
+
+
+  progressText: {
+    fontSize: 18,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
 });
