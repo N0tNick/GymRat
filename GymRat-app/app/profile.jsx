@@ -1,25 +1,22 @@
+import 'react-native-gesture-handler'
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, TextInput, View, ScrollView, Image, Modal, Pressable } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, TextInput, View, ScrollView, Image, Modal, Pressable, Dimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../components/NavBar';
 import SettingsWheel from '../components/SettingsWheel';
 
+const { height: screenHeight } = Dimensions.get('window');
+
 export default function ProfileScreen() {
   const [modalVisible, setModalVisible] = useState(false);
-  const [height, setHeight] = useState('');
-  const [weight, setWeight] = useState('');
-  const [age, setAge] = useState('');
-  const [bmi, setBmi] = useState('');
-  const [bodyFat, setBodyFat] = useState('');
+  
 
   return (
      <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, height: screenHeight }}>
         <LinearGradient colors={['#6a5acd', '#1a1b1c']} style={styles.container}>
-          <View style={settingsStyles.settingsWheelWrapper}>
-            <SettingsWheel />
-          </View>
+
           <ScrollView
             contentContainerStyle={styles.scrollContainer}
             showsVerticalScrollIndicator={false}
@@ -56,80 +53,6 @@ export default function ProfileScreen() {
               }}
             />
             </TouchableOpacity>
-
-            <View style={styles.inputContainer}>
-              <View style={styles.inputRow}>
-                <Text style={styles.inputLabel}>Height:</Text>
-                <TextInput
-                  style={styles.inputFieldTest}
-                  value={height}
-                  onChangeText={setHeight}
-                  placeholder="ft"
-                  maxLength={3}
-                  placeholderTextColor="white"
-                  keyboardType="numeric"
-                />
-              </View>
-
-              <View style={styles.inputRow}>
-                <Text style={styles.inputLabel}>Weight:</Text>
-                <TextInput
-                  style={styles.inputFieldTest}
-                  value={weight}
-                  onChangeText={setWeight}
-                  placeholder="lbs"
-                  maxLength={3}
-                  placeholderTextColor="white"
-                  keyboardType="numeric"
-                />
-              </View>
-
-              <View style={styles.inputRow}>
-                <Text style={styles.inputLabel}>Age:</Text>
-                <TextInput
-                  style={styles.inputFieldTest}
-                  value={age}
-                  onChangeText={setAge}
-                  placeholder="years"
-                  maxLength={3}
-                  placeholderTextColor="white"
-                  keyboardType="numeric"
-                />
-              </View>
-
-              <View style={styles.inputRow}>
-                <Text style={styles.inputLabel}>BMI:</Text>
-                <TextInput
-                  style={styles.inputFieldTest}
-                  value={bmi}
-                  onChangeText={setBmi}
-                  placeholder="kg/m²"
-                  maxLength={2}
-                  placeholderTextColor="white"
-                  keyboardType="decimal-pad"
-                />
-              </View>
-
-              <View style={styles.inputRow}>
-                <Text style={styles.inputLabel}>Body Fat:</Text>
-                <TextInput
-                  style={styles.inputFieldTest}
-                  value={bodyFat}
-                  onChangeText={setBodyFat}
-                  placeholder="%"
-                  maxLength={2}
-                  placeholderTextColor="white"
-                  keyboardType="decimal-pad"
-                />
-              </View>
-            </View>
-
-            <TouchableOpacity
-              style={styles.homeButton}
-              onPress={() => router.replace('/')}
-            >
-              <Text style={styles.homeButtonText}>Enter home</Text>
-            </TouchableOpacity>
           </ScrollView>
         </LinearGradient>
         <NavBar />
@@ -140,6 +63,7 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: {
+    height: screenHeight,
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -148,18 +72,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 28,
     fontWeight: 'bold',
-  },
-  homeButton: {
-    marginTop: 20,
-    backgroundColor: '#232f30',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  homeButtonText: {
-    color: '#fff',
-    fontSize: 18,
   },
 
   inputFieldTest: {

@@ -1,15 +1,19 @@
 import React, { useState, useRef } from 'react'
-import {Animated, TouchableOpacity, View, StyleSheet, TouchableWithoutFeedback, Modal, Image} from 'react-native';
+import {Animated, TouchableOpacity, View, StyleSheet, TouchableWithoutFeedback, Modal, Image, Dimensions} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import UserSettingsTab from '../components/Profile/UserSettingsTab'
+import UserStatsTab from '../components/Profile/UserStatsTab'
+import UserGoalsTab from '../components/Profile/UserGoalsTab'
 
-
+const { width: screenWidth } = Dimensions.get('window');
+const SIDEBAR_WIDTH = screenWidth * 0.35; //Exactly half the screen
 
 const SettingsWheel = () => {
-    more = true
+    const more = true
     const router = useRouter();
     const [isSidebarVisible, setIsSidebarVisible] = useState(false);
-    const sidebarTranslateX = useRef(new Animated.Value(300)).current;
+    const sidebarTranslateX = useRef(new Animated.Value(SIDEBAR_WIDTH)).current;
 
     const renderMore = () => {
         if(more) {
@@ -33,16 +37,16 @@ const SettingsWheel = () => {
         setIsSidebarVisible(true);
         Animated.timing(sidebarTranslateX, {
             toValue:0,
-            duration:150,
-            useNativeDriver:true,
+            duration:100,
+            useNativeDriver:false,
         }).start();
     }
     
      const closeSidebar = () => {
-        Animated.timing(sidebarTranslateX, {
-            toValue:300,
+        Animated.timing(sidebarTranslateX, {    
+            toValue: SIDEBAR_WIDTH,
             duration:150,
-            useNativeDriver:true,
+            useNativeDriver:false,
         }).start(() => setIsSidebarVisible(false));
     }
 
@@ -54,48 +58,47 @@ const SettingsWheel = () => {
                 </TouchableWithoutFeedback>
 
                 <Animated.View style = {{
-                    position:'absolute',
-                    right:0,
-                    width:'80%',
-                    height:'100%',  
-                    backgroundColor: 'white',
-                    transform:[{translateX: sidebarTranslateX}],
-                    padding:20,
-                    shadowColor:'#000',
-                    shadowOffset:{width:0, height:2},
-                    shadowOpacity:0.8,
-                    shadowRadius:2,
-                    elevation:5,
+                    position: 'absolute',
+                    right: 0,
+                    top: 0,
+                    height: '100%',
+                    backgroundColor:'white',
+                    shadowColor: '#000',
+                    shadowOffset: { width: -2, height: 0 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 5,
+                    elevation: 10,
+                    paddingTop: 50, 
+                    paddingHorizontal: 0,
+                    paddingBottom: 20,
+                    width: SIDEBAR_WIDTH, 
+                    transform:[{ translateX: sidebarTranslateX }]
                 }}>
-                    <TouchableOpacity onPress={closeSidebar}
-                        style={{alignSelf:'flex-end'}}>
-                            <Image
-                            style={styles.logo}
-                            source={{
-                                uri: 'https://cdn-icons-png.flaticon.com/512/15/15185.png',
-                            }}
-                            />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={null}
-                        syle={{}}>
-                        {/*Settings Bar Component */}
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={null}
-                        syle={{}}>
-                        {/*User Data Bar Component */}
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={null}
-                        syle={{}}>
-                        {/*Etc Bar Component */}
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={null}
-                        syle={{}}>
-                        {/*Etc Bar Component */}
-                    </TouchableOpacity>
+                    <View style = {{
+                        flexDirection:'column',
+                        alignItems:'center',
+                        height:'100%',
+                        width:'100%',
+                    }} >
+                        <TouchableOpacity onPress={closeSidebar}
+                            style={{alignSelf:'flex-end', marginBottom: 20}}>
+                                <Image
+                                style={styles.logo}
+                                source={{
+                                    uri: 'https://cdn-icons-png.flaticon.com/512/15/15185.png',
+                                }}
+                                />
+                        </TouchableOpacity>
+                        
+                        <View style={{flexDirection: 'column', flex: 0.2}}>
+                            <UserSettingsTab/>  
+                            <UserStatsTab/>
+                            <UserGoalsTab/>
+                        </View>
+                        
+                        
+                    </View>
+                    
 
                 </Animated.View>
             </Modal>                      
@@ -105,14 +108,14 @@ const SettingsWheel = () => {
     return (
         <View style = {{
             flexDirection:'row',
-            justifyContent:'space-between',
-            alignItems:'Center',
+            alignItems:'center',
+            flex: 1,
             height:'100%',
             width:'100%',
-            flex:1,
         }} >
             {renderMore()}
             {renderSidebar()}
+            
         </View>
     );
 }
@@ -124,6 +127,7 @@ const styles = StyleSheet.create ({
         justifyContent: 'center',
         alignItems: 'center',
     },
+
 });
 
 export default SettingsWheel

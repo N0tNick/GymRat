@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 const { width: screenWidth } = Dimensions.get('window');
 const SIDEBAR_WIDTH = screenWidth * 0.65; //Exactly half the screen
 
-const UserSettingsTab = () => {
+const UserGoalsTab = () => {
     const more = true
     const router = useRouter();
     const [isTabVisible, setIsTabVisible] = useState(false);
@@ -19,7 +19,7 @@ const UserSettingsTab = () => {
             return(
                 <View style = {styles.container}> 
                     <Pressable onPress={openSidebar} style = {({pressed}) => [styles.btn, pressed && styles.pressed]}>
-                        <Text style = {{ color: '#ffffff' }}>Settings</Text>
+                        <Text style = {{ color: '#ffffff' }}>Goals</Text>
                     </Pressable>          
                 </View> 
             )
@@ -45,8 +45,7 @@ const UserSettingsTab = () => {
 
     const renderSidebar = () => {
             return(
-                
-                <Modal visible={isTabVisible} transparent animationType='none' >
+                <Modal visible={isTabVisible} transparent onExplicitClose animationType='none' >
                     <TouchableWithoutFeedback onPress={closeSidebar}>
                         <View style={{flex:1}}/>
                     </TouchableWithoutFeedback>
@@ -88,7 +87,7 @@ const UserSettingsTab = () => {
             flexDirection:'row',
             justifyContent:'space-between',
             alignItems:'center',
-            height:'80%',
+            height:'100%',
             width:'100%',
         }} >
             {renderMore()}  
@@ -100,7 +99,6 @@ const UserSettingsTab = () => {
 const styles = StyleSheet.create ({
     container: {
         flex:1,
-        justifyContent: 'center'
     },
 
     btn: {
@@ -115,4 +113,4 @@ const styles = StyleSheet.create ({
 });
 
 
-export default UserSettingsTab
+export default UserGoalsTab
