@@ -2,7 +2,7 @@ import { usePathname, useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const tabs = [
-  { name: 'Home',       route: '/' },
+  { name: 'Home',       route: '/home' },
   { name: 'Workout',    route: '/workout' },
   { name: 'Scan',       route: '/barcodeScanner' },
   { name: 'Nutrition',  route: '/nutrition' },

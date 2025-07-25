@@ -35,10 +35,12 @@ export default function Layout() {
       >
       <UserProvider>
         <Stack screenOptions={{ headerShown: false }} initialRouteName="splash">
-          <Stack.Screen name="splash" />
-          <Stack.Screen name="index" />
-          <Stack.Screen name="login" />
-          <Stack.Screen name="registration" />
+          <Stack.Screen name="splash" options={{ animation: 'fade' }} />
+          <Stack.Screen name="index" options={{ animation: 'fade' }} />
+          <Stack.Screen name="login" options={{ animation: 'fade' }} />
+          <Stack.Screen name="registration" options={{ animation: 'fade' }} />
+
+          <Stack.Screen name="home" options={{ animation: 'fade' }} />
 
           <Stack.Screen
             name="nutsplash"
@@ -53,7 +55,8 @@ export default function Layout() {
                 </TouchableOpacity>
               ),
               headerTitleAlign: 'center',
-              headerShadowVisible: false,
+              headerShadowVisible: false, 
+              animation: 'fade'
             }}
           />
 
@@ -71,13 +74,14 @@ export default function Layout() {
               ),
               headerTitleAlign: 'center',
               headerShadowVisible: false,
+              animation: 'fade'
             }}
           />
 
-          <Stack.Screen name="nutrition" options={{ headerShown: false }} />
-          <Stack.Screen name="profile" options={{ headerShown: false }} />
-          <Stack.Screen name="workout" options={{ headerShown: false }} />
-          <Stack.Screen name="barcodeScanner" options={{ headerShown: false }} />
+          <Stack.Screen name="nutrition" options={{ headerShown: false, animation: 'fade' }} />
+          <Stack.Screen name="profile" options={{ headerShown: false, animation: 'fade' }} />
+          <Stack.Screen name="workout" options={{ headerShown: false, animation: 'fade' }} />
+          <Stack.Screen name="barcodeScanner" options={{ headerShown: false, animation: 'fade' }} />
         </Stack>
       </UserProvider>
     </SQLiteProvider>
