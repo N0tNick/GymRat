@@ -417,7 +417,7 @@ export default function BarcodeScannerScreen() {
                         <Text style={styles.rescanButtonText}>Scan Another Item</Text>
                       </TouchableOpacity>
 
-                      <TouchableOpacity style={[styles.rescanButton, { backgroundColor: '#888' }]} onPress={async () => {
+                      <TouchableOpacity style={styles.rescanButton} onPress={async () => {
                         try {
                           await insertIntoDailyLog(userId, productInfo);
                           await loadTodaysTotals(userId);
