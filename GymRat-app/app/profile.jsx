@@ -1,4 +1,3 @@
-import 'react-native-gesture-handler'
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, TextInput, View, ScrollView, Image, Modal, Pressable, Dimensions } from 'react-native';
@@ -16,6 +15,10 @@ export default function ProfileScreen() {
      <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1, height: screenHeight }}>
         <LinearGradient colors={['#6a5acd', '#1a1b1c']} style={styles.container}>
+
+          <View style={settingsStyles.settingsWheelWrapper}>
+            <SettingsWheel/>
+          </View>
 
           <ScrollView
             contentContainerStyle={styles.scrollContainer}

@@ -7,7 +7,7 @@ import UserStatsTab from '../components/Profile/UserStatsTab'
 import UserGoalsTab from '../components/Profile/UserGoalsTab'
 
 const { width: screenWidth } = Dimensions.get('window');
-const SIDEBAR_WIDTH = screenWidth * 0.35; //Exactly half the screen
+const SIDEBAR_WIDTH = screenWidth * 0.30; //Exactly half the screen
 
 const SettingsWheel = () => {
     const more = true
@@ -53,10 +53,6 @@ const SettingsWheel = () => {
     const renderSidebar = () => {
         return(
             <Modal visible={isSidebarVisible} transparent animationType='none' >
-                <TouchableWithoutFeedback onPress={closeSidebar}>
-                    <View style={{flex:1}}/>
-                </TouchableWithoutFeedback>
-
                 <Animated.View style = {{
                     position: 'absolute',
                     right: 0,
@@ -70,7 +66,7 @@ const SettingsWheel = () => {
                     elevation: 10,
                     paddingTop: 50, 
                     paddingHorizontal: 0,
-                    paddingBottom: 20,
+                    paddingBottom: 50,
                     width: SIDEBAR_WIDTH, 
                     transform:[{ translateX: sidebarTranslateX }]
                 }}>
@@ -79,9 +75,10 @@ const SettingsWheel = () => {
                         alignItems:'center',
                         height:'100%',
                         width:'100%',
+                        justifyContent:'center',
                     }} >
                         <TouchableOpacity onPress={closeSidebar}
-                            style={{alignSelf:'flex-end', marginBottom: 20}}>
+                            style={{position: 'absolute', top:0, right:0, padding:10}}>
                                 <Image
                                 style={styles.logo}
                                 source={{
@@ -90,7 +87,7 @@ const SettingsWheel = () => {
                                 />
                         </TouchableOpacity>
                         
-                        <View style={{flexDirection: 'column', flex: 0.2}}>
+                        <View style={{gap:10, alignItems:'center'}}>
                             <UserSettingsTab/>  
                             <UserStatsTab/>
                             <UserGoalsTab/>
@@ -106,28 +103,53 @@ const SettingsWheel = () => {
     }
     
     return (
-        <View style = {{
-            flexDirection:'row',
-            alignItems:'center',
-            flex: 1,
-            height:'100%',
-            width:'100%',
-        }} >
+        <View>
             {renderMore()}
             {renderSidebar()}
-            
         </View>
     );
 }
  
 const styles = StyleSheet.create ({
+    container: {
+        position: 'absolute',
+        right: 20,
+        top: 20,
+    },
+    sidebar: {
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        height: '100%',
+        backgroundColor: 'white',
+        shadowColor: '#000',
+        shadowOffset: { width: -2, height: 0 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 10,
+        width: SIDEBAR_WIDTH,
+    },
+    modalContent: {
+        flex: 1,
+        width: '100%',
+    },
     logo: {
         width: 30,
         height: 30,
+    },
+    closeButton: {
+        alignSelf: 'flex-end',
+        padding: 10,
+        marginRight: 10,
+        marginTop: 10,
+    },
+    tabsContainer: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingHorizontal: 20,
+        gap: 20,
     },
-
 });
 
 export default SettingsWheel

@@ -1,7 +1,6 @@
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
-
 // required for userId's
 import { UserProvider } from '../UserContext';
 
