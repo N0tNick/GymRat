@@ -77,9 +77,9 @@ const UserSettingsTab = () => {
                             flex:1,
                             flexDirection:'column',
                             alignItems:'center',
-                            width:'85%',
+                            width:'80%',
                             justifyContent:'center',
-                            margin:25
+                            margin:45
                         }} >                         
                         
                             <View style={styles.container}>
@@ -217,9 +217,9 @@ const styles = StyleSheet.create ({
     },
     inputLabel: {
         color: 'black',
-        fontSize: 18,
+        fontSize: 17,
         fontWeight: 'bold',
-        width: '45%'
+        width: '65%'
     },
 });
 
