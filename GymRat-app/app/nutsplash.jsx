@@ -207,8 +207,8 @@ const Height = ({ height }) => {
                         <Text style={styles.text}>-</Text>
                     </TouchableOpacity>
                     <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '50%'}}>
-                        <TextInput 
-                            style={[styles.numInput, { width: '10%' }]}
+                        <TextInput
+                            style={styles.numInput}
                             keyboardType="numeric"
                             value={tempHeight[0].toString()}
                             placeholder='0'
@@ -221,7 +221,7 @@ const Height = ({ height }) => {
                         <Text style={styles.text}> ' </Text>
 
                         <TextInput 
-                            style={[styles.numInput, { width: '23%' }]}
+                            style={styles.numInput}
                             keyboardType="numeric"
                             value={tempHeight[1].toString()}
                             placeholder='0'
@@ -261,7 +261,7 @@ const DOB = ({ dob }) => {
                 <View style={{color: '#232f30', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingHorizontal: 20, paddingVertical: 10}}>
                     <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '100%'}}>
                         <TextInput
-                            style={[styles.numInput, { width: '17%' }]}
+                            style={styles.numInput}
                                 keyboardType="numeric"
                                 value={tempDob[0].toString()}
                                 placeholder='MM'
@@ -279,7 +279,7 @@ const DOB = ({ dob }) => {
                         />
                         <Text style={styles.text}>/</Text>
                         <TextInput
-                            style={[styles.numInput, { width: '15%' }]}
+                            style={styles.numInput}
                                 keyboardType="numeric"
                                 value={tempDob[1].toString()}
                                 placeholder='DD'
@@ -294,7 +294,7 @@ const DOB = ({ dob }) => {
                         />
                         <Text style={styles.text}>/</Text>
                         <TextInput
-                            style={[styles.numInput, { width: '25%' }]}
+                            style={styles.numInput}
                                 keyboardType="numeric"
                                 value={tempDob[2].toString()}
                                 placeholder='YYYY'
@@ -494,6 +494,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     numInput: {
+        flex: 1,
         height: 40,
         padding: 0,
         color: '#fff',
