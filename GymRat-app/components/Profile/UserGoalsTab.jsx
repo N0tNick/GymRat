@@ -14,6 +14,7 @@ const UserGoalsTab = () => {
     const [nutGoal, setNutGoal] = useState('')
     const [goalWeight, setGoalWeight] = useState('')
     const [gainSpeed, setGainSpeed] = useState('')
+    const [activityLvl, setActivityLvl] = useState('')
 
     const [lose, setLose] = React.useState(false);
     const [maintain, setMaintain] = React.useState(false);
@@ -140,7 +141,20 @@ const UserGoalsTab = () => {
                                 placeholderTextColor="white"
                                 keyboardType="decimal-pad"
                                 />
-                            </View>     
+                            </View>   
+
+                              <View style={styles.inputRow}>
+                                <Text style={styles.inputLabel}>Activity Level:</Text>
+                                <TextInput
+                                style={styles.inputFieldTest}
+                                value={activityLvl}
+                                onChangeText={setActivityLvl}
+                                placeholder="%"
+                                maxLength={2}
+                                placeholderTextColor="white"
+                                keyboardType="decimal-pad"
+                                />
+                            </View> 
                         </View>
                         
 

@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react'
 import { LinearGradient } from 'expo-linear-gradient';
-import {Animated, Text, StyleSheet, Pressable, View, Modal, TextInput, Dimensions, TouchableWithoutFeedback} from 'react-native';
+import {Animated, Text, StyleSheet, Pressable, View, Modal, TextInput, Dimensions, TouchableWithoutFeedback, Alert} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -10,14 +11,36 @@ const SIDEBAR_WIDTH = screenWidth * 0.7; //Exactly half the screen
 
 const UserStatsTab = () => {
     const more = true
-    const router = useRouter();
-    const [sex, setSex] = useState('');
-    const [height, setHeight] = useState('');
-    const [weight, setWeight] = useState('');
-    const [age, setAge] = useState('');
-    const [bmi, setBmi] = useState('');
-    const [bodyFat, setBodyFat] = useState('');
 
+    const [form, setForm] = useState({
+        sex:'',
+        height:'',
+        weight:'',
+        age:'',
+        bmi:'',
+        bodyfat:'',
+    })
+
+    const db = useSQLiteContext();
+
+    const handleSubmit = async () => {
+        try {
+
+        await db.runAsync(
+            'INSERT INTO userStats (sex, height, weight, age, bmi, bodyfat) VALUE (?,?,?,?,?,?)',
+            [form.sex, form. height, form.weight, form.age, form.bmi, form.bodyfat]
+        )
+
+        Alert.alert("Success, User added succesfully")
+        setform({
+
+        })
+
+        } catch (error) {
+            console.error(error);
+            Alert.alert('error', error.message || 'An error occured while adding user stats')
+        }
+    }
     
     const [isTabVisible, setIsTabVisible] = useState(false);
     const sidebarTranslateX = useRef(new Animated.Value(SIDEBAR_WIDTH)).current;
@@ -54,7 +77,7 @@ const UserStatsTab = () => {
 
     const renderSidebar = () => {
             return(
-                <Modal visible={isTabVisible} transparent onExplicitClose animationType='none' >
+                <Modal visible={isTabVisible} transparent animationType='none' onRequestClose={ handleSubmit } >
                     <TouchableWithoutFeedback onPress={closeSidebar}>
                         <View style={{flex:1}}/>
                     </TouchableWithoutFeedback>
@@ -81,20 +104,19 @@ const UserStatsTab = () => {
                             alignItems:'center',
                             width:'85%',
                             justifyContent:'center',
-                            margin:25
+                            margin:40
                         }} >                         
 
                         <View style={styles.container}>
                             <View style={styles.inputRow}>
-                                <Text style={styles.inputLabel}>Sex</Text>
+                                <Text style={styles.inputLabel}>Sex:</Text>
                                 <TextInput
                                 style={styles.inputFieldTest}
-                                value={sex}
-                                onChangeText={setSex}
-                                placeholder="ft"
-                                maxLength={3}
+                                value={form.sex}
+                                onChangeText={ (text) => setForm({ ...form, sex: text})}
+                                placeholder= "Male"
                                 placeholderTextColor="white"
-                                keyboardType="numeric"
+                                keyboardType="default"
                                 />
                             </View>
 
@@ -102,8 +124,8 @@ const UserStatsTab = () => {
                                 <Text style={styles.inputLabel}>Height:</Text>
                                 <TextInput
                                 style={styles.inputFieldTest}
-                                value={height}
-                                onChangeText={setHeight}
+                                value={form.height}
+                                onChangeText={(text) => setForm({ ...form, height: text})}
                                 placeholder="ft"
                                 maxLength={3}
                                 placeholderTextColor="white"
@@ -115,8 +137,8 @@ const UserStatsTab = () => {
                                 <Text style={styles.inputLabel}>Weight:</Text>
                                 <TextInput
                                 style={styles.inputFieldTest}
-                                value={weight}
-                                onChangeText={setWeight}
+                                value={form.weight}
+                                onChangeText={(text) => setForm({ ...form, weight: text})}
                                 placeholder="lbs"
                                 maxLength={3}
                                 placeholderTextColor="white"
@@ -128,8 +150,8 @@ const UserStatsTab = () => {
                                 <Text style={styles.inputLabel}>Age:</Text>
                                 <TextInput
                                 style={styles.inputFieldTest}
-                                value={age}
-                                onChangeText={setAge}
+                                value={form.age}
+                                onChangeText={(text) => setForm({ ...form, age: text})}
                                 placeholder="years"
                                 maxLength={3}
                                 placeholderTextColor="white"
@@ -141,8 +163,8 @@ const UserStatsTab = () => {
                                 <Text style={styles.inputLabel}>BMI:</Text>
                                 <TextInput
                                 style={styles.inputFieldTest}
-                                value={bmi}
-                                onChangeText={setBmi}
+                                value={form.bmi}
+                                onChangeText={(text) => setForm({ ...form, bmi: text})}
                                 placeholder="kg/m²"
                                 maxLength={2}
                                 placeholderTextColor="white"
@@ -154,8 +176,8 @@ const UserStatsTab = () => {
                                 <Text style={styles.inputLabel}>Body Fat:</Text>
                                 <TextInput
                                 style={styles.inputFieldTest}
-                                value={bodyFat}
-                                onChangeText={setBodyFat}
+                                value={form.bodyFat}
+                                onChangeText={(text) => setForm({ ...form, bodyfat: text})}
                                 placeholder="%"
                                 maxLength={2}
                                 placeholderTextColor="white"
