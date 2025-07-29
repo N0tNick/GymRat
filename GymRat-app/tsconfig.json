@@ -22,5 +22,5 @@
     "app/(tabs)/nutsplash.jsx",
     "app/index.jsx",
     "app/nutsplash1.jsx"
-, "components/SettingsWheel.jsx"  ]
+, "components/Profile/SettingsWheel.jsx"  ]
 }

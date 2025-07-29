@@ -2,8 +2,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, TextInput, View, ScrollView, Image, Modal, Pressable, Dimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import NavBar from '../components/NavBar';
-import SettingsWheel from '../components/SettingsWheel';
+import NavBar from '../../components/NavBar';
+import SettingsWheel from '../../components/Profile/SettingsWheel';
 
 const { height: screenHeight } = Dimensions.get('window');
 

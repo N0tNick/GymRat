@@ -2,9 +2,9 @@ import React, { useState, useRef } from 'react'
 import {Animated, TouchableOpacity, View, StyleSheet, TouchableWithoutFeedback, Modal, Image, Dimensions} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import UserSettingsTab from '../components/Profile/UserSettingsTab'
-import UserStatsTab from '../components/Profile/UserStatsTab'
-import UserGoalsTab from '../components/Profile/UserGoalsTab'
+import UserSettingsTab from './UserSettingsTab'
+import UserStatsTab from './UserStatsTab'
+import UserGoalsTab from './UserGoalsTab'
 
 const { width: screenWidth } = Dimensions.get('window');
 const SIDEBAR_WIDTH = screenWidth * 0.30; //Exactly half the screen
