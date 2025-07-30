@@ -4,6 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, TextInput, View, ScrollView, Image,
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../../components/NavBar';
 import SettingsWheel from '../../components/Profile/SettingsWheel';
+import TopTab from '../../components/Profile/ProfileTopTab';
 
 const { height: screenHeight } = Dimensions.get('window');
 
@@ -56,11 +57,15 @@ export default function ProfileScreen() {
               }}
             />
             </TouchableOpacity>
+
+            <TopTab/> 
+            
           </ScrollView>
         </LinearGradient>
         <NavBar />
       </SafeAreaView>
     </SafeAreaProvider>
+    
   );
 }
 

@@ -1,14 +1,17 @@
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
-import { Text, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
+import * as eva from '@eva-design/eva';
+import { ApplicationProvider, Layout, Text } from '@ui-kitten/components';
+
 // required for userId's
 import { UserProvider } from '../UserContext';
-
 import { SQLiteProvider } from 'expo-sqlite';
 
-export default function Layout() {
+export default function App() {
   const router = useRouter();
   return (
+    <ApplicationProvider {...eva} theme={eva.light}>
     <SQLiteProvider
       databaseName="UserDatabase.db"
       onInit={async (db) => {
@@ -84,5 +87,6 @@ export default function Layout() {
         </Stack>
       </UserProvider>
     </SQLiteProvider>
+    </ApplicationProvider>
   );
 }
