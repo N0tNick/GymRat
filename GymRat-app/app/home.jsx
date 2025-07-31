@@ -1,9 +1,12 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState} from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView, Dimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../components/NavBar';
 import * as Calendar from 'expo-calendar';
+
+const { height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -43,8 +46,8 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.container}>
+          <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center', justifyContent: 'center' }}>
           <Text style={styles.text}>Home Screen</Text>
 
           <View style={styles.taskModule}>
@@ -76,10 +79,10 @@ export default function HomeScreen() {
           >
             <Text style={styles.buttonText}>Go to Nutrition Splash Page</Text>
           </TouchableOpacity>
+          </SafeAreaView>
         </View>
 
         <NavBar />
-      </SafeAreaView>
     </SafeAreaProvider>
   );
 }

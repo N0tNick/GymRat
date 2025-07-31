@@ -1,7 +1,9 @@
 import React from 'react';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import { Layout, Tab, TabView, Text } from '@ui-kitten/components'
+
+const { height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 const TopTab = () => {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
@@ -47,14 +49,15 @@ export default TopTab
 const ScreenStyles = StyleSheet.create ({
     default: {
         tabBarLabelStyle: { fontSize: 12 },
-        tabBarItemStyle: { width: 100 },
+        tabBarItemStyle: { width: 80 },
         tabBarStyle: { backgroundColor: 'purple' },
     }
 })
 
 const styles = StyleSheet.create({
   tabContainer: {
-    height: 64,
+    height: screenHeight,
+    //width: screenWidth,
     alignItems: 'center',
     justifyContent: 'center',
   },

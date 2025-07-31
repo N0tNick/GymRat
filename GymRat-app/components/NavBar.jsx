@@ -6,12 +6,13 @@ const tabs = [
   { name: 'Workout',    route: '/workout' },
   { name: 'Scan',       route: '/barcodeScanner' },
   { name: 'Nutrition',  route: '/nutrition' },
-  { name: 'Profile',    route: 'ProfilePage/profile' },
+  { name: 'Profile',    route: '/ProfilePage/profile' },
 ];
 
 export default function NavBar() {
   const router = useRouter();
   const path = usePathname();
+
 
   return (
     <View style={styles.nav}>
@@ -33,7 +34,8 @@ export default function NavBar() {
 const styles = StyleSheet.create({
   nav: {
     flexDirection: 'row',
-    height: 60,
+    height: 80,
+    padding: 8,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#1a1b1c',
     backgroundColor: '#232f30',
@@ -45,7 +47,7 @@ const styles = StyleSheet.create({
   },
   label: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 15,
   },
   active: {
     color: '#32a852',

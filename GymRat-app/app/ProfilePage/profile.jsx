@@ -7,24 +7,19 @@ import SettingsWheel from '../../components/Profile/SettingsWheel';
 import TopTab from '../../components/Profile/ProfileTopTab';
 
 const { height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function ProfileScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   
-
   return (
      <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1, height: screenHeight }}>
         <LinearGradient colors={['#6a5acd', '#1a1b1c']} style={styles.container}>
-
-          <View style={settingsStyles.settingsWheelWrapper}>
-            <SettingsWheel/>
-          </View>
-
-          <ScrollView
-            contentContainerStyle={styles.scrollContainer}
-            showsVerticalScrollIndicator={false}
-          >
+          <ScrollView>
+            <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center' }}>
+            <View style={settingsStyles.settingsWheelWrapper}>
+              <SettingsWheel/>
+            </View>
             <Text style={styles.text}>Profile Screen</Text>
             <Modal
               animationType="fade"
@@ -57,13 +52,12 @@ export default function ProfileScreen() {
               }}
             />
             </TouchableOpacity>
-
             <TopTab/> 
-            
+
+          </SafeAreaView>
           </ScrollView>
         </LinearGradient>
         <NavBar />
-      </SafeAreaView>
     </SafeAreaProvider>
     
   );
@@ -142,7 +136,6 @@ const modalStyles = StyleSheet.create ({
 
 const settingsStyles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  settingsWheelWrapper: { position: 'absolute', top: 20, right: 20 },
-  scrollContainer: { padding: 20, paddingTop: 80 },
+  settingsWheelWrapper: { position: 'absolute', top: 65, right: 20 },
   text: { color: '#fff', fontSize: 28, fontWeight: 'bold' },
 });

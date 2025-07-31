@@ -36,13 +36,16 @@ export default function App() {
         options={{useNewConnection: true, enableCRSQLite: false}}
       >
       <UserProvider>
-        <Stack screenOptions={{ headerShown: false }} initialRouteName="splash">
-          <Stack.Screen name="splash" options={{ animation: 'fade' }} />
-          <Stack.Screen name="index" options={{ animation: 'fade' }} />
-          <Stack.Screen name="login" options={{ animation: 'fade' }} />
-          <Stack.Screen name="registration" options={{ animation: 'fade' }} />
-
-          <Stack.Screen name="home" options={{ animation: 'fade' }} />
+        <Stack screenOptions={{ 
+          headerShown: false, 
+          animation: 'fade', 
+          animationDuration:150,
+          }} initialRouteName="splash">
+          <Stack.Screen name="splash"/>
+          <Stack.Screen name="index"/>
+          <Stack.Screen name="login"/>
+          <Stack.Screen name="registration"/>
+          <Stack.Screen name="home"/>
 
           <Stack.Screen
             name="nutsplash"
@@ -80,10 +83,10 @@ export default function App() {
             }}
           />
 
-          <Stack.Screen name="nutrition" options={{ headerShown: false, animation: 'fade' }} />
-          <Stack.Screen name="profile" options={{ headerShown: false, animation: 'fade' }} />
-          <Stack.Screen name="workout" options={{ headerShown: false, animation: 'fade' }} />
-          <Stack.Screen name="barcodeScanner" options={{ headerShown: false, animation: 'fade' }} />
+          <Stack.Screen name="nutrition"/>
+          <Stack.Screen name="profile"/>
+          <Stack.Screen name="workout"/>
+          <Stack.Screen name="barcodeScanner"/>
         </Stack>
       </UserProvider>
     </SQLiteProvider>
