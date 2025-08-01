@@ -93,11 +93,11 @@ export default function WorkoutScreen() {
 
   return (
     <SafeAreaProvider>
-        <LinearGradient
-          colors={['#8B0000', '#1a1b1c']}
+        <View
+          backgroundColor={'#1a1b1c'}
           style={styles.container}
         >
-          <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center', justifyContent: 'center' }}>
+          <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth}}>
 
           <Modal
           visible={modalVisible}
@@ -206,7 +206,7 @@ export default function WorkoutScreen() {
           </View>
           
         </SafeAreaView>
-        </LinearGradient>
+        </View>
         <NavBar />
     </SafeAreaProvider>
   );
