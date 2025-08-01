@@ -1,4 +1,3 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
 import { FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -92,9 +91,8 @@ export default function WorkoutScreen() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
-        <LinearGradient
-          colors={['#8B0000', '#1a1b1c']}
-          style={styles.container}
+        <View
+          style={{backgroundColor: '#1a1b1c', flex: 1}}
         >
           <Modal
           visible={modalVisible}
@@ -197,9 +195,12 @@ export default function WorkoutScreen() {
             </View>
           </Modal>
 
-          <TouchableOpacity onPress ={() => setModalVisible(true)}><Text>Exercises</Text></TouchableOpacity>
-          <Text style={styles.text}>Workout Screen</Text>
-        </LinearGradient>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between', padding: 10}}>
+            <Text style={styles.text}>Workout Screen</Text>
+            <TouchableOpacity style={styles.button} onPress ={() => setModalVisible(true)}><Text style={{color: '#fff'}}>Exercise List</Text></TouchableOpacity>
+          </View>
+          
+        </View>
         <NavBar />
       </SafeAreaView>
     </SafeAreaProvider>
@@ -214,7 +215,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#fff',
-    fontSize: 28,
+    fontSize: 40,
     fontWeight: 'bold',
   },
   modalView: {
@@ -276,5 +277,12 @@ const styles = StyleSheet.create({
   filterButtonText: {
     fontSize: 15,
     fontWeight: 'bold',
+  },
+  button: {
+    backgroundColor: '#1478db',
+    borderRadius: 10,
+    padding: 10,
+    justifyContent: 'center',
+    fontSize: 20,
   }
 });
