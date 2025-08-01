@@ -1,14 +1,17 @@
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
-import { Text, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
+import * as eva from '@eva-design/eva';
+import { ApplicationProvider, Layout, Text } from '@ui-kitten/components';
+
 // required for userId's
 import { UserProvider } from '../UserContext';
-
 import { SQLiteProvider } from 'expo-sqlite';
 
-export default function Layout() {
+export default function App() {
   const router = useRouter();
   return (
+    <ApplicationProvider {...eva} theme={eva.light}>
     <SQLiteProvider
       databaseName="UserDatabase.db"
       onInit={async (db) => {
@@ -33,13 +36,16 @@ export default function Layout() {
         options={{useNewConnection: true, enableCRSQLite: false}}
       >
       <UserProvider>
-        <Stack screenOptions={{ headerShown: false }} initialRouteName="splash">
-          <Stack.Screen name="splash" options={{ animation: 'fade' }} />
-          <Stack.Screen name="index" options={{ animation: 'fade' }} />
-          <Stack.Screen name="login" options={{ animation: 'fade' }} />
-          <Stack.Screen name="registration" options={{ animation: 'fade' }} />
-
-          <Stack.Screen name="home" options={{ animation: 'fade' }} />
+        <Stack screenOptions={{ 
+          headerShown: false, 
+          animation: 'fade', 
+          animationDuration:150,
+          }} initialRouteName="splash">
+          <Stack.Screen name="splash"/>
+          <Stack.Screen name="index"/>
+          <Stack.Screen name="login"/>
+          <Stack.Screen name="registration"/>
+          <Stack.Screen name="home"/>
 
           <Stack.Screen
             name="nutsplash"
@@ -77,12 +83,13 @@ export default function Layout() {
             }}
           />
 
-          <Stack.Screen name="nutrition" options={{ headerShown: false, animation: 'fade' }} />
-          <Stack.Screen name="profile" options={{ headerShown: false, animation: 'fade' }} />
-          <Stack.Screen name="workout" options={{ headerShown: false, animation: 'fade' }} />
-          <Stack.Screen name="barcodeScanner" options={{ headerShown: false, animation: 'fade' }} />
+          <Stack.Screen name="nutrition"/>
+          <Stack.Screen name="profile"/>
+          <Stack.Screen name="workout"/>
+          <Stack.Screen name="barcodeScanner"/>
         </Stack>
       </UserProvider>
     </SQLiteProvider>
+    </ApplicationProvider>
   );
 }

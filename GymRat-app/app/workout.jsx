@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
-import { FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import exercises from '../assets/exercises.json';
 import schema from '../assets/schema.json';
 import NavBar from '../components/NavBar';
+
+const { height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function WorkoutScreen() {
   const renderItem = ({ item }) => (
@@ -90,10 +93,12 @@ export default function WorkoutScreen() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1 }}>
-        <View
-          style={{backgroundColor: '#1a1b1c', flex: 1}}
+        <LinearGradient
+          colors={['#8B0000', '#1a1b1c']}
+          style={styles.container}
         >
+          <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center', justifyContent: 'center' }}>
+
           <Modal
           visible={modalVisible}
           transparent={true}
@@ -200,9 +205,9 @@ export default function WorkoutScreen() {
             <TouchableOpacity style={styles.button} onPress ={() => setModalVisible(true)}><Text style={{color: '#fff'}}>Exercise List</Text></TouchableOpacity>
           </View>
           
-        </View>
+        </SafeAreaView>
+        </LinearGradient>
         <NavBar />
-      </SafeAreaView>
     </SafeAreaProvider>
   );
 }

@@ -3,12 +3,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useContext, useEffect, useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../components/NavBar';
 import { UserContext } from '../UserContext';
 import { cals } from './goal';
 
+const { height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 const nutrientOptions = [
   { label: 'Calories (kcal)',    value: 'calories' },
@@ -69,8 +71,8 @@ export default function Nutrition() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
         <LinearGradient style={styles.gradient} colors={['#32a852', '#1a1b1c']}>
+          <SafeAreaView style={styles.container}>
           <View style={styles.content}>
             <Text style={styles.text}>Nutrition Screen</Text>
             <Text style={[styles.text, { fontSize: 20 }]}>
@@ -100,6 +102,7 @@ export default function Nutrition() {
           >
             <Text style={styles.plusSign}>+</Text>
           </TouchableOpacity>
+          </SafeAreaView>
         </LinearGradient>
 
         <Modal
@@ -182,13 +185,12 @@ export default function Nutrition() {
         </Modal>
 
         <NavBar />
-      </SafeAreaView>
     </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center', width: screenWidth, height: screenHeight },
   gradient: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   content: { justifyContent: 'center', alignItems: 'center' },
   text: { color: '#fff', fontSize: 28, fontWeight: 'bold' },

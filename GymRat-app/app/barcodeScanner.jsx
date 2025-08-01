@@ -334,8 +334,8 @@ export default function BarcodeScannerScreen() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1 }}>
         <LinearGradient colors={['#FFFFFF', '#808080']} style={styles.container}>
+          <SafeAreaView style={{ flex: 1 }}>
           <View style={styles.overlay}>
             <CameraView
               style={styles.camera}
@@ -361,6 +361,7 @@ export default function BarcodeScannerScreen() {
             
             
           </View>
+          </SafeAreaView>
         </LinearGradient>
         <NavBar />
 
@@ -587,7 +588,6 @@ export default function BarcodeScannerScreen() {
             </View>
           </View>
         </Modal>
-      </SafeAreaView>
     </SafeAreaProvider>
   );
 }
