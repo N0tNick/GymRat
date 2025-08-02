@@ -1,12 +1,12 @@
+import * as eva from '@eva-design/eva';
+import { ApplicationProvider, Text } from '@ui-kitten/components';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
-import * as eva from '@eva-design/eva';
-import { ApplicationProvider, Layout, Text } from '@ui-kitten/components';
 
 // required for userId's
-import { UserProvider } from '../UserContext';
 import { SQLiteProvider } from 'expo-sqlite';
+import { UserProvider } from '../UserContext';
 
 export default function App() {
   const router = useRouter();
@@ -87,6 +87,7 @@ export default function App() {
           <Stack.Screen name="profile"/>
           <Stack.Screen name="workout"/>
           <Stack.Screen name="barcodeScanner"/>
+          <Stack.Screen name="createTemplate"/>
         </Stack>
       </UserProvider>
     </SQLiteProvider>

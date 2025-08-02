@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Dimensions, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -7,6 +8,7 @@ import NavBar from '../components/NavBar';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
+const router = useRouter();
 
 export default function WorkoutScreen() {
   const renderItem = ({ item }) => (
@@ -203,6 +205,11 @@ export default function WorkoutScreen() {
           <View style={{flexDirection: 'row', justifyContent: 'space-between', padding: 10}}>
             <Text style={styles.text}>Workout Screen</Text>
             <TouchableOpacity style={styles.button} onPress ={() => setModalVisible(true)}><Text style={{color: '#fff'}}>Exercise List</Text></TouchableOpacity>
+          </View>
+
+          <View style={{flexDirection: 'row', justifyContent: 'space-between', padding: 10}}>
+            <Text style={{color: '#fff', fontSize: 20, fontWeight: 'bold',}}>Templates</Text>
+            <TouchableOpacity style={styles.button} onPress ={() => router.push('/createTemplate')}><Text style={{color: '#fff'}}>+ Template</Text></TouchableOpacity>
           </View>
           
         </SafeAreaView>
