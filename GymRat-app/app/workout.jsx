@@ -182,7 +182,7 @@ export default function WorkoutScreen() {
                 transparent={true}
 
                 onRequestClose={() => { setExerciseInfoModal(!exerciseInfoModal) }}>
-                  <View style={styles.centeredView}>
+                  <View style={[styles.centeredView, {backgroundColor: 'rgba(0,0,0,0)'}]}>
                     <View style={styles.modalView}>
 
                       <TouchableOpacity style={{backgroundColor: '#999', width: 25, alignItems: 'center', borderRadius: 5}} onPress={() => setExerciseInfoModal(false)}>

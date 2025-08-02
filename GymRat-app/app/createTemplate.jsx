@@ -1,7 +1,10 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import exercises from '../assets/exercises.json';
+import schema from '../assets/schema.json';
+import ExerciseListModal from '../components/ExerciseListModal';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -9,6 +12,12 @@ const router = useRouter();
 
 export default function CreateTemplateScreen() {
   const [templateName, setTemplateName] = useState('New Template')
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedExercises, setSelectedExercises] = useState([]);
+
+  const renderItem = ({ item }) => (
+      <Text style={{color: '#fff'}}>{item.name}</Text>
+    );
 
   return(
       <SafeAreaProvider>
@@ -26,6 +35,28 @@ export default function CreateTemplateScreen() {
               style={{color: '#fff', fontSize: 30, fontWeight: 'bold', padding: 25}}
               onChangeText={setTemplateName}
               value={templateName}
+              />
+
+              <FlatList
+              data={selectedExercises}
+              keyExtractor={(item) => item.id}
+              renderItem={renderItem}
+              />
+
+              <TouchableOpacity 
+              style={{backgroundColor: '#1478db', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
+              onPress={() => setModalVisible(true)}
+              >
+                <Text style={{color: '#fff', fontWeight: 'bold'}}>Add Exercises</Text>
+              </TouchableOpacity>
+
+              <ExerciseListModal
+                visible={modalVisible}
+                onClose={() => setModalVisible(false)}
+                exercises={exercises}
+                schema={schema}
+                selectedExercises={selectedExercises}
+                onSelect={setSelectedExercises}
               />
 
             </SafeAreaView>
