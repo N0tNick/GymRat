@@ -75,6 +75,9 @@ export default function BarcodeScannerScreen() {
   const { userId } = useUser();
   const db = useSQLiteContext();
 
+  const currentDate = new Date();
+  const day = currentDate.getDate();
+
   const loadTodaysTotals = async (userId) => {
     const date = new Date().toISOString().split('T')[0];
 
@@ -84,7 +87,8 @@ export default function BarcodeScannerScreen() {
           SUM(CAST(calories AS REAL)) AS totalCalories,
           SUM(CAST(protein AS REAL)) AS totalProtein,
           SUM(CAST(total_Carbs AS REAL)) AS totalCarbs,
-          SUM(CAST(total_Fat AS REAL)) AS totalFat
+          SUM(CAST(total_Fat AS REAL)) AS totalFat,
+          date AS day
         FROM dailyNutLog
         WHERE user_id = ? AND date = ?`,
         [userId, date]
@@ -112,8 +116,8 @@ export default function BarcodeScannerScreen() {
             polyunsaturated_Fat, monosaturated_Fat, total_Carbs, fiber, sugar,
             vitamin_A, vitamin_C, vitamin_D, vitamin_E, vitamin_K,
             vitamin_B1, vitamin_B2, vitamin_B3, vitamin_B5, vitamin_B6,
-            vitamin_B7, vitamin_B9, vitamin_B12, iron, calcium, potassium
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            vitamin_B7, vitamin_B9, vitamin_B12, iron, calcium, potassium, date
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             userId,
             date,
@@ -146,6 +150,7 @@ export default function BarcodeScannerScreen() {
             serving.iron || '0',
             serving.calcium || '0',
             serving.potassium || '0',
+            day || '0',
           ]
       );
       return true;
@@ -581,6 +586,7 @@ export default function BarcodeScannerScreen() {
                   <Text>Protein: {dailyTotals.totalProtein}g</Text>
                   <Text>Carbs: {dailyTotals.totalCarbs}g</Text>
                   <Text>Fat: {dailyTotals.totalFat}g</Text>
+                  <Text>{dailyTotals.day}</Text>
                 </>
               ) : (
                 <Text>Loading totals...</Text>
