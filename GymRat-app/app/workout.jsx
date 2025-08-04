@@ -143,10 +143,10 @@ export default function WorkoutScreen() {
 
                 onRequestClose={() => { setMuscleFilterModal(!muscleFilterModal) }}>
                   <View style={[styles.centeredView]}>
-                    <View style={[styles.filterView, {maxHeight: 595}]}>
+                    <View style={[styles.filterView]}>
                       
                       <FlatList
-                        scrollEnabled={false}
+                        scrollEnabled={true}
                         data={schema.properties.primaryMuscles.items[0].enum}
                         keyExtractor={(item, index) => (item == null ? `null-${index}` : item.toString())}
                         renderItem={renderFilterItem('muscle')}
@@ -163,10 +163,10 @@ export default function WorkoutScreen() {
 
                 onRequestClose={() => { setEquipmentFilterModal(!equipmentFilterModal) }}>
                   <View style={[styles.centeredView]}>
-                    <View style={[styles.filterView, {maxHeight: 490}]}>
+                    <View style={[styles.filterView]}>
                       
                       <FlatList
-                        scrollEnabled={false}
+                        scrollEnabled={true}
                         data={schema.properties.equipment.enum}
                         keyExtractor={(item, index) => (item == null ? `null-${index}` : item.toString())}
                         renderItem={renderFilterItem('equipment')}
@@ -226,6 +226,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   text: {
+    flex: 1,
     color: '#fff',
     fontSize: 40,
     fontWeight: 'bold',
@@ -245,10 +246,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)'
   },
   xButton: {
+    flex: 1,
     fontSize: 20,
     fontWeight: 'bold'
   },
   card: {
+    flex: 1,
     backgroundColor: '#fff',
     padding: 16,
     marginVertical: 8,
@@ -256,10 +259,12 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   title: {
+    flex: 1,
     fontSize: 18,
     fontWeight: 'bold',
   },
   subtitle: {
+    flex: 1,
     fontSize: 14,
     color: '#666',
     marginTop: 4,
@@ -276,17 +281,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#999',
     padding: 10,
     borderRadius: 10,
-    height: 35,
     justifyContent: 'center',
     fontSize: 20
   },
   filterView: {
+    flex: 1,
     backgroundColor: '#999',
     borderRadius: 10,
     justifyContent: 'center',
-    fontSize: 20,
+    maxHeight: '70%'
   },
   filterButtonText: {
+    flex: 1,
     fontSize: 15,
     fontWeight: 'bold',
   },
