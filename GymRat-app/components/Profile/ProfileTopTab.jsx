@@ -9,56 +9,63 @@ const TopTab = () => {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
   return (
-      <TabView selectedIndex={selectedIndex} onSelect={index => setSelectedIndex(index)} >
-        <Tab title='Overview'>
+      <TabView 
+      selectedIndex={selectedIndex} 
+      onSelect={index => setSelectedIndex(index)} 
+      indicatorStyle={styles.indicator}
+      >
+        <Tab 
+          title={evaProps => <Text {...evaProps} style={styles.tabText}>Overview</Text>}
+          style={styles.tabStyle}
+        >          
           <Layout style={styles.tabContainer}>
-            <Text category='h5'>
-            </Text>
+            <Text category='h5' style={styles.tabText}>OVERVIEW</Text>
           </Layout>
         </Tab>
-        <Tab title='Body'>
+
+        <Tab 
+          title={evaProps => <Text {...evaProps} style={styles.tabText}>Body</Text>}
+          style={styles.tabStyle}
+        >         
           <Layout style={styles.tabContainer}>
-            <Text category='h5'>
-            </Text>
+            <Text category='h5' style={styles.tabText} >BODY</Text>
           </Layout>
         </Tab>
-        <Tab title='Goals'>
+
+        <Tab 
+          title={evaProps => <Text {...evaProps} style={styles.tabText}>Goals</Text>}
+          style={styles.tabStyle}
+        >         
           <Layout style={styles.tabContainer}>
-            <Text category='h5'>
-            </Text>
+            <Text category='h5' style={styles.tabText} >GOALS</Text>
           </Layout>
         </Tab>
+
       </TabView>
     );
-  /*
-    <View style = {{ flexDirection:'row' }}>
-        <Tab.Navigator initialRoute = {Overview} style = {{ width: Dimensions.get('window').width }} >
-        <Tab.Screen name="OverView" component={Overview} />
-        <Tab.Screen name="Body" component={Profile} />
-        <Tab.Screen name="Goals" component={Goals} />
-        </Tab.Navigator>
-
-    </View>
-  );
-  */
 }
 
 export default TopTab
 
-
-const ScreenStyles = StyleSheet.create ({
-    default: {
-        tabBarLabelStyle: { fontSize: 12 },
-        tabBarItemStyle: { width: 80 },
-        tabBarStyle: { backgroundColor: 'purple' },
-    }
-})
-
 const styles = StyleSheet.create({
+  tabStyle: {
+    padding:5, 
+    backgroundColor: 'white'
+  },
+  tabText: {
+    color: '#6a5acd',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  indicator: {
+    backgroundColor: '#6a5acd',
+    height: 6,
+  },
   tabContainer: {
     height: screenHeight,
-    //width: screenWidth,
+    width: screenWidth,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#2a2a2aff'
   },
 });

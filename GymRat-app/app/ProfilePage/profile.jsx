@@ -52,7 +52,12 @@ export default function ProfileScreen() {
               }}
             />
             </TouchableOpacity>
-            <TopTab/> 
+            <View style={{
+              width: screenWidth,
+              marginTop: 20,
+            }}>
+              <TopTab/> 
+            </View>
 
           </SafeAreaView>
           </ScrollView>
