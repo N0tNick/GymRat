@@ -22,6 +22,7 @@ const TopTab = () => {
         >          
           <Layout style={styles.tabContainer}>
             <Text category='h5' style={styles.tabText}>OVERVIEW</Text>
+            <Calendar/>
           </Layout>
         </Tab>
 
@@ -67,7 +68,6 @@ const styles = StyleSheet.create({
     height: screenHeight,
     width: screenWidth,
     alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: '#2a2a2aff'
   },
 });
