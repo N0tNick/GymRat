@@ -106,7 +106,7 @@ export default function BarcodeScannerScreen() {
       ? productInfo.servings.serving[0]
       : productInfo.servings.serving;
 
-    const date = new Date().toISOString().split('T')[0];
+    const day = new Date().toISOString().split('T')[0];
 
     try {
       await db.runAsync(
@@ -116,11 +116,11 @@ export default function BarcodeScannerScreen() {
             polyunsaturated_Fat, monosaturated_Fat, total_Carbs, fiber, sugar,
             vitamin_A, vitamin_C, vitamin_D, vitamin_E, vitamin_K,
             vitamin_B1, vitamin_B2, vitamin_B3, vitamin_B5, vitamin_B6,
-            vitamin_B7, vitamin_B9, vitamin_B12, iron, calcium, potassium, date
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            vitamin_B7, vitamin_B9, vitamin_B12, iron, calcium, potassium
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             userId,
-            date,
+            day,
             productInfo.food_name || '',
             serving.calories || '0',
             serving.protein || '0',
@@ -150,7 +150,6 @@ export default function BarcodeScannerScreen() {
             serving.iron || '0',
             serving.calcium || '0',
             serving.potassium || '0',
-            day || '0',
           ]
       );
       return true;
