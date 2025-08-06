@@ -84,7 +84,7 @@ export default function App() {
           />
 
           <Stack.Screen name="nutrition"/>
-          <Stack.Screen name="ProfilePage/profile"/>
+          <Stack.Screen name="profile"/>
           <Stack.Screen name="workout"/>
           <Stack.Screen name="barcodeScanner"/>
           <Stack.Screen name="createTemplate"/>

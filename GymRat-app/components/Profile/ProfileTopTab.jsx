@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, Dimensions } from 'react-native';
 import { Layout, Tab, TabView, Text } from '@ui-kitten/components'
+import Calendar from './ProfileCalendar'
+
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
