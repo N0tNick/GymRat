@@ -15,6 +15,7 @@ const TopTab = () => {
       selectedIndex={selectedIndex} 
       onSelect={index => setSelectedIndex(index)} 
       indicatorStyle={styles.indicator}
+      style={{borderTopWidth:4, borderRadius:10, borderColor:'#6a5acd'}}
       >
         <Tab 
           title={evaProps => <Text {...evaProps} style={styles.tabText}>Overview</Text>}
@@ -53,7 +54,7 @@ export default TopTab
 const styles = StyleSheet.create({
   tabStyle: {
     padding:5, 
-    backgroundColor: 'white'
+    backgroundColor: 'white',
   },
   tabText: {
     color: '#6a5acd',
@@ -62,12 +63,12 @@ const styles = StyleSheet.create({
   },
   indicator: {
     backgroundColor: '#6a5acd',
-    height: 6,
+    height: 10,
   },
   tabContainer: {
     height: screenHeight,
     width: screenWidth,
     alignItems: 'center',
-    backgroundColor: '#2a2a2aff'
+    backgroundColor: '#2a2a2aff',
   },
 });
