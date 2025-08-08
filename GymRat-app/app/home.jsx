@@ -93,7 +93,7 @@ export default function HomeScreen() {
     <SafeAreaProvider>
         <View style={styles.container}>
           <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center', justifyContent: 'center' }}>
-          <Text style={styles.text}>Home Screen</Text>
+          <Text style={styles.text}>GymRat</Text>
 
           <View style={styles.homeModule}>
             <Text style={styles.moduleTitle}>Tasks to do today</Text>
@@ -118,6 +118,8 @@ export default function HomeScreen() {
               )}
             </ScrollView>
           </View>
+
+          
           {dailyTotals && (
           <View style={styles.homeModule}>
             <Text style={styles.moduleTitle}>Nutrition Rundown</Text>
@@ -151,6 +153,23 @@ export default function HomeScreen() {
             </View>
           </View>
         )}
+
+        <View style={styles.homeModule}>
+          <Text style={styles.moduleTitle}>Weekly Calendar</Text>
+          <View style={styles.weekRow}>
+            {["Sun.", "Mon.", "Tue.", "Wed.", "Thur.", "Fri.", "Sat."].map((day, index) => (
+              <TouchableOpacity key={day} style={styles.dayColumn} onPress={() => {
+                  // TODO MODAL FOR DAY
+                  console.log(`Tapped ${day}`);}}>
+                <Text style={styles.dayLabel}>{day}</Text>
+                <View style={styles.dayContent}>
+                  {/* Nutrition info or icon goes here */}
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
 
           <TouchableOpacity
             style={styles.nutsplashButton}
@@ -267,5 +286,32 @@ const styles = StyleSheet.create({
     height: '100%',
     borderTopRightRadius: 8,
     borderBottomRightRadius: 8,
+  },
+  weekRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'stretch',
+    borderTopWidth: 1,
+    borderColor: '#444',
+  },
+  dayColumn: {
+    flex: 1,
+    backgroundColor: '#3a3a3c',
+    borderRightWidth: 1,
+    borderColor: '#444',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+  },
+  dayLabel: {
+    color: '#fff',
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  dayContent: {
+    flex: 1,
+    minHeight: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
   }
 });
