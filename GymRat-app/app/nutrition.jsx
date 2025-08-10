@@ -26,6 +26,7 @@ export default function Nutrition() {
   const db = useSQLiteContext();
   const { user } = useContext(UserContext);
   const [modalVisible, setModalVisible] = useState(false);
+  const [viewMode, setViewMode] = useState('bars');
   const [foodName, setFoodName] = useState('');
   const [entries, setEntries] = useState([]);
   const { openModal } = useLocalSearchParams();
@@ -228,7 +229,32 @@ export default function Nutrition() {
           Today's Calorie Goal: {cals}
         </Text>
 
+        <View style={styles.toggleRow}>
+          <TouchableOpacity
+            style={[styles.toggleBtn, viewMode === 'bars' && styles.toggleBtnActive]}
+            onPress={() => setViewMode('bars')}
+            accessibilityRole="button"
+            accessibilityState={{ selected: viewMode === 'bars' }}
+          >
+            <Text style={[styles.toggleText, viewMode === 'bars' && styles.toggleTextActive]}>
+              Progress
+            </Text>
+          </TouchableOpacity>
 
+          <TouchableOpacity
+            style={[styles.toggleBtn, viewMode === 'macros' && styles.toggleBtnActive]}
+            onPress={() => setViewMode('macros')}
+            accessibilityRole="button"
+            accessibilityState={{ selected: viewMode === 'macros' }}
+          >
+            <Text style={[styles.toggleText, viewMode === 'macros' && styles.toggleTextActive]}>
+              Macros
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {viewMode === 'bars' &&  (
+          <>
         <View style={styles.progressGroup}>
           <View style={styles.progressHeader}>
             <Text style={styles.progressTitle}>Calories</Text>
@@ -300,27 +326,25 @@ export default function Nutrition() {
             <Text style={[styles.text, styles.progressText]}>{fatPercent}%</Text>
           </View>
         </View>
+        </>
+        )}
 
-        <View style={styles.macroRow}>
-          <View style={styles.macroItem}>
-            <Text style={styles.macroValue}>
-              {dailyTotals?.totalProtein || 0}
-            </Text>
-            <Text style={styles.macroLabel}>Protein</Text>
+        {viewMode === 'macros' && (
+          <View style={styles.macroRow}>
+            <View style={styles.macroItem}>
+              <Text style={styles.macroValue}>{proteinTotal}</Text>
+              <Text style={styles.macroLabel}>Protein</Text>
+            </View>
+            <View style={styles.macroItem}>
+              <Text style={styles.macroValue}>{carbsTotal}</Text>
+              <Text style={styles.macroLabel}>Carbs</Text>
+            </View>
+            <View style={styles.macroItem}>
+              <Text style={styles.macroValue}>{fatTotal}</Text>
+              <Text style={styles.macroLabel}>Fat</Text>
+            </View>
           </View>
-          <View style={styles.macroItem}>
-            <Text style={styles.macroValue}>
-              {dailyTotals?.totalCarbs || 0}
-            </Text>
-            <Text style={styles.macroLabel}>Carbs</Text>
-          </View>
-          <View style={styles.macroItem}>
-            <Text style={styles.macroValue}>
-              {dailyTotals?.totalFat || 0}
-            </Text>
-            <Text style={styles.macroLabel}>Fat</Text>
-          </View>
-        </View>
+        )}
 
         {/* <View style={styles.debugInfo}>
           <Text style={styles.debugText}>Debug - Daily Totals:</Text>
@@ -710,7 +734,7 @@ const styles = StyleSheet.create({
   progressHeader: {
     width: '100%',
     flexDirection: 'row',
-    alignItens: 'flex-end',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
     marginBottom: 2,
   },
@@ -718,5 +742,32 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     fontWeight: '600',
-  }
+  },
+  toggleRow: {
+  flexDirection: 'row',
+  gap: 10,
+  marginTop: 10,
+  marginBottom: 8,
+},
+toggleBtn: {
+  flex: 1,
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingVertical: 10,
+  borderRadius: 8,
+  borderWidth: 1,
+  borderColor: 'rgba(255,255,255,0.25)',
+  backgroundColor: 'rgba(255,255,255,0.08)',
+},
+toggleBtnActive: {
+  backgroundColor: '#32a852',
+  borderColor: '#32a852',
+},
+toggleText: {
+  color: '#fff',
+  fontWeight: '600',
+},
+toggleTextActive: {
+  color: '#fff',
+},
 });
