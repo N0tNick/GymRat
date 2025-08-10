@@ -35,7 +35,18 @@ export default function Nutrition() {
   const [dailyTotals, setDailyTotals] = useState(null)
 
   const totalCalories = dailyTotals?.totalCalories || 0;
+  const proteinTotal = dailyTotals?.totalProtein || 0;
+  const carbsTotal   = dailyTotals?.totalCarbs   || 0;
+  const fatTotal     = dailyTotals?.totalFat     || 0;
+
+  const proteinTarget = Math.round((cals * 0.25) / 4); 
+  const carbsTarget   = Math.round((cals * 0.45) / 4); 
+  const fatTarget     = Math.round((cals * 0.30) / 9); 
+
   const percent = totalCalories > 0 ? Math.round((totalCalories / cals) * 100) : 0;
+  const proteinPercent = proteinTarget > 0 ? Math.round((proteinTotal / proteinTarget) * 100) : 0;
+  const carbsPercent   = carbsTarget   > 0 ? Math.round((carbsTotal   / carbsTarget)   * 100) : 0;
+  const fatPercent     = fatTarget     > 0 ? Math.round((fatTotal     / fatTarget)     * 100) : 0;
 
   const loadTodaysTotals = async (userId) => {
     const date = new Date().toISOString().split('T')[0];
@@ -211,28 +222,86 @@ export default function Nutrition() {
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
-          <View style={styles.content}>
-            <Text style={styles.text}>Nutrition Screen</Text>
-            <Text style={[styles.text, { fontSize: 20 }]}>
-              Today's Calorie Goal: {cals}
-            </Text>
+      <View style={styles.content}>
+        <Text style={styles.text}>Nutrition Screen</Text>
+        <Text style={[styles.text, { fontSize: 20 }]}>
+          Today's Calorie Goal: {cals}
+        </Text>
 
-            <View style={styles.progressRow}>
+
+        <View style={styles.progressGroup}>
+          <View style={styles.progressHeader}>
+            <Text style={styles.progressTitle}>Calories</Text>
+            <Text style={styles.progressTopValue}>{totalCalories} / {cals}</Text>
+          </View>
+          <View style={styles.progressRow}>
             <View style={styles.progressBarContainer}>
-            <View
+              <View
                 style={[
                   styles.progressBarFill,
-                { width: `${Math.min(percent, 100)}%` }
-                  ]}
+                  { width: `${Math.min(percent, 100)}%` }
+                ]}
               />
             </View>
-
-            <Text style={[styles.text, styles.progressText]}>
-              {totalCalories} / {cals} {percent}%
-            </Text>
+            <Text style={[styles.text, styles.progressText]}>{percent}%</Text>
+          </View>
+        </View>
+                 
+        <View style={styles.progressGroup}>
+          <View style={styles.progressHeader}>
+            <Text style={styles.progressTitle}>Protein</Text>
+            <Text style={styles.progressTopValue}>{proteinTotal} / {proteinTarget}g</Text>
+          </View>
+          <View style={styles.progressRow}>
+            <View style={styles.progressBarContainer}>
+              <View
+                style={[
+                  styles.progressBarFill,
+                  { backgroundColor: '#ff00ff', width: `${Math.min(proteinPercent, 100)}%` }
+                ]}
+              />
             </View>
+          <Text style={[styles.text, styles.progressText]}>{proteinPercent}%</Text>
+          </View>
+        </View>
 
-          <View style={styles.macroRow}>
+        <View style={styles.progressGroup}>
+          <View style={styles.progressHeader}>
+            <Text style={styles.progressTitle}>Carbs</Text>
+            <Text style={styles.progressTopValue}>{carbsTotal} / {carbsTarget}g</Text>
+          </View>
+          <View style={styles.progressRow}>
+            <View style={styles.progressBarContainer}>
+              <View
+                style={[
+                  styles.progressBarFill,
+                  { backgroundColor: '#00ff00', width: `${Math.min(carbsPercent, 100)}%` }
+                ]}
+              />
+            </View>
+            <Text style={[styles.text, styles.progressText]}>{carbsPercent}%</Text>
+          </View>
+        </View>
+
+        <View style={styles.progressGroup}>
+          <View style={styles.progressHeader}>
+            <Text style={styles.progressTitle}>Fat</Text>
+            <Text style={styles.progressTopValue}>{fatTotal} / {fatTarget}g</Text>
+          </View>
+          <View style={styles.progressRow}>
+            <View style={styles.progressBarContainer}>
+              <View
+                style={[
+                  styles.progressBarFill,
+                  { backgroundColor: '#ff0000', width: `${Math.min(fatPercent, 100)}%` }
+                ]}
+              />
+            </View>
+            <Text style={[styles.text, styles.progressText]}>{fatPercent}%</Text>
+          </View>
+        </View>
+
+        <View style={styles.macroRow}>
           <View style={styles.macroItem}>
             <Text style={styles.macroValue}>
               {dailyTotals?.totalProtein || 0}
@@ -253,17 +322,16 @@ export default function Nutrition() {
           </View>
         </View>
 
-
-               <View style={styles.debugInfo}>
-              <Text style={styles.debugText}>Debug - Daily Totals:</Text>
-              <Text style={styles.debugText}>State: {dailyTotals ? 'Loaded' : 'Not loaded'}</Text>
-              <Text style={styles.debugText}>UserID: {userId || user?.id || 'No user ID'}</Text>
-              <Text style={styles.debugText}>Calories: {dailyTotals?.totalCalories || 0}</Text>
-              <Text style={styles.debugText}>Protein: {dailyTotals?.totalProtein || 0}g</Text>
-              <Text style={styles.debugText}>Carbs: {dailyTotals?.totalCarbs || 0}g</Text>
-              <Text style={styles.debugText}>Fat: {dailyTotals?.totalFat || 0}g</Text>
-            </View>
-            </View>
+        {/* <View style={styles.debugInfo}>
+          <Text style={styles.debugText}>Debug - Daily Totals:</Text>
+          <Text style={styles.debugText}>State: {dailyTotals ? 'Loaded' : 'Not loaded'}</Text>
+          <Text style={styles.debugText}>UserID: {userId || user?.id || 'No user ID'}</Text>
+          <Text style={styles.debugText}>Calories: {dailyTotals?.totalCalories || 0}</Text>
+          <Text style={styles.debugText}>Protein: {dailyTotals?.totalProtein || 0}g</Text>
+          <Text style={styles.debugText}>Carbs: {dailyTotals?.totalCarbs || 0}g</Text>
+          <Text style={styles.debugText}>Fat: {dailyTotals?.totalFat || 0}g</Text>
+        </View> */}
+      </View>
           </ScrollView>
 
           <TouchableOpacity
@@ -559,8 +627,8 @@ const styles = StyleSheet.create({
   progressRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
-    width: '80%',
+    marginTop: 4,
+    width: '100%',
   },
 
   progressBarContainer: {
@@ -569,7 +637,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#444',
     borderRadius: 6,
     overflow: 'hidden',
-    marginRight: 8,
+    marginRight: 10,
   },
 
   progressBarFill: {
@@ -583,21 +651,21 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   
-  debugInfo: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#fff',
-    width: '90%',
-  },
-  debugText: {
-    color: '#000',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 2,
-  },
+  // debugInfo: {
+  //   marginTop: 20,
+  //   padding: 10,
+  //   backgroundColor: 'rgba(255,255,255,0.9)',
+  //   borderRadius: 8,
+  //   borderWidth: 2,
+  //   borderColor: '#fff',
+  //   width: '90%',
+  // },
+  // debugText: {
+  //   color: '#000',
+  //   fontSize: 14,
+  //   fontWeight: 'bold',
+  //   marginBottom: 2,
+  // },
   loginButton: {
     marginTop: 20,
     backgroundColor: '#fff',
@@ -630,4 +698,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
   },
+  progressGroup: {
+    width: '92%',
+    marginTop: 10,
+  },
+  progressTitle: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  progressHeader: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItens: 'flex-end',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+  },
+  progressTopValue:{
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  }
 });
