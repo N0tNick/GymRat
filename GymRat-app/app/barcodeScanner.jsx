@@ -1,15 +1,14 @@
+import axios from 'axios';
+import { encode as btoa } from 'base-64';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
-import { StyleSheet, Text, TouchableOpacity, View, Button, ActivityIndicator, Modal, TextInput } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Button, Linking, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../components/NavBar';
 import { auth } from '../firebaseConfig';
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { encode as btoa } from 'base-64';
-import { Linking } from 'react-native';
 
 import { useSQLiteContext } from 'expo-sqlite';
 import { useUser } from '../UserContext';
@@ -77,6 +76,7 @@ export default function BarcodeScannerScreen() {
 
   const currentDate = new Date();
   const day = currentDate.getDate();
+  const todayLocal = () => new Date().toLocaleDateString('en-CA'); // "YYYY-MM-DD"
 
   const loadTodaysTotals = async (userId) => {
     const date = new Date().toISOString().split('T')[0];
@@ -106,7 +106,7 @@ export default function BarcodeScannerScreen() {
       ? productInfo.servings.serving[0]
       : productInfo.servings.serving;
 
-    const day = new Date().toISOString().split('T')[0];
+    const day = todayLocal();
 
     try {
       await db.runAsync(
@@ -152,11 +152,76 @@ export default function BarcodeScannerScreen() {
             serving.potassium || '0',
           ]
       );
+       await db.runAsync(
+      `INSERT INTO historyLog (
+        user_id, date, name, calories, protein,
+        cholesterol, sodium, total_Fat, saturated_Fat, trans_Fat,
+        polyunsaturated_Fat, monosaturated_Fat, total_Carbs, fiber, sugar,
+        vitamin_A, vitamin_C, vitamin_D, vitamin_E, vitamin_K,
+        vitamin_B1, vitamin_B2, vitamin_B3, vitamin_B5, vitamin_B6,
+        vitamin_B7, vitamin_B9, vitamin_B12, iron, calcium, potassium
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        userId,
+        day,
+        productInfo.food_name || '',
+        serving.calories || '0',
+        serving.protein || '0',
+        serving.cholesterol || '0',
+        serving.sodium || '0',
+        serving.fat || '0',
+        serving.saturated_fat || '0',
+        serving.trans_fat || '0',
+        serving.polyunsaturated_fat || '0',
+        serving.monounsaturated_fat || '0',
+        serving.carbohydrate || '0',
+        serving.fiber || '0',
+        serving.sugar || '0',
+        serving.vitamin_a || '0',
+        serving.vitamin_c || '0',
+        serving.vitamin_d || '0',
+        serving.vitamin_e || '0',
+        serving.vitamin_k || '0',
+        serving.thiamin || '0',
+        serving.riboflavin || '0',
+        serving.niacin || '0',
+        serving.pantothenic_acid || '0',
+        serving.vitamin_b6 || '0',
+        serving.biotin || '0',
+        serving.folate || '0',
+        serving.vitamin_b12 || '0',
+        serving.iron || '0',
+        serving.calcium || '0',
+        serving.potassium || '0',
+      ]
+    );
       return true;
     } catch (err) {
       console.error('Insert error:', err);
       throw err;
     }
+  };
+    const ensureHistoryTable = async () => {
+    await db.runAsync(`
+      CREATE TABLE IF NOT EXISTS historyLog (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        date TEXT NOT NULL,
+        name TEXT,
+        calories TEXT, protein TEXT,
+        cholesterol TEXT, sodium TEXT,
+        total_Fat TEXT, saturated_Fat TEXT, trans_Fat TEXT,
+        polyunsaturated_Fat TEXT, monosaturated_Fat TEXT,
+        total_Carbs TEXT, fiber TEXT, sugar TEXT,
+        vitamin_A TEXT, vitamin_C TEXT, vitamin_D TEXT, vitamin_E TEXT, vitamin_K TEXT,
+        vitamin_B1 TEXT, vitamin_B2 TEXT, vitamin_B3 TEXT, vitamin_B5 TEXT, vitamin_B6 TEXT,
+        vitamin_B7 TEXT, vitamin_B9 TEXT, vitamin_B12 TEXT,
+        iron TEXT, calcium TEXT, potassium TEXT
+      );
+    `);
+    await db.runAsync(
+      `CREATE INDEX IF NOT EXISTS idx_history_user_date ON historyLog(user_id, date);`
+    );
   };
 
   // set scanner state to initial
@@ -165,6 +230,17 @@ export default function BarcodeScannerScreen() {
     setProductInfo(null);
     setError(null);
   }, []);
+
+  useEffect(() => {
+  (async () => {
+    try {
+      await ensureHistoryTable();
+    } catch (e) {
+      console.warn('ensureHistoryTable failed:', e);
+    }
+  })();
+  }, []);
+
 
   // if unknown permission render view empty
   if (!permission) return <View />;

@@ -12,6 +12,7 @@ import { cals } from './goal';
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
+
 const nutrientOptions = [
   { label: 'Calories (kcal)',    value: 'calories' },
   { label: 'Protein (g)',        value: 'protein' },
@@ -33,6 +34,8 @@ export default function Nutrition() {
   const { userId } = useUser();
   const [nutrientEntries, setNutrientEntries] = useState([]);
   const router = useRouter();
+  const [historyVisible, setHistoryVisible] = useState(false);
+  const [historyByDate, setHistoryByDate] = useState({});
   const [dailyTotals, setDailyTotals] = useState(null)
 
   const totalCalories = dailyTotals?.totalCalories || 0;
@@ -84,6 +87,94 @@ export default function Nutrition() {
     }
   };
 
+    const fmtDate = (d) => {
+    if (!d) return '';
+    const parts = String(d).split('-');
+    if (parts.length !== 3) return d;
+    const [y, m, day] = parts;
+    return `${parseInt(m, 10)}/${parseInt(day, 10)}/${String(y).slice(2)}`;
+  };
+
+  const loadHistory = async () => {
+    const uid = userId || user?.id;
+    if (!uid) return;
+
+    try {
+      const rows = await db.getAllAsync(
+        `SELECT 
+          rowid AS id,
+          date,
+          name,
+          COALESCE(CAST(calories     AS REAL), 0) AS calories,
+          COALESCE(CAST(protein      AS REAL), 0) AS protein,
+          COALESCE(CAST(total_Carbs  AS REAL), 0) AS carbs
+        FROM historyLog
+        WHERE user_id = ?
+        ORDER BY date DESC, rowid DESC;`,
+        [uid]
+      );
+
+      const grouped = rows.reduce((acc, r) => {
+        const key = r.date || 'Unknown';
+        if (!acc[key]) acc[key] = [];
+        acc[key].push({
+          id: r.id?.toString() ?? Math.random().toString(),
+          name: r.name || 'Unnamed item',
+          calories: r.calories,
+          protein: r.protein,
+          carbs: r.carbs,
+        });
+        return acc;
+      }, {});
+      setHistoryByDate(grouped);
+    } catch (e) {
+      console.error('load history failed', e);
+    }
+  };
+
+  const ensureHistoryTable = async () => {
+    await db.runAsync(`
+      CREATE TABLE IF NOT EXISTS historyLog (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        date TEXT NOT NULL,
+        name TEXT,
+        calories TEXT, protein TEXT,
+        cholesterol TEXT, sodium TEXT,
+        total_Fat TEXT, saturated_Fat TEXT, trans_Fat TEXT,
+        polyunsaturated_Fat TEXT, monosaturated_Fat TEXT,
+        total_Carbs TEXT, fiber TEXT, sugar TEXT,
+        vitamin_A TEXT, vitamin_C TEXT, vitamin_D TEXT, vitamin_E TEXT, vitamin_K TEXT,
+        vitamin_B1 TEXT, vitamin_B2 TEXT, vitamin_B3 TEXT, vitamin_B5 TEXT, vitamin_B6 TEXT,
+        vitamin_B7 TEXT, vitamin_B9 TEXT, vitamin_B12 TEXT,
+        iron TEXT, calcium TEXT, potassium TEXT
+      );
+    `);
+    await db.runAsync(
+      `CREATE INDEX IF NOT EXISTS idx_history_user_date ON historyLog(user_id, date);`
+    );
+  };
+
+  const clearDailyIfNeeded = async (uid) => {
+    await db.runAsync(`CREATE TABLE IF NOT EXISTS appMeta (key TEXT PRIMARY KEY, value TEXT NOT NULL);`);
+    const today = new Date().toISOString().slice(0,10);
+    const row = (await db.getAllAsync(`SELECT value FROM appMeta WHERE key='last_daily_clear' LIMIT 1;`))[0];
+    const last = row?.value;
+    if (last !== today) {
+      await db.runAsync(`DELETE FROM dailyNutLog WHERE user_id = ? AND date <> ?;`, [uid, today]);
+      await db.runAsync(
+        `INSERT INTO appMeta(key,value) VALUES('last_daily_clear', ?)
+        ON CONFLICT(key) DO UPDATE SET value=excluded.value;`,
+        [today]
+      );
+    }
+  };
+
+
+  useEffect(() => {
+    if (historyVisible) loadHistory();
+  }, [historyVisible, userId, user?.id]);
+
   // used to open the modal from barcode scanner screen via a button
   useEffect(() => {
     if (openModal === 'true') {
@@ -108,6 +199,16 @@ export default function Nutrition() {
     // load current totals
     loadTodaysTotals(userIdToUse);
   }, [userId, user?.id, modalVisible]);
+
+    useEffect(() => {
+    const uid = userId || user?.id;
+    if (!uid) return;
+    (async () => {
+      await ensureHistoryTable();
+      await clearDailyIfNeeded(uid);
+      await loadTodaysTotals(uid);
+    })();
+  }, [userId, user?.id]);
 
   const addEntry = () => {
     setNutrientEntries(prev => [
@@ -198,6 +299,51 @@ export default function Nutrition() {
           '0', // potassium
         ]
       );
+
+      await db.runAsync(
+        `INSERT INTO historyLog (
+          user_id, date, name, calories, protein,
+          cholesterol, sodium, total_Fat, saturated_Fat, trans_Fat,
+          polyunsaturated_Fat, monosaturated_Fat, total_Carbs, fiber, sugar,
+          vitamin_A, vitamin_C, vitamin_D, vitamin_E, vitamin_K,
+          vitamin_B1, vitamin_B2, vitamin_B3, vitamin_B5, vitamin_B6,
+          vitamin_B7, vitamin_B9, vitamin_B12, iron, calcium, potassium
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        [
+          userIdToUse,
+          date,
+          foodName,
+          nutritionData.calories,
+          nutritionData.protein,
+          nutritionData.cholesterol,
+          nutritionData.sodium,
+          nutritionData.fat,
+          '0',
+          '0',
+          '0',
+          '0',       
+          '0',
+          '0',               
+          nutritionData.sugar,
+          '0',
+          '0',
+          '0',
+          '0',
+          '0',   
+          '0',
+          '0',
+          '0',
+          '0',
+          '0',
+          '0',
+          '0',
+          '0', 
+          '0',                  
+          nutritionData.calcium,
+          '0'                    
+        ]
+      );
+
 
 
       setFoodName('');
@@ -368,6 +514,14 @@ export default function Nutrition() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            style={styles.historyButton}
+            onPress={() => setHistoryVisible(true)}
+          >
+            <Text style={styles.historyIcon}>≡</Text>
+          </TouchableOpacity>
+
+
+          <TouchableOpacity
             style={styles.addButton}
             onPress={() => setModalVisible(true)}
           >
@@ -469,6 +623,58 @@ export default function Nutrition() {
             </View>
           </View>
         </Modal>
+
+        <Modal
+          transparent
+          visible={historyVisible}
+          animationType="slide"
+          onRequestClose={() => setHistoryVisible(false)}
+        >
+          <View style={styles.historyOverlay}>
+            <View style={styles.historyModal}>
+              <View style={styles.historyHeaderRow}>
+                <Text style={styles.historyTitle}>Your Food Log</Text>
+                <TouchableOpacity onPress={() => setHistoryVisible(false)}>
+                  <Text style={styles.historyClose}>Close</Text>
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView
+                contentContainerStyle={styles.historyScrollContent}
+                showsVerticalScrollIndicator={false}
+              >
+                {Object.keys(historyByDate).length === 0 ? (
+                  <Text style={styles.historyEmpty}>No entries yet.</Text>
+                ) : (
+                  Object.entries(historyByDate).map(([date, items]) => (
+                    <View key={date} style={styles.historySection}>
+                      <Text style={styles.historyDate}>{fmtDate(date)}</Text>
+
+                      {items.map((it, idx) => (
+                        <View key={`${date}-${idx}-${it.id}`} style={styles.historyCard}>
+                          <Text numberOfLines={2} style={styles.cardName}>{it.name}</Text>
+
+                          <View style={styles.cardRight}>
+                            <Text style={styles.cardLine}>
+                              Calories: <Text style={styles.cardValue}>{it.calories}</Text>
+                            </Text>
+                            <Text style={styles.cardLine}>
+                              Protein: <Text style={styles.cardValue}>{it.protein}</Text>
+                            </Text>
+                            <Text style={styles.cardLine}>
+                              Carbs : <Text style={styles.cardValue}>{it.carbs}</Text>
+                            </Text>
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  ))
+                )}
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+        
 
         <NavBar />
     </SafeAreaProvider>
@@ -770,4 +976,72 @@ toggleText: {
 toggleTextActive: {
   color: '#fff',
 },
+historyButton: {
+  position: 'absolute',
+  bottom: 100,
+  left: 20,
+  width: 60,
+  height: 60,
+  backgroundColor: '#fff',
+  borderRadius: 8,
+  justifyContent: 'center',
+  alignItems: 'center',
+  elevation: 5,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+},
+historyIcon: {
+  fontSize: 26,
+  color: '#32a852',
+  fontWeight: 'bold',
+},
+
+historyOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  justifyContent: 'flex-end',
+},
+historyModal: {
+  width: '100%',
+  height: screenHeight * 0.7,
+  backgroundColor: '#fff',
+  borderTopLeftRadius: 20,
+  borderTopRightRadius: 20,
+  paddingHorizontal: 16,
+  paddingTop: 12,
+  paddingBottom: 20,
+},
+historyHeaderRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 8,
+},
+historyTitle: { fontSize: 18, fontWeight: '700', color: '#111' },
+historyClose: { fontSize: 16, fontWeight: '700', color: '#32a852' },
+
+historyScrollContent: { paddingBottom: 24 },
+historySection: { marginBottom: 18 },
+historyDate: { marginLeft: 6, marginBottom: 6, color: '#444', fontWeight: '700' },
+historyEmpty: { color: '#666', textAlign: 'center', marginTop: 16 },
+
+historyCard: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'flex-start',
+  padding: 14,
+  borderWidth: 2,
+  borderColor: '#111',
+  borderRadius: 8,
+  backgroundColor: '#fff',
+  marginBottom: 12,
+},
+cardName: { fontSize: 26, fontWeight: '800', maxWidth: '55%', color: '#111' },
+cardRight: { alignItems: 'flex-end' },
+cardLine: { fontSize: 16, color: '#222', marginBottom: 6 },
+cardUnderline: { borderBottomWidth: 2, borderColor: '#111', paddingBottom: 2 },
+cardValue: { fontWeight: '700' },
+
 });
