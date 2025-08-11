@@ -1,12 +1,13 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState} from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, ScrollView, Dimensions } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView, Dimensions, Touchable, Modal, TextInput } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../components/NavBar';
 import * as Calendar from 'expo-calendar';
 import { cals } from './goal';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useUser } from '../UserContext';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -17,6 +18,31 @@ export default function HomeScreen() {
   const db = useSQLiteContext();
   const { userId } = useUser();
   const [dailyTotals, setDailyTotals] = useState(null);
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newEventName, setNewEventName] = useState('');
+  const [newEventTime, setNewEventTime] = useState(new Date());
+  const [showTimePicker, setShowTimePicker] = useState(false);
+
+  // function to add daily event
+  const handleAddEvent = () => {
+    const newEvent = {
+      id: Date.now().toString(),
+      title: newEventName,
+      startDate: newEventTime.toISOString(),
+    };
+
+    const updatedEvents = [...events, newEvent].sort(
+      (a, b) => new Date(a.startDate) - new Date(b.startDate)
+    );
+
+    setEvents(updatedEvents);
+
+    // reset modal
+    setNewEventName('');
+    setNewEventTime(new Date());
+    setModalVisible(false);
+  };
 
   // first get calendar permissions
   useEffect(() => {
@@ -117,6 +143,9 @@ export default function HomeScreen() {
                 ))
               )}
             </ScrollView>
+            <TouchableOpacity style={styles.addEventButton} onPress={() => setModalVisible(true)}>
+              <Text style={styles.addEventText}>Add Event</Text>
+            </TouchableOpacity>
           </View>
 
           
@@ -181,6 +210,44 @@ export default function HomeScreen() {
         </View>
 
         <NavBar />
+        <Modal animation Type="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Add New Event</Text>
+              <TextInput style={styles.input} placeholder="Event Name" placeholderTextColor="#888" value={newEventName} onChangeText={setNewEventName}/>
+              <TouchableOpacity 
+                style={styles.timeButton} 
+                onPress={() => setShowTimePicker(true)}
+              >
+                <Text style={styles.timeButtonText}>
+                  Select Time: {newEventTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+              </TouchableOpacity>
+
+              {showTimePicker && (
+                <DateTimePicker
+                  value={newEventTime}
+                  mode="time"
+                  display="default"
+                  onChange={(event, selectedTime) => {
+                    if (event.type === "set" && selectedTime) { // "set" means OK pressed
+                      setNewEventTime(selectedTime);
+                    }
+                    setShowTimePicker(false); // hides picker regardless of OK or cancel
+                  }}
+                />
+              )}
+
+              <TouchableOpacity style={styles.modalAddButton} onPress={handleAddEvent}>
+                <Text style={styles.modalAddText}>Add</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Text style={styles.cancelText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
     </SafeAreaProvider>
   );
 }
@@ -313,5 +380,71 @@ const styles = StyleSheet.create({
     minHeight: 30,
     justifyContent: 'center',
     alignItems: 'center',
-  }
+  },
+  addEventButton: {
+    backgroundColor: '#32a852',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    alignSelf: 'center',
+    marginBottom: 10,
+  },
+  addEventText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    backgroundColor: '#2c2c2e',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 15,
+  },
+  input: {
+    backgroundColor: '#444',
+    color: '#fff',
+    padding: 10,
+    borderRadius: 8,
+    width: '100%',
+    marginBottom: 15,
+  },
+  modalAddButton: {
+    backgroundColor: '#32a852',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  modalAddText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  cancelText: {
+    color: '#ff5555',
+    marginTop: 10,
+  },
+  timeButton: {
+    backgroundColor: '#444',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  timeButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
 });
