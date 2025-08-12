@@ -2,9 +2,10 @@ import { Picker } from '@react-native-picker/picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { Dimensions, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Circle, G, Path, Text as SvgText, TSpan } from 'react-native-svg';
 import NavBar from '../components/NavBar';
 import { UserContext, useUser } from '../UserContext';
 import { cals } from './goal';
@@ -22,6 +23,82 @@ const nutrientOptions = [
   { label: 'Calcium (mg)',       value: 'calcium' },
   { label: 'Sodium (g)',         value: 'sodium' },
 ];
+
+// Utility functions for pie chart
+function polarToCartesian(cx, cy, r, angleDeg) {
+  const angle = ((angleDeg - 90) * Math.PI) / 180.0;
+  return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+}
+function arcPath(cx, cy, r, startAngle, endAngle) {
+  const start = polarToCartesian(cx, cy, r, endAngle);
+  const end = polarToCartesian(cx, cy, r, startAngle);
+  const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
+  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y} L ${cx} ${cy} Z`;
+}
+function PieChart({ size = 220, values, colors, labels, valueLabels }) {
+  const total = values.reduce((a, b) => a + (isFinite(b) ? b : 0), 0);
+  const radius = size / 2;
+  const cx = radius;
+  const cy = radius;
+
+  if (total <= 0) {
+    return (
+      <Svg width={size} height={size}>
+        <G>
+          <Circle cx={cx} cy={cy} r={radius - 2} fill="rgba(255,255,255,0.15)" />
+        </G>
+      </Svg>
+    );
+  }
+
+  let startAngle = 0;
+  const slices = values.map((v, i) => {
+    const angle = (v / total) * 360;
+    const midAngle = startAngle + angle / 2;
+
+    const anchor = polarToCartesian(cx, cy, radius * 0.62, midAngle);
+
+    const slice = {
+      path: angle > 0 ? arcPath(cx, cy, radius, startAngle, startAngle + angle) : null,
+      color: colors[i],
+      label: labels[i],
+      labelX: anchor.x,
+      labelY: anchor.y,
+      valueLabel: valueLabels?.[i] ?? '',
+    };
+
+    startAngle += angle;
+    return slice;
+  });
+
+  return (
+    <Svg width={size} height={size}>
+      <G>
+        {slices.map((s, i) =>
+          s.path ? (
+            <G key={i}>
+              <Path d={s.path} fill={s.color} />
+             <SvgText
+              x={s.labelX}
+              y={s.labelY}
+              textAnchor="middle"
+              dominantBaseline="middle"
+            >
+              <TSpan fontSize="12" fontWeight="bold" fill="#fff">
+                {s.label}
+              </TSpan>
+              <TSpan x={s.labelX} dy={14} fontSize="11" fill="#fff">
+                {s.valueLabel}
+              </TSpan>
+            </SvgText>
+
+            </G>
+          ) : null
+        )}
+      </G>
+    </Svg>
+  );
+}
 
 export default function Nutrition() {
   const db = useSQLiteContext();
@@ -42,15 +119,27 @@ export default function Nutrition() {
   const proteinTotal = dailyTotals?.totalProtein || 0;
   const carbsTotal   = dailyTotals?.totalCarbs   || 0;
   const fatTotal     = dailyTotals?.totalFat     || 0;
+  const sugarTotal   = dailyTotals?.totalSugar   || 0;
 
-  const proteinTarget = Math.round((cals * 0.25) / 4); 
-  const carbsTarget   = Math.round((cals * 0.45) / 4); 
-  const fatTarget     = Math.round((cals * 0.30) / 9); 
+  const proteinTarget = Math.round((cals * 0.25) / 4);
+  const carbsTarget   = Math.round((cals * 0.45) / 4);
+  const fatTarget     = Math.round((cals * 0.30) / 9);
+  const sugarTarget   = Math.round((cals * 0.10) / 4);
 
   const percent = totalCalories > 0 ? Math.round((totalCalories / cals) * 100) : 0;
   const proteinPercent = proteinTarget > 0 ? Math.round((proteinTotal / proteinTarget) * 100) : 0;
   const carbsPercent   = carbsTarget   > 0 ? Math.round((carbsTotal   / carbsTarget)   * 100) : 0;
   const fatPercent     = fatTarget     > 0 ? Math.round((fatTotal     / fatTarget)     * 100) : 0;
+
+  const pieValues = useMemo(() => {
+  const cal = Math.max(0, Number(totalCalories) || 0);
+  const fatC = Math.max(0, (Number(fatTotal) || 0) * 9);
+  const carbC = Math.max(0, (Number(carbsTotal) || 0) * 4);
+  const sugC = Math.max(0, (Number(sugarTotal) || 0) * 4);
+  return [cal, fatC, carbC, sugC];
+}, [totalCalories, fatTotal, carbsTotal, sugarTotal]);
+
+const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
 
   const loadTodaysTotals = async (userId) => {
     const date = new Date().toISOString().split('T')[0];
@@ -61,7 +150,8 @@ export default function Nutrition() {
           SUM(CAST(calories AS REAL)) AS totalCalories,
           SUM(CAST(protein AS REAL)) AS totalProtein,
           SUM(CAST(total_Carbs AS REAL)) AS totalCarbs,
-          SUM(CAST(total_Fat AS REAL)) AS totalFat
+          SUM(CAST(total_Fat AS REAL)) AS totalFat,
+          SUM(CAST(sugar AS REAL)) AS totalSugar
         FROM dailyNutLog
         WHERE user_id = ? AND date = ?`,
         [userId, date]
@@ -74,6 +164,7 @@ export default function Nutrition() {
         totalProtein: totals?.totalProtein || 0,
         totalCarbs: totals?.totalCarbs || 0,
         totalFat: totals?.totalFat || 0,
+        totalSugar: totals?.totalSugar || 0,
       });
     } catch (error) {
       console.error('Error loading totals:', error);
@@ -349,10 +440,7 @@ export default function Nutrition() {
       setFoodName('');
       setNutrientEntries([]);
       setModalVisible(false);
-
-      // reloads the progress bar
       loadTodaysTotals(userIdToUse);
-
       alert('Food entry saved successfully!');
     } catch (error) {
       console.error('Error saving manual entry:', error);
@@ -363,145 +451,170 @@ export default function Nutrition() {
 
   return (
     <SafeAreaProvider>
-        <LinearGradient style={styles.gradient} colors={['#32a852', '#1a1b1c']}>
-          <SafeAreaView style={styles.container}>
-             <ScrollView 
+      <LinearGradient style={styles.gradient} colors={['#32a852', '#1a1b1c']}>
+        <SafeAreaView style={styles.container}>
+          <ScrollView 
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
-      <View style={styles.content}>
-        <Text style={styles.text}>Nutrition Screen</Text>
-        <Text style={[styles.text, { fontSize: 20 }]}>
-          Today's Calorie Goal: {cals}
-        </Text>
+            <View style={styles.content}>
+              <Text style={styles.text}>Nutrition Screen</Text>
+              <Text style={[styles.text, { fontSize: 20 }]}>
+                Today's Calorie Goal: {cals}
+              </Text>
 
-        <View style={styles.toggleRow}>
-          <TouchableOpacity
-            style={[styles.toggleBtn, viewMode === 'bars' && styles.toggleBtnActive]}
-            onPress={() => setViewMode('bars')}
-            accessibilityRole="button"
-            accessibilityState={{ selected: viewMode === 'bars' }}
-          >
-            <Text style={[styles.toggleText, viewMode === 'bars' && styles.toggleTextActive]}>
-              Progress
-            </Text>
-          </TouchableOpacity>
+              <View style={styles.toggleRow}>
+                <TouchableOpacity
+                  style={[styles.toggleBtn, viewMode === 'bars' && styles.toggleBtnActive]}
+                  onPress={() => setViewMode('bars')}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: viewMode === 'bars' }}
+                >
+                  <Text style={[styles.toggleText, viewMode === 'bars' && styles.toggleTextActive]}>
+                    Progress
+                  </Text>
+                </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.toggleBtn, viewMode === 'macros' && styles.toggleBtnActive]}
-            onPress={() => setViewMode('macros')}
-            accessibilityRole="button"
-            accessibilityState={{ selected: viewMode === 'macros' }}
-          >
-            <Text style={[styles.toggleText, viewMode === 'macros' && styles.toggleTextActive]}>
-              Macros
-            </Text>
-          </TouchableOpacity>
-        </View>
+                <TouchableOpacity
+                  style={[styles.toggleBtn, viewMode === 'macros' && styles.toggleBtnActive]}
+                  onPress={() => setViewMode('macros')}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: viewMode === 'macros' }}
+                >
+                  <Text style={[styles.toggleText, viewMode === 'macros' && styles.toggleTextActive]}>
+                    Macros
+                  </Text>
+                </TouchableOpacity>
 
-        {viewMode === 'bars' &&  (
-          <>
-        <View style={styles.progressGroup}>
-          <View style={styles.progressHeader}>
-            <Text style={styles.progressTitle}>Calories</Text>
-            <Text style={styles.progressTopValue}>{totalCalories} / {cals}</Text>
-          </View>
-          <View style={styles.progressRow}>
-            <View style={styles.progressBarContainer}>
-              <View
-                style={[
-                  styles.progressBarFill,
-                  { width: `${Math.min(percent, 100)}%` }
-                ]}
-              />
-            </View>
-            <Text style={[styles.text, styles.progressText]}>{percent}%</Text>
-          </View>
-        </View>
-                 
-        <View style={styles.progressGroup}>
-          <View style={styles.progressHeader}>
-            <Text style={styles.progressTitle}>Protein</Text>
-            <Text style={styles.progressTopValue}>{proteinTotal} / {proteinTarget}g</Text>
-          </View>
-          <View style={styles.progressRow}>
-            <View style={styles.progressBarContainer}>
-              <View
-                style={[
-                  styles.progressBarFill,
-                  { backgroundColor: '#ff00ff', width: `${Math.min(proteinPercent, 100)}%` }
-                ]}
-              />
-            </View>
-          <Text style={[styles.text, styles.progressText]}>{proteinPercent}%</Text>
-          </View>
-        </View>
+                <TouchableOpacity
+                  style={[styles.toggleBtn, viewMode === 'pie' && styles.toggleBtnActive]}
+                  onPress={() => setViewMode('pie')}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: viewMode === 'pie' }}
+                >
+                  <Text style={[styles.toggleText, viewMode === 'pie' && styles.toggleTextActive]}>
+                    Pie
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
-        <View style={styles.progressGroup}>
-          <View style={styles.progressHeader}>
-            <Text style={styles.progressTitle}>Carbs</Text>
-            <Text style={styles.progressTopValue}>{carbsTotal} / {carbsTarget}g</Text>
-          </View>
-          <View style={styles.progressRow}>
-            <View style={styles.progressBarContainer}>
-              <View
-                style={[
-                  styles.progressBarFill,
-                  { backgroundColor: '#00ff00', width: `${Math.min(carbsPercent, 100)}%` }
-                ]}
-              />
-            </View>
-            <Text style={[styles.text, styles.progressText]}>{carbsPercent}%</Text>
-          </View>
-        </View>
+              {viewMode === 'pie' && (
+                <Text style={styles.pieCaption}>
+                  Keep Green and Blue larger than Red, Orange, and Pink to achieve goal of pie charts
+                </Text>
+              )}
 
-        <View style={styles.progressGroup}>
-          <View style={styles.progressHeader}>
-            <Text style={styles.progressTitle}>Fat</Text>
-            <Text style={styles.progressTopValue}>{fatTotal} / {fatTarget}g</Text>
-          </View>
-          <View style={styles.progressRow}>
-            <View style={styles.progressBarContainer}>
-              <View
-                style={[
-                  styles.progressBarFill,
-                  { backgroundColor: '#ff0000', width: `${Math.min(fatPercent, 100)}%` }
-                ]}
-              />
-            </View>
-            <Text style={[styles.text, styles.progressText]}>{fatPercent}%</Text>
-          </View>
-        </View>
-        </>
-        )}
+              {viewMode === 'bars' && (
+                <>
+                  <View style={styles.progressGroup}>
+                    <View style={styles.progressHeader}>
+                      <Text style={styles.progressTitle}>Calories</Text>
+                      <Text style={styles.progressTopValue}>{totalCalories} / {cals}</Text>
+                    </View>
+                    <View style={styles.progressRow}>
+                      <View style={styles.progressBarContainer}>
+                        <View
+                          style={[
+                            styles.progressBarFill,
+                            { width: `${Math.min(percent, 100)}%` }
+                          ]}
+                        />
+                      </View>
+                      <Text style={[styles.text, styles.progressText]}>{percent}%</Text>
+                    </View>
+                  </View>
 
-        {viewMode === 'macros' && (
-          <View style={styles.macroRow}>
-            <View style={styles.macroItem}>
-              <Text style={styles.macroValue}>{proteinTotal}</Text>
-              <Text style={styles.macroLabel}>Protein</Text>
-            </View>
-            <View style={styles.macroItem}>
-              <Text style={styles.macroValue}>{carbsTotal}</Text>
-              <Text style={styles.macroLabel}>Carbs</Text>
-            </View>
-            <View style={styles.macroItem}>
-              <Text style={styles.macroValue}>{fatTotal}</Text>
-              <Text style={styles.macroLabel}>Fat</Text>
-            </View>
-          </View>
-        )}
+                  <View style={styles.progressGroup}>
+                    <View style={styles.progressHeader}>
+                      <Text style={styles.progressTitle}>Protein</Text>
+                      <Text style={styles.progressTopValue}>{proteinTotal} / {proteinTarget}g</Text>
+                    </View>
+                    <View style={styles.progressRow}>
+                      <View style={styles.progressBarContainer}>
+                        <View
+                          style={[
+                            styles.progressBarFill,
+                            { backgroundColor: '#ff00ff', width: `${Math.min(proteinPercent, 100)}%` }
+                          ]}
+                        />
+                      </View>
+                      <Text style={[styles.text, styles.progressText]}>{proteinPercent}%</Text>
+                    </View>
+                  </View>
 
-        {/* <View style={styles.debugInfo}>
-          <Text style={styles.debugText}>Debug - Daily Totals:</Text>
-          <Text style={styles.debugText}>State: {dailyTotals ? 'Loaded' : 'Not loaded'}</Text>
-          <Text style={styles.debugText}>UserID: {userId || user?.id || 'No user ID'}</Text>
-          <Text style={styles.debugText}>Calories: {dailyTotals?.totalCalories || 0}</Text>
-          <Text style={styles.debugText}>Protein: {dailyTotals?.totalProtein || 0}g</Text>
-          <Text style={styles.debugText}>Carbs: {dailyTotals?.totalCarbs || 0}g</Text>
-          <Text style={styles.debugText}>Fat: {dailyTotals?.totalFat || 0}g</Text>
-        </View> */}
-      </View>
+                  <View style={styles.progressGroup}>
+                    <View style={styles.progressHeader}>
+                      <Text style={styles.progressTitle}>Carbs</Text>
+                      <Text style={styles.progressTopValue}>{carbsTotal} / {carbsTarget}g</Text>
+                    </View>
+                    <View style={styles.progressRow}>
+                      <View style={styles.progressBarContainer}>
+                        <View
+                          style={[
+                            styles.progressBarFill,
+                            { backgroundColor: '#00ff00', width: `${Math.min(carbsPercent, 100)}%` }
+                          ]}
+                        />
+                      </View>
+                      <Text style={[styles.text, styles.progressText]}>{carbsPercent}%</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.progressGroup}>
+                    <View style={styles.progressHeader}>
+                      <Text style={styles.progressTitle}>Fat</Text>
+                      <Text style={styles.progressTopValue}>{fatTotal} / {fatTarget}g</Text>
+                    </View>
+                    <View style={styles.progressRow}>
+                      <View style={styles.progressBarContainer}>
+                        <View
+                          style={[
+                            styles.progressBarFill,
+                            { backgroundColor: '#ff0000', width: `${Math.min(fatPercent, 100)}%` }
+                          ]}
+                        />
+                      </View>
+                      <Text style={[styles.text, styles.progressText]}>{fatPercent}%</Text>
+                    </View>
+                  </View>
+                </>
+              )}
+
+              {viewMode === 'macros' && (
+                <View style={styles.macroRow}>
+                  <View style={styles.macroItem}>
+                    <Text style={styles.macroValue}>{proteinTotal}</Text>
+                    <Text style={styles.macroLabel}>Protein</Text>
+                  </View>
+                  <View style={styles.macroItem}>
+                    <Text style={styles.macroValue}>{carbsTotal}</Text>
+                    <Text style={styles.macroLabel}>Carbs</Text>
+                  </View>
+                  <View style={styles.macroItem}>
+                    <Text style={styles.macroValue}>{fatTotal}</Text>
+                    <Text style={styles.macroLabel}>Fat</Text>
+                  </View>
+                </View>
+              )}
+
+              {viewMode === 'pie' && (
+                <View style={styles.pieWrap}>
+                  <PieChart
+                    size={240}
+                    values={pieValues}
+                    colors={pieColors}
+                    labels={['Calories', 'Fat', 'Carbs', 'Sugar']}
+                    valueLabels={[
+                      `${Math.round(totalCalories)} kcal`,
+                      `${Math.round(fatTotal)} g`,
+                      `${Math.round(carbsTotal)} g`,
+                      `${Math.round(sugarTotal)} g`,
+                    ]}
+                  />
+                  <Text style={styles.pieTitle}>Weight Loss</Text>
+                </View>
+              )}
+            </View>
           </ScrollView>
 
           <TouchableOpacity
@@ -520,15 +633,14 @@ export default function Nutrition() {
             <Text style={styles.historyIcon}>≡</Text>
           </TouchableOpacity>
 
-
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => setModalVisible(true)}
           >
             <Text style={styles.plusSign}>+</Text>
           </TouchableOpacity>
-          </SafeAreaView>
-        </LinearGradient>
+        </SafeAreaView>
+      </LinearGradient>
 
         <Modal
           animationType="slide"
@@ -880,22 +992,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-  
-  // debugInfo: {
-  //   marginTop: 20,
-  //   padding: 10,
-  //   backgroundColor: 'rgba(255,255,255,0.9)',
-  //   borderRadius: 8,
-  //   borderWidth: 2,
-  //   borderColor: '#fff',
-  //   width: '90%',
-  // },
-  // debugText: {
-  //   color: '#000',
-  //   fontSize: 14,
-  //   fontWeight: 'bold',
-  //   marginBottom: 2,
-  // },
+
   loginButton: {
     marginTop: 20,
     backgroundColor: '#fff',
@@ -954,94 +1051,116 @@ const styles = StyleSheet.create({
   gap: 10,
   marginTop: 10,
   marginBottom: 8,
-},
-toggleBtn: {
-  flex: 1,
-  alignItems: 'center',
-  justifyContent: 'center',
-  paddingVertical: 10,
-  borderRadius: 8,
-  borderWidth: 1,
-  borderColor: 'rgba(255,255,255,0.25)',
-  backgroundColor: 'rgba(255,255,255,0.08)',
-},
-toggleBtnActive: {
-  backgroundColor: '#32a852',
-  borderColor: '#32a852',
-},
-toggleText: {
-  color: '#fff',
-  fontWeight: '600',
-},
-toggleTextActive: {
-  color: '#fff',
-},
-historyButton: {
-  position: 'absolute',
-  bottom: 100,
-  left: 20,
-  width: 60,
-  height: 60,
-  backgroundColor: '#fff',
-  borderRadius: 8,
-  justifyContent: 'center',
-  alignItems: 'center',
-  elevation: 5,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.25,
-  shadowRadius: 3.84,
-},
-historyIcon: {
-  fontSize: 26,
-  color: '#32a852',
-  fontWeight: 'bold',
-},
+  },
+  toggleBtn: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  toggleBtnActive: {
+    backgroundColor: '#32a852',
+    borderColor: '#32a852',
+  },
+  toggleText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  toggleTextActive: {
+    color: '#fff',
+  },
+  historyButton: {
+    position: 'absolute',
+    bottom: 100,
+    left: 20,
+    width: 60,
+    height: 60,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  historyIcon: {
+    fontSize: 26,
+    color: '#32a852',
+    fontWeight: 'bold',
+  },
 
-historyOverlay: {
-  flex: 1,
-  backgroundColor: 'rgba(0,0,0,0.5)',
-  justifyContent: 'flex-end',
-},
-historyModal: {
-  width: '100%',
-  height: screenHeight * 0.7,
-  backgroundColor: '#fff',
-  borderTopLeftRadius: 20,
-  borderTopRightRadius: 20,
-  paddingHorizontal: 16,
-  paddingTop: 12,
-  paddingBottom: 20,
-},
-historyHeaderRow: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 8,
-},
-historyTitle: { fontSize: 18, fontWeight: '700', color: '#111' },
-historyClose: { fontSize: 16, fontWeight: '700', color: '#32a852' },
+  historyOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  historyModal: {
+    width: '100%',
+    height: screenHeight * 0.7,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 20,
+  },
+  historyHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  historyTitle: { fontSize: 18, fontWeight: '700', color: '#111' },
+  historyClose: { fontSize: 16, fontWeight: '700', color: '#32a852' },
 
-historyScrollContent: { paddingBottom: 24 },
-historySection: { marginBottom: 18 },
-historyDate: { marginLeft: 6, marginBottom: 6, color: '#444', fontWeight: '700' },
-historyEmpty: { color: '#666', textAlign: 'center', marginTop: 16 },
+  historyScrollContent: { paddingBottom: 24 },
+  historySection: { marginBottom: 18 },
+  historyDate: { marginLeft: 6, marginBottom: 6, color: '#444', fontWeight: '700' },
+  historyEmpty: { color: '#666', textAlign: 'center', marginTop: 16 },
 
-historyCard: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'flex-start',
-  padding: 14,
-  borderWidth: 2,
-  borderColor: '#111',
-  borderRadius: 8,
-  backgroundColor: '#fff',
-  marginBottom: 12,
-},
-cardName: { fontSize: 26, fontWeight: '800', maxWidth: '55%', color: '#111' },
-cardRight: { alignItems: 'flex-end' },
-cardLine: { fontSize: 16, color: '#222', marginBottom: 6 },
-cardUnderline: { borderBottomWidth: 2, borderColor: '#111', paddingBottom: 2 },
-cardValue: { fontWeight: '700' },
+  historyCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    padding: 14,
+    borderWidth: 2,
+    borderColor: '#111',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    marginBottom: 12,
+  },
+  cardName: { fontSize: 26, fontWeight: '800', maxWidth: '55%', color: '#111' },
+  cardRight: { alignItems: 'flex-end' },
+  cardLine: { fontSize: 16, color: '#222', marginBottom: 6 },
+  cardUnderline: { borderBottomWidth: 2, borderColor: '#111', paddingBottom: 2 },
+  cardValue: { fontWeight: '700' },
 
+  pieWrap: {
+    marginTop: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  pieTitle: {
+    marginTop: 6,
+    fontSize: 12,
+    color: '#fff',
+    opacity: 0.85,
+    fontWeight: '600',
+  },
+  pieCaption: {
+    fontSize: 12,
+    fontStyle: 'italic',
+    color: '#fff',
+    opacity: 0.85,
+    textAlign: 'center',
+    marginTop: 4,
+    marginHorizontal: 12,
+  },
 });
