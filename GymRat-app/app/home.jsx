@@ -64,7 +64,7 @@ export default function HomeScreen() {
       for (const dateObj of days) {
         const dateStr = dateObj.toISOString().split("T")[0];
         const res = await db.getAllAsync(
-          `SELECT COUNT(*) as count FROM dailyNutLog WHERE user_id = ? AND date = ?`,
+          `SELECT COUNT(*) as count FROM historyLog WHERE user_id = ? AND date = ?`, // change to FROM storedNutLog when it works
           [userId, dateStr]
         );
         results.push({
@@ -77,21 +77,6 @@ export default function HomeScreen() {
 
     loadWeekData();
   }, [db, userId]);
-
-const loadDayTotals = async (date) => {
-  const dateStr = date.toISOString().split("T")[0];
-  const result = await db.getAllAsync(
-    `SELECT 
-      SUM(CAST(calories AS REAL)) AS totalCalories,
-      SUM(CAST(protein AS REAL)) AS totalProtein,
-      SUM(CAST(total_Carbs AS REAL)) AS totalCarbs,
-      SUM(CAST(total_Fat AS REAL)) AS totalFat
-    FROM dailyNutLog
-    WHERE user_id = ? AND date = ?`,
-    [userId, dateStr]
-  );
-  setDayTotals(result[0] || { totalCalories: 0, totalProtein: 0, totalCarbs: 0, totalFat: 0 });
-};
 
   // first get calendar permissions
   useEffect(() => {
@@ -125,8 +110,8 @@ const loadDayTotals = async (date) => {
     return data.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'});
   };
 
-  const loadTodaysTotals = async (userId) => {
-    const date = new Date().toISOString().split('T')[0];
+  const loadTotalsForDate = async (date, tableName = "dailyNutLog") => {
+    const dateStr = date.toISOString().split("T")[0];
 
     try {
       const result = await db.getAllAsync(
@@ -135,33 +120,34 @@ const loadDayTotals = async (date) => {
           SUM(CAST(protein AS REAL)) AS totalProtein,
           SUM(CAST(total_Carbs AS REAL)) AS totalCarbs,
           SUM(CAST(total_Fat AS REAL)) AS totalFat
-        FROM dailyNutLog
+        FROM ${tableName}
         WHERE user_id = ? AND date = ?`,
-        [userId, date]
+        [userId, dateStr]
       );
 
-      // error handing if there are no values for user
       const totals = result[0];
-      setDailyTotals({
+      return {
         totalCalories: totals?.totalCalories || 0,
         totalProtein: totals?.totalProtein || 0,
         totalCarbs: totals?.totalCarbs || 0,
         totalFat: totals?.totalFat || 0,
-      });
+      };
     } catch (error) {
-      console.error('Error loading totals:', error);
-      // set default values if query fails
-      setDailyTotals({
+      console.error(`Error loading totals from ${tableName}:`, error);
+      return {
         totalCalories: 0,
         totalProtein: 0,
         totalCarbs: 0,
         totalFat: 0,
-      });
+      };
     }
   };
 
   useEffect(() => {
-  loadTodaysTotals(userId);
+    (async () => {
+      const todayTotals = await loadTotalsForDate(new Date(), "dailyNutLog");
+      setDailyTotals(todayTotals);
+    })();
   }, [db, userId]);
 
   return (
@@ -239,10 +225,11 @@ const loadDayTotals = async (date) => {
                 <TouchableOpacity
                   key={index}
                   style={styles.dayColumn}
-                  onPress={() => {
+                  onPress={async () => {
                     setSelectedDate(dayInfo.date);
                     if (dayInfo.hasLog) {
-                      loadDayTotals(dayInfo.date);
+                      const totals = await loadTotalsForDate(dayInfo.date, "historyLog"); // change to STOREDNUTLOG when it works
+                      setDayTotals(totals);
                     } else {
                       setDayTotals(null); // no logs for that day
                     }
