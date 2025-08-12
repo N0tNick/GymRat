@@ -18,11 +18,16 @@ export default function HomeScreen() {
   const db = useSQLiteContext();
   const { userId } = useUser();
   const [dailyTotals, setDailyTotals] = useState(null);
-
+  // add a task
   const [modalVisible, setModalVisible] = useState(false);
   const [newEventName, setNewEventName] = useState('');
   const [newEventTime, setNewEventTime] = useState(new Date());
   const [showTimePicker, setShowTimePicker] = useState(false);
+  // weekly calendar
+  const [dayModalVisible, setDayModalVisible] = useState(false);
+  const [dayTotals, setDayTotals] = useState(null);
+  const [weekData, setWeekData] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
 
   // function to add daily event
   const handleAddEvent = () => {
@@ -43,6 +48,50 @@ export default function HomeScreen() {
     setNewEventTime(new Date());
     setModalVisible(false);
   };
+
+  useEffect(() => {
+    const startOfWeek = new Date();
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); // Sunday
+
+    const days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(startOfWeek);
+      d.setDate(d.getDate() + i);
+      return d;
+    });
+
+    const loadWeekData = async () => {
+      const results = [];
+      for (const dateObj of days) {
+        const dateStr = dateObj.toISOString().split("T")[0];
+        const res = await db.getAllAsync(
+          `SELECT COUNT(*) as count FROM dailyNutLog WHERE user_id = ? AND date = ?`,
+          [userId, dateStr]
+        );
+        results.push({
+          date: dateObj,
+          hasLog: res[0]?.count > 0
+        });
+      }
+      setWeekData(results);
+    };
+
+    loadWeekData();
+  }, [db, userId]);
+
+const loadDayTotals = async (date) => {
+  const dateStr = date.toISOString().split("T")[0];
+  const result = await db.getAllAsync(
+    `SELECT 
+      SUM(CAST(calories AS REAL)) AS totalCalories,
+      SUM(CAST(protein AS REAL)) AS totalProtein,
+      SUM(CAST(total_Carbs AS REAL)) AS totalCarbs,
+      SUM(CAST(total_Fat AS REAL)) AS totalFat
+    FROM dailyNutLog
+    WHERE user_id = ? AND date = ?`,
+    [userId, dateStr]
+  );
+  setDayTotals(result[0] || { totalCalories: 0, totalProtein: 0, totalCarbs: 0, totalFat: 0 });
+};
 
   // first get calendar permissions
   useEffect(() => {
@@ -181,25 +230,71 @@ export default function HomeScreen() {
               </View>
             </View>
           </View>
-        )}
+          )}
 
-        <View style={styles.homeModule}>
-          <Text style={styles.moduleTitle}>Weekly Calendar</Text>
-          <View style={styles.weekRow}>
-            {["Sun.", "Mon.", "Tue.", "Wed.", "Thur.", "Fri.", "Sat."].map((day, index) => (
-              <TouchableOpacity key={day} style={styles.dayColumn} onPress={() => {
-                  // TODO MODAL FOR DAY
-                  console.log(`Tapped ${day}`);}}>
-                <Text style={styles.dayLabel}>{day}</Text>
-                <View style={styles.dayContent}>
-                  {/* Nutrition info or icon goes here */}
-                </View>
-              </TouchableOpacity>
-            ))}
+          <View style={styles.homeModule}>
+            <Text style={styles.moduleTitle}>Weekly Calendar</Text>
+            <View style={styles.weekRow}>
+              {weekData.map((dayInfo, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.dayColumn}
+                  onPress={() => {
+                    setSelectedDate(dayInfo.date);
+                    if (dayInfo.hasLog) {
+                      loadDayTotals(dayInfo.date);
+                    } else {
+                      setDayTotals(null); // no logs for that day
+                    }
+                    setDayModalVisible(true);
+                  }}
+                >
+                  <Text style={styles.dayLabel}>
+                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dayInfo.date.getDay()]}
+                  </Text>
+                  <View style={styles.dayContent}>
+                    <Text style={{ color: "#fff" }}>{dayInfo.date.getDate()}</Text>
+                    <View
+                      style={[
+                        styles.logIndicator,
+                        { backgroundColor: dayInfo.hasLog ? "green" : "transparent" }
+                      ]}
+                    />
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-        </View>
 
+          {/* Day Modal */}
+          <Modal
+            transparent={true}
+            visible={dayModalVisible}
+            onRequestClose={() => setDayModalVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContainer}>
+                <Text style={styles.modalTitle}>
+                  {selectedDate?.toDateString()}
+                </Text>
+                {dayTotals ? (
+                  <>
+                    <Text style={{ color: "#fff" }}>Calories: {dayTotals.totalCalories}</Text>
+                    <Text style={{ color: "#fff" }}>Protein: {dayTotals.totalProtein}</Text>
+                    <Text style={{ color: "#fff" }}>Carbs: {dayTotals.totalCarbs}</Text>
+                    <Text style={{ color: "#fff" }}>Fat: {dayTotals.totalFat}</Text>
+                  </>
+                ) : (
+                  <Text style={{ color: "#fff", fontStyle: "italic" }}>Nothing logged this day</Text>
+                )}
+                <TouchableOpacity onPress={() => setDayModalVisible(false)}>
+                  <Text style={styles.cancelText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
 
+          {/* route to nutrition splashpage */}
           <TouchableOpacity
             style={styles.nutsplashButton}
             onPress={() => router.push('/nutsplash')}
@@ -446,5 +541,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  logIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "green",
+    marginTop: 4,
   },
 });
