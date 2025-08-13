@@ -581,21 +581,35 @@ const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
               )}
 
               {viewMode === 'macros' && (
-                <View style={styles.macroRow}>
-                  <View style={styles.macroItem}>
-                    <Text style={styles.macroValue}>{proteinTotal}</Text>
-                    <Text style={styles.macroLabel}>Protein</Text>
+                <>
+                  <View style={styles.macroRow}>
+                    <View style={styles.macroItem}>
+                      <Text style={styles.macroValue}>{totalCalories}</Text>
+                      <Text style={styles.macroLabel}>Calories</Text>
+                    </View>
+                    <View style={styles.macroItem}>
+                      <Text style={styles.macroValue}>{proteinTotal}</Text>
+                      <Text style={styles.macroLabel}>Protein</Text>
+                    </View>
+                    <View style={styles.macroItem}>
+                      <Text style={styles.macroValue}>{fatTotal}</Text>
+                      <Text style={styles.macroLabel}>Fat</Text>
+                    </View>
                   </View>
-                  <View style={styles.macroItem}>
-                    <Text style={styles.macroValue}>{carbsTotal}</Text>
-                    <Text style={styles.macroLabel}>Carbs</Text>
+
+                  <View style={styles.macroRow}>
+                    <View style={styles.macroItem}>
+                      <Text style={styles.macroValue}>{carbsTotal}</Text>
+                      <Text style={styles.macroLabel}>Carbs</Text>
+                    </View>
+                    <View style={styles.macroItem}>
+                      <Text style={styles.macroValue}>{sugarTotal}</Text>
+                      <Text style={styles.macroLabel}>Sugar</Text>
+                    </View>
                   </View>
-                  <View style={styles.macroItem}>
-                    <Text style={styles.macroValue}>{fatTotal}</Text>
-                    <Text style={styles.macroLabel}>Fat</Text>
-                  </View>
-                </View>
+                </>
               )}
+
 
               {viewMode === 'pie' && (
                 <View style={styles.pieWrap}>
