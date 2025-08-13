@@ -1,6 +1,7 @@
 import React from 'react';
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, TouchableOpacity, Image } from 'react-native';
 import { Layout, Tab, TabView, Text } from '@ui-kitten/components'
+import { useRouter } from 'expo-router';
 import Calendar from './ProfileCalendar'
 
 
@@ -9,6 +10,7 @@ const { width: screenWidth } = Dimensions.get('window');
 
 const TopTab = () => {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
+  const router = useRouter();
 
   return (
       <TabView 
@@ -20,10 +22,22 @@ const TopTab = () => {
         <Tab 
           title={evaProps => <Text {...evaProps} style={styles.tabText}>Overview</Text>}
           style={styles.tabStyle}
-        >          
+        >         
           <Layout style={styles.tabContainer}>
             <Text category='h5' style={styles.tabText}>OVERVIEW</Text>
             <Calendar/>
+            <TouchableOpacity style = {{margin: 20, width: screenWidth*0.9, height: 120, borderWidth:6, borderRadius: 10, borderColor: '#6a5acd'}}
+            onPress={() => router.push('/ExerciseGoals')}
+            >
+              <Text category='h6' style = {{color:'#6a5acd', position: 'absolute', fontWeight: 'bold' }}>Exercise Goals</Text>
+              <Image style={{width: 50, height: 50, position:'absolute', right:20, marginTop: 25, borderWidth: 2, borderRadius:25, borderColor:'gray', backgroundColor:'white'}} 
+                source={{
+                  uri: 'https://www.freeiconspng.com/thumbs/plus-icon/plus-icon-black-2.png',
+                }}
+              />
+            </TouchableOpacity>
+            
+
           </Layout>
         </Tab>
 
@@ -55,6 +69,7 @@ const styles = StyleSheet.create({
   tabStyle: {
     padding:5, 
     backgroundColor: 'white',
+    margin:2
   },
   tabText: {
     color: '#6a5acd',
@@ -70,5 +85,6 @@ const styles = StyleSheet.create({
     width: screenWidth,
     alignItems: 'center',
     backgroundColor: '#2a2a2aff',
+    padding:10
   },
 });
