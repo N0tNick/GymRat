@@ -3,15 +3,36 @@ import { useRouter } from 'expo-router';
 import { Image, StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
+import { useSQLiteContext } from 'expo-sqlite';
+import { useUser } from '../UserContext.js';
 
 export default function SplashScreen() {
   const router = useRouter();
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const db = useSQLiteContext();
+  const { setUserId } = useUser();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user && user.emailVerified) {
-        router.replace('/home'); // go to Home
+      try {
+          // Lookup user ID by email
+          const result = await db.getFirstAsync(
+            'SELECT id FROM users WHERE email = ?',
+            [user.email]
+          );
+
+          if (result) {
+            setUserId(result.id);
+            console.log('Persistent login user ID:', result.id);
+          } else {
+            console.warn('No local SQLite user found for:', user.email);
+          }
+          // Now route to home
+          router.replace('/home');
+        } catch (err) {
+          console.error('Failed to get user ID on auto-login:', err);
+        }
       } else {
         setCheckingAuth(false); // Show splash if not logged in
       }

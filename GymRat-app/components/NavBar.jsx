@@ -6,7 +6,7 @@ const tabs = [
   { name: 'Workout',    route: '/workout' },
   { name: 'Scan',       route: '/barcodeScanner' },
   { name: 'Nutrition',  route: '/nutrition' },
-  { name: 'Profile',    route: '/ProfilePage/profile' },
+  { name: 'Profile',    route: 'profile' },
 ];
 
 export default function NavBar() {
