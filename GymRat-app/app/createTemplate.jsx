@@ -11,8 +11,6 @@ const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 const router = useRouter();
 
-export const data = []
-
 export default function CreateTemplateScreen() {
   const db = useSQLiteContext();
   const [templateName, setTemplateName] = useState('New Template')
@@ -20,17 +18,34 @@ export default function CreateTemplateScreen() {
   const [selectedExercises, setSelectedExercises] = useState([]);
   const [numOfSets, setNumOfSets] = useState({})
 
-  /*const saveTemplateToDB = async () => {
-    try{
-      await db.execAsync("INSERT INTO workoutTemplates (name) VALUES (?);", [
-        templateName
-      ])
+  const saveTemplateToDB = async (user_id, name, templateData) => {
+    try {
+      const jsonData = JSON.stringify(templateData)
+
+      await db.runAsync(
+        `INSERT OR REPLACE INTO workoutTemplates (user_id, name, data) VALUES (?, ?, ?);`,
+        [user_id, name, jsonData]
+      )
+
+      console.log("Template saved!")
       router.back()
+
     } catch (error) {
-      console.error(error)
-      console.log('error saving template')
+      console.error("Error saving template: ", error)
     }
-  }*/
+  }
+
+  const handleSave = async () => {
+    const templateData = {
+      exercises: selectedExercises.map(ex => ({
+        name: ex.name,
+        id: ex.id,
+        sets: numOfSets[ex.id] || []
+      }))
+    }
+    // right now hardcoding user_id = 1, later replace with actual logged in user
+    await saveTemplateToDB(1, templateName, templateData);
+  }
 
   const ExerciseSetComponent = ({ index, itemId }) => {
     const setData = numOfSets[itemId][index];
@@ -94,7 +109,7 @@ export default function CreateTemplateScreen() {
       </View>
 
       {(numOfSets[item.id] || []).map((_, index) => (
-        <ExerciseSetComponent key={index} index={index} itemId={item.id}/>
+        <ExerciseSetComponent key={`${item.id}-${index}`} index={index} itemId={item.id}/>
       ))}
 
       <TouchableOpacity 
@@ -118,7 +133,7 @@ export default function CreateTemplateScreen() {
                 <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 20}}>New Template</Text>
 
                 <TouchableOpacity style={{backgroundColor: '#1478db', paddingHorizontal: 10, justifyContent: 'center', borderRadius: 5}}
-                onPress={saveTemplateToDB}>
+                onPress={handleSave}>
                   <Text style={[styles.xButton, {color: '#fff'}]}>Save</Text>
                 </TouchableOpacity>
               </View>
