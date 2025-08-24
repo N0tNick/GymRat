@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import { Dimensions, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -13,10 +14,23 @@ const router = useRouter();
 export const data = []
 
 export default function CreateTemplateScreen() {
+  const db = useSQLiteContext();
   const [templateName, setTemplateName] = useState('New Template')
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedExercises, setSelectedExercises] = useState([]);
   const [numOfSets, setNumOfSets] = useState({})
+
+  /*const saveTemplateToDB = async () => {
+    try{
+      await db.execAsync("INSERT INTO workoutTemplates (name) VALUES (?);", [
+        templateName
+      ])
+      router.back()
+    } catch (error) {
+      console.error(error)
+      console.log('error saving template')
+    }
+  }*/
 
   const ExerciseSetComponent = ({ index, itemId }) => {
     const setData = numOfSets[itemId][index];
@@ -103,7 +117,10 @@ export default function CreateTemplateScreen() {
 
                 <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 20}}>New Template</Text>
 
-                <TouchableOpacity style={{backgroundColor: '#1478db', paddingHorizontal: 10, justifyContent: 'center', borderRadius: 5}}><Text style={[styles.xButton, {color: '#fff'}]}>Save</Text></TouchableOpacity>
+                <TouchableOpacity style={{backgroundColor: '#1478db', paddingHorizontal: 10, justifyContent: 'center', borderRadius: 5}}
+                onPress={saveTemplateToDB}>
+                  <Text style={[styles.xButton, {color: '#fff'}]}>Save</Text>
+                </TouchableOpacity>
               </View>
 
               <TextInput

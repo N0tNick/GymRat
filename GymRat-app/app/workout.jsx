@@ -1,5 +1,6 @@
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+import { useCallback, useEffect, useState } from 'react';
 import { Dimensions, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import exercises from '../assets/exercises.json';
@@ -11,6 +12,21 @@ const { width: screenWidth } = Dimensions.get('window');
 const router = useRouter();
 
 export default function WorkoutScreen() {
+  const db = useSQLiteContext()
+  const [userTemplates, setUserTemplates] = useState([])
+
+  const loadTemplates = async() => {
+    const result = await db.getAllAsync("SELECT * FROM workoutTemplates;")
+    setUserTemplates(result)
+    console.log('loaded templates: ', result)
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      loadTemplates()
+    }, [])
+  )
+
   const renderItem = ({ item }) => (
     <TouchableOpacity 
     style={styles.card}
@@ -73,6 +89,10 @@ export default function WorkoutScreen() {
     }
     return instructionText
   }
+
+  const renderTemplate = ({ item }) => (
+    <Text style={{color: '#fff'}}>{item.name}</Text>
+  )
 
   const [modalVisible, setModalVisible] = useState(false)
   const [searchText, setSearchText] = useState('')
@@ -211,6 +231,12 @@ export default function WorkoutScreen() {
             <Text style={{color: '#fff', fontSize: 20, fontWeight: 'bold',}}>Templates</Text>
             <TouchableOpacity style={styles.button} onPress ={() => router.push('/createTemplate')}><Text style={{color: '#fff'}}>+ Template</Text></TouchableOpacity>
           </View>
+
+          <FlatList
+          data={userTemplates}
+          keyExtractor={(item) => item.id}
+          renderItem={renderTemplate}
+          />
           
         </SafeAreaView>
         </View>
