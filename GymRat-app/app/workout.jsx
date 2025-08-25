@@ -1,7 +1,7 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useState } from 'react';
-import { Dimensions, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import exercises from '../assets/exercises.json';
 import schema from '../assets/schema.json';
@@ -98,7 +98,10 @@ export default function WorkoutScreen() {
 
     return (
       <TouchableOpacity style={styles.templateBox}>
-        <Text style={styles.text}>{item.name}</Text>
+        <View style={{flexDirection: 'row'}}>
+          <Text style={styles.text}>{item.name}</Text>
+          <TouchableOpacity onPress = {() => {deleteTemplate(item.id)}}><Text>Delete</Text></TouchableOpacity>
+        </View>
 
         {template.exercises.map((exercise, idx) => (
           <Text key={exercise.id || idx} style={[styles.subtitle, {color: '#fff'}]}>
@@ -107,7 +110,32 @@ export default function WorkoutScreen() {
         ))}
       </TouchableOpacity>
     )
-}
+  }
+
+  const deleteTemplate = (id) => {
+    Alert.alert('Delete Template', 'Are you sure you want to delete this template?', [
+      {
+        text: 'Cancel',
+        style: 'cancel'
+      },
+      {
+        text: 'Yes',
+        onPress: async () => {
+          try {
+            await db.runAsync(
+              `DELETE FROM workoutTemplates WHERE id = ?;`,
+              [id]
+            );
+            console.log('Template deleted successfully');
+            loadTemplates(); // refresh list AFTER deletion
+          } catch (error) {
+            console.log('Error deleting template: ', error);
+          }
+        },
+      }
+    ])
+    loadTemplates()
+  }
 
   const [modalVisible, setModalVisible] = useState(false)
   const [searchText, setSearchText] = useState('')
