@@ -109,7 +109,7 @@ export default function CreateTemplateScreen() {
       </View>
 
       {(numOfSets[item.id] || []).map((_, index) => (
-        <ExerciseSetComponent key={`${item.id}-${index}`} index={index} itemId={item.id}/>
+        <ExerciseSetComponent key={`${String(item.id ?? 'noid')}-${index}`} index={index} itemId={item.id}/>
       ))}
 
       <TouchableOpacity 
@@ -146,7 +146,7 @@ export default function CreateTemplateScreen() {
 
               <FlatList
               data={selectedExercises}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item, index) => String(item.id ?? index)}
               renderItem={renderItem}
               />
 

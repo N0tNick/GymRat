@@ -17,8 +17,11 @@ export default function WorkoutScreen() {
 
   const loadTemplates = async() => {
     const result = await db.getAllAsync("SELECT * FROM workoutTemplates;")
+    /*for (i = 0; i < result.length; i++) {
+      result[i] = JSON.parse(result[i])
+    }*/
     setUserTemplates(result)
-    console.log('loaded templates: ', result)
+    //console.log('loaded templates: ', result)
   }
 
   useFocusEffect(
@@ -90,9 +93,21 @@ export default function WorkoutScreen() {
     return instructionText
   }
 
-  const renderTemplate = ({ item }) => (
-    <Text style={{color: '#fff'}}>{item.name}</Text>
-  )
+  const renderTemplate = ({ item }) => {
+    const template = JSON.parse(item.data)
+
+    return (
+      <TouchableOpacity style={styles.templateBox}>
+        <Text style={styles.text}>{item.name}</Text>
+
+        {template.exercises.map((exercise, idx) => (
+          <Text key={exercise.id || idx} style={[styles.subtitle, {color: '#fff'}]}>
+            {exercise.name} ({exercise.sets.length} sets)
+          </Text>
+        ))}
+      </TouchableOpacity>
+    )
+}
 
   const [modalVisible, setModalVisible] = useState(false)
   const [searchText, setSearchText] = useState('')
@@ -234,8 +249,10 @@ export default function WorkoutScreen() {
 
           <FlatList
           data={userTemplates}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={renderTemplate}
+          style={{padding: 10}}
+          ItemSeparatorComponent={<View style={{padding: 5}}/>}
           />
           
         </SafeAreaView>
@@ -328,5 +345,11 @@ const styles = StyleSheet.create({
     padding: 10,
     justifyContent: 'center',
     fontSize: 20,
+  },
+  templateBox: {
+    padding: 10,
+    backgroundColor: '#666',
+    borderWidth: '1',
+    borderRadius: 10,
   }
 });

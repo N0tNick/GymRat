@@ -32,8 +32,9 @@ export default function App() {
         );
         await db.execAsync(
           `CREATE TABLE IF NOT EXISTS workoutTemplates (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
           user_id INTEGER NOT NULL,
-          name TEXT NOT NULL PRIMARY KEY,
+          name TEXT NOT NULL,
           data TEXT
           );`
         );
