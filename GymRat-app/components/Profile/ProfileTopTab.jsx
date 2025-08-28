@@ -45,25 +45,43 @@ const TopTab = () => {
           <Layout style={styles.tabContainer}>
             <View style={{width:screenWidth*0.95, height:100, borderWidth:3, borderRadius:8, borderColor:'#6a5acd'}}>
               <Text category='h6' style={textStyles.compText}>Composition</Text>
-                <View style = {{ flexDirection:'row',justifyContent: 'center' }}>
+                <View style = {{ flexDirection:'row', alignItems: 'center', justifyContent: 'flex-start' }}>
                       <View>
-                        <Text category='h6' style={textStyles.compTitlesText}>Weight</Text>
+                        <View style={{flexDirection:'row'}}>
+                          <Text category='h6' style={textStyles.compTitlesText}>Weight</Text>
+                          <TouchableOpacity style ={styles.logoContainer}>
+                            <Image style={styles.logo} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
+                          </TouchableOpacity>
+                        </View>
                         <TouchableOpacity style = {styles.bodyCompContainers}>
                           <Text category='h7' style = {textStyles.compBodyText}>- lbs</Text>
                         </TouchableOpacity>
                       </View>
+
                       <View>
-                        <Text category='h6' style={textStyles.compTitlesText}>Body Fat</Text>
+                        <View style={{flexDirection:'row'}}>
+                          <Text category='h6' style={textStyles.compTitlesText}>Body Fat</Text>
+                          <TouchableOpacity style ={styles.logoContainer}>
+                            <Image style={styles.logo} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
+                          </TouchableOpacity>
+                        </View>
                         <TouchableOpacity style = {styles.bodyCompContainers}>
                           <Text category='h7' style = {textStyles.compBodyText}>- %</Text>
                         </TouchableOpacity>
                       </View>
+
                       <View>
-                        <Text category='h6' style={textStyles.compTitlesText}>BMI</Text>
+                        <View style={{flexDirection:'row'}}>
+                          <Text category='h6' style={textStyles.compTitlesText}>BMI</Text>
+                          <TouchableOpacity style ={styles.logoContainer}>
+                            <Image style={styles.logo} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
+                          </TouchableOpacity>
+                        </View>
                         <TouchableOpacity style = {styles.bodyCompContainers}>
                           <Text category='h7' style = {textStyles.compBodyText}>-</Text>
                         </TouchableOpacity>
                       </View>
+
                 </View>
             </View>
           </Layout>
@@ -106,10 +124,20 @@ const styles = StyleSheet.create({
     padding:10
   },
   bodyCompContainers: {
-    marginTop: 30, 
+    marginTop:0, 
     marginLeft:5, 
     width: screenWidth*0.3, 
-    height: 100
+    height: 70
+  },
+  logoContainer: {
+    width: 20,
+    height: 20,
+    marginTop: 30,
+    marginLeft:10,
+  },
+  logo: {
+    width:'100%',
+    height:'100%'
   },
 });
 
@@ -126,12 +154,11 @@ const textStyles = StyleSheet.create({
     marginTop:30,
     paddingLeft:10,
     color:'white', 
-    position: 'absolute', 
     fontWeight: 'bold', 
     fontSize: '15'
   },
   compBodyText: {
-    marginTop:30, 
+    marginTop:10, 
     paddingLeft:15,
     color:'white', 
     position:'absolute', 
