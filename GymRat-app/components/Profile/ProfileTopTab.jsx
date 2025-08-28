@@ -47,21 +47,21 @@ const TopTab = () => {
               <Text category='h6' style={textStyles.compText}>Composition</Text>
                 <View style = {{ flexDirection:'row',justifyContent: 'center' }}>
                       <View>
-                        <Text category='h6' style={textStyles.bodyText}>Weight</Text>
+                        <Text category='h6' style={textStyles.compTitlesText}>Weight</Text>
                         <TouchableOpacity style = {styles.bodyCompContainers}>
-                          <Text category='h7' style = {{position:'absolute', marginTop:20, color:'white', fontSize:'14', fontWeight:'bold'}}>-</Text>
+                          <Text category='h7' style = {textStyles.compBodyText}>- lbs</Text>
                         </TouchableOpacity>
                       </View>
                       <View>
-                        <Text category='h6' style={textStyles.bodyText}>Body Fat %</Text>
+                        <Text category='h6' style={textStyles.compTitlesText}>Body Fat</Text>
                         <TouchableOpacity style = {styles.bodyCompContainers}>
-                          <Text category='h7' style = {{position:'absolute', marginTop:20, color:'white', fontSize:'14', fontWeight:'bold'}}>-</Text>
+                          <Text category='h7' style = {textStyles.compBodyText}>- %</Text>
                         </TouchableOpacity>
                       </View>
                       <View>
-                        <Text category='h6' style={textStyles.bodyText}>BMI</Text>
+                        <Text category='h6' style={textStyles.compTitlesText}>BMI</Text>
                         <TouchableOpacity style = {styles.bodyCompContainers}>
-                          <Text category='h7' style = {{position:'absolute', marginTop:20, color:'white', fontSize:'14', fontWeight:'bold'}}>-</Text>
+                          <Text category='h7' style = {textStyles.compBodyText}>-</Text>
                         </TouchableOpacity>
                       </View>
                 </View>
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     marginTop: 30, 
     marginLeft:5, 
     width: screenWidth*0.3, 
-    height: 80
+    height: 100
   },
 });
 
@@ -122,13 +122,21 @@ const textStyles = StyleSheet.create({
     fontSize: '16'
   },
 
-  bodyText: {
+  compTitlesText: {
     marginTop:30,
-    paddingLeft:5,
+    paddingLeft:10,
     color:'white', 
     position: 'absolute', 
     fontWeight: 'bold', 
-    fontSize: '14'
+    fontSize: '15'
+  },
+  compBodyText: {
+    marginTop:30, 
+    paddingLeft:15,
+    color:'white', 
+    position:'absolute', 
+    fontWeight:'bold',
+    fontSize:'15', 
   }
 })
 
