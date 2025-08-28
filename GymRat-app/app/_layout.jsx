@@ -8,10 +8,14 @@ import { TouchableOpacity } from 'react-native';
 import { SQLiteProvider } from 'expo-sqlite';
 import { UserProvider } from '../UserContext';
 
+const MyTheme = {
+
+};
+
 export default function App() {
   const router = useRouter();
   return (
-    <ApplicationProvider {...eva} theme={eva.light}>
+    <ApplicationProvider {...eva} theme={MyTheme}>
     <SQLiteProvider
       databaseName="UserDatabase.db"
       onInit={async (db) => {

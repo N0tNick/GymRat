@@ -5,6 +5,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../components/NavBar'
 import SettingsWheel from '../components/Profile/SettingsWheel'
 import TopTab from '../components/Profile/ProfileTopTab'
+import Colors from '../constants/Colors'
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -22,7 +23,7 @@ export default function ProfileScreen() {
             </View>
             <Text style={styles.text}>Profile Screen</Text>
             <Modal
-              animationType="fade"
+              animationType="fade"  
               transparent={true}
               visible={modalVisible}
               onRequestClose={() => {
