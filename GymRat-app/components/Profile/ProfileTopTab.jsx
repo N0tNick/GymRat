@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Dimensions, TouchableOpacity, Image, View } from 'react-native';
+import { React, useState } from 'react';
+import { StyleSheet, Dimensions, TouchableOpacity, Image, View, Modal, Pressable } from 'react-native';
 import { Layout, Tab, TabView, Text } from '@ui-kitten/components'
 import { useRouter } from 'expo-router';
 import Calendar from './ProfileCalendar'
@@ -9,7 +9,8 @@ const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
 const TopTab = () => {
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isQuestionModal1Visible, setQuestionModal1Visible] = useState(false);
   const router = useRouter();
 
   return (
@@ -49,9 +50,30 @@ const TopTab = () => {
                       <View>
                         <View style={{flexDirection:'row'}}>
                           <Text category='h6' style={textStyles.compTitlesText}>Weight</Text>
-                          <TouchableOpacity style ={styles.logoContainer}>
-                            <Image style={styles.logo} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
-                          </TouchableOpacity>
+                          <Modal 
+                            animationType="slide"  
+                            animationDuration='10'
+                            transparent={true}
+                            visible={isQuestionModal1Visible}
+                            onRequestClose={() => { setModalVisible(false)}}>
+                              <Pressable style={modalStyles.centeredView} onPress={() => setQuestionModal1Visible(false)} > 
+                                <Pressable onPress={(e) => e.stopPropagation()}>
+                                  <View style={modalStyles.modalView}>
+                                      <Text style={modalStyles.modalText}>Template</Text>
+                                      <Pressable
+                                          style={[modalStyles.button, modalStyles.buttonClose]}
+                                          onPress={() => setQuestionModal1Visible(!isQuestionModal1Visible)}>
+                                          <Text style={modalStyles.textStyle}>Hide Modal</Text>
+                                      </Pressable>
+                                  </View>
+                                </Pressable>
+                              </Pressable>
+                            </Modal>
+                            <TouchableOpacity 
+                              style ={styles.logoContainer}
+                              onPress={() => setQuestionModal1Visible(true)} >
+                              <Image style={styles.logo} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
+                            </TouchableOpacity>
                         </View>
                         <TouchableOpacity style = {styles.bodyCompContainers}>
                           <Text category='h7' style = {textStyles.compBodyText}>- lbs</Text>
@@ -167,5 +189,48 @@ const textStyles = StyleSheet.create({
   }
 })
 
-
-
+const modalStyles = StyleSheet.create ({
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor:'#2a2a2aff',
+    borderRadius: 30,
+    height: screenHeight*0.3,
+    width: screenWidth*0.93,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 10,
+      height: 10,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    fontSize:20,
+    fontWeight:'bold',
+    color:'white',
+    position:'absolute',
+    left:20,
+    marginTop:8,
+    marginBottom: 15,
+  },
+});

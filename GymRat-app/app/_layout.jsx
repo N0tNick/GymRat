@@ -51,7 +51,7 @@ export default function App() {
         <Stack screenOptions={{ 
           headerShown: false, 
           animation: 'fade', 
-          animationDuration:150,
+          animationDuration:100,
           }} initialRouteName="splash">
           <Stack.Screen name="splash"/>
           <Stack.Screen name="index"/>

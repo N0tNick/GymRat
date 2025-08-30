@@ -23,7 +23,7 @@ export default function ProfileScreen() {
             </View>
             <Text style={styles.text}>Profile Screen</Text>
             <Modal
-              animationType="fade"  
+              animationType="fade"
               transparent={true}
               visible={modalVisible}
               onRequestClose={() => {
