@@ -52,7 +52,7 @@ const TopTab = () => {
                 <View style = {{ flexDirection:'row', alignItems: 'center', justifyContent: 'flex-start' }}>
                       <View>
                         <View style={{flexDirection:'row'}}>
-                          <Text category='h6' style={textStyles.compTitlesText}>Weight</Text>
+                          <Text category='h6' style={textStyles.compTitlesText}>Body Fat %</Text>
                             <QuestionModal1 isVisible={isQuestionModal1Visible} onClose={() => setQuestionModal1Visible(false)}/>
                             <TouchableOpacity 
                               style ={styles.logoContainer}
@@ -61,13 +61,13 @@ const TopTab = () => {
                             </TouchableOpacity>
                         </View>
                         <TouchableOpacity style = {styles.bodyCompContainers}>
-                          <Text category='h7' style = {textStyles.compBodyText}>- lbs</Text>
+                          <Text category='h7' style = {textStyles.compBodyText}>- </Text>
                         </TouchableOpacity>
                       </View>
 
                       <View>
                         <View style={{flexDirection:'row'}}>
-                          <Text category='h6' style={textStyles.compTitlesText}>Body Fat</Text>
+                          <Text category='h6' style={textStyles.compTitlesText}>BMI</Text>
                           <QuestionModal2 isVisible={isQuestionModal2Visible} onClose={() => setQuestionModal2Visible(false)}/>
                           <TouchableOpacity 
                           style ={styles.logoContainer}
@@ -82,7 +82,7 @@ const TopTab = () => {
 
                       <View>
                         <View style={{flexDirection:'row'}}>
-                          <Text category='h6' style={textStyles.compTitlesText}>BMI</Text>
+                          <Text category='h6' style={textStyles.compTitlesText}>BMR</Text>
                           <QuestionModal3 isVisible={isQuestionModal3Visible} onClose={() => setQuestionModal3Visible(false)}/>
                           <TouchableOpacity 
                           style ={styles.logoContainer}
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     marginTop: 30,
-    marginLeft:10,
+    marginLeft:4,
   },
   logo: {
     width:'100%',
