@@ -160,7 +160,7 @@ const textStyles = StyleSheet.create({
     color:'white', 
     position: 'absolute', 
     fontWeight: 'bold', 
-    fontSize: '16'
+    fontSize: 16
   },
 
   compTitlesText: {
@@ -168,7 +168,7 @@ const textStyles = StyleSheet.create({
     paddingLeft:10,
     color:'white', 
     fontWeight: 'bold', 
-    fontSize: '15'
+    fontSize: 15
   },
   compBodyText: {
     marginTop:10, 
@@ -176,7 +176,7 @@ const textStyles = StyleSheet.create({
     color:'white', 
     position:'absolute', 
     fontWeight:'bold',
-    fontSize:'15', 
+    fontSize:15, 
   }
 })
 
