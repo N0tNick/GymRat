@@ -76,7 +76,7 @@ const TopTab = () => {
                           </TouchableOpacity>
                         </View>
                         <TouchableOpacity style = {styles.bodyCompContainers}>
-                          <Text category='h7' style = {textStyles.compBodyText}>- %</Text>
+                          <Text category='h7' style = {textStyles.compBodyText}>-</Text>
                         </TouchableOpacity>
                       </View>
 
