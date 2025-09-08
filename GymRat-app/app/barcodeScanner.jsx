@@ -256,11 +256,11 @@ export default function BarcodeScannerScreen() {
   }
 
   // sign out button MOVE TO PROFILE SCREEN
-  const handleSignOut = () => {
-    signOut(auth)
-      .then(() => router.replace('/login'))
-      .catch(console.error);
-  };
+  //const handleSignOut = () => {
+  //  signOut(auth)
+  //    .then(() => router.replace('/login'))
+  //    .catch(console.error);
+  //};
 
   // handles barcode scanner from expo-camera
   const handleBarCodeScanned = async (scanningResult) => {
@@ -430,9 +430,9 @@ export default function BarcodeScannerScreen() {
               <Text style={styles.scanText}>Align barcode within the frame</Text>  
             </CameraView>
 
-            <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
+            {/*<TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
               <Text style={styles.logoutButtonText}>Sign Out</Text>
-            </TouchableOpacity>
+            </TouchableOpacity>*/}
             <TouchableOpacity styles={styles.logoutButton} onPress={() => Linking.openURL("https://www.fatsecret.com")}>
               {/*<!-- Begin fatsecret Platform API HTML Attribution Snippet -->*/}
               <Text href="https://www.fatsecret.com">Powered by fatsecret</Text>

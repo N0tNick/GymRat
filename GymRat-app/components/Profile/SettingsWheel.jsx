@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react'
-import {Animated, TouchableOpacity, View, StyleSheet, TouchableWithoutFeedback, Modal, Image, Dimensions} from 'react-native';
+import {Animated, TouchableOpacity, View, StyleSheet, TouchableWithoutFeedback, Modal, Image, Dimensions, Text} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../firebaseConfig';
 import UserSettingsTab from './SettingsTabs/UserSettingsTab'
 import UserStatsTab from './SettingsTabs/UserStatsTab'
 import UserGoalsTab from './SettingsTabs/UserGoalsTab'
-
 const { width: screenWidth } = Dimensions.get('window');
 const SIDEBAR_WIDTH = screenWidth * 0.30; //Exactly half the screen
 
@@ -14,6 +15,12 @@ const SettingsWheel = () => {
     const router = useRouter();
     const [isSidebarVisible, setIsSidebarVisible] = useState(false);
     const sidebarTranslateX = useRef(new Animated.Value(SIDEBAR_WIDTH)).current;
+
+    const handleSignOut = () => {
+    signOut(auth)
+      .then(() => router.replace('/login'))
+      .catch(console.error);
+    };
 
     const renderMore = () => {
         if(more) {
@@ -92,7 +99,10 @@ const SettingsWheel = () => {
                             <UserStatsTab/>
                             <UserGoalsTab/>
                         </View>
-                        
+
+                        <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
+                            <Text style={styles.logoutButtonText}>Sign Out</Text>
+                        </TouchableOpacity>
                         
                     </View>
                     
@@ -149,6 +159,19 @@ const styles = StyleSheet.create ({
         alignItems: 'center',
         paddingHorizontal: 20,
         gap: 20,
+    },
+    logoutButton: { 
+        position: 'absolute', 
+        bottom: 0, 
+        backgroundColor: '#a83232', 
+        paddingVertical: 8, 
+        paddingHorizontal: 12, 
+        borderRadius: 8, 
+        alignItems: 'center' 
+    },
+    logoutButtonText: { 
+        color: '#fff', 
+        fontSize: 18 
     },
 });
 
