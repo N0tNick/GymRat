@@ -97,7 +97,7 @@ export default function WorkoutScreen() {
     const template = JSON.parse(item.data)
 
     return (
-      <TouchableOpacity style={styles.templateBox}>
+      <TouchableOpacity onPress = {() => {manageTemplate(item.id, item.name)}} style={styles.templateBox}>
         <View style={{flexDirection: 'row'}}>
           <Text style={styles.text}>{item.name}</Text>
           <TouchableOpacity onPress = {() => {deleteTemplate(item.id)}}><Text>Delete</Text></TouchableOpacity>
@@ -137,6 +137,11 @@ export default function WorkoutScreen() {
     loadTemplates()
   }
 
+  const manageTemplate = (id, name) => {
+    setSelectedTemplate({ id, name });
+    setManageTemplateModal(true);
+  }
+
   const [modalVisible, setModalVisible] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [filteredExercises, setFilteredExercises] = useState(exercises)
@@ -146,6 +151,9 @@ export default function WorkoutScreen() {
   const [eFilterButtonVal, setEFilterButtonVal] = useState('Any Equipment')
   const [exerciseInfoModal, setExerciseInfoModal] = useState(false)
   const [exerciseItem, setExerciseItem] = useState('')
+  const [manageTemplateModal, setManageTemplateModal] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState(null)
+  const [workoutModal, setWorkoutModal] = useState(null)
 
     useEffect(() => {
       const filtered = exercises.filter((exercise) =>
@@ -163,7 +171,8 @@ export default function WorkoutScreen() {
           style={styles.container}
         >
           <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth}}>
-
+          
+          {/* Exercise List Modal */}
           <Modal
           visible={modalVisible}
           transparent={true}
@@ -265,6 +274,29 @@ export default function WorkoutScreen() {
             </View>
           </Modal>
 
+          {/* Template Clicked Modal */}
+          <Modal
+            visible={manageTemplateModal}
+            transparent={true}
+            onRequestClose={() => setManageTemplateModal(false)}
+          >
+            <View style={styles.centeredView}>
+              <View style={styles.alertView}>
+                <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 25, textAlign: 'center', paddingBottom: 50}}>
+                  {selectedTemplate ? `Do you want to start your ${selectedTemplate.name} workout?` : ''}
+                </Text>
+                <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
+                  <TouchableOpacity style={styles.button} onPress={() => {setWorkoutModal(true)}}>
+                    <Text style={{color: '#fff', fontSize: 20, fontWeight: 'bold'}}>Start</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.button} onPress={() => setManageTemplateModal(false)}>
+                    <Text style={{color: '#fff', fontSize: 20, fontWeight: 'bold'}}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+
           <View style={{flexDirection: 'row', justifyContent: 'space-between', padding: 10}}>
             <Text style={styles.text}>Workout Screen</Text>
             <TouchableOpacity style={styles.button} onPress ={() => setModalVisible(true)}><Text style={{color: '#fff'}}>Exercise List</Text></TouchableOpacity>
@@ -315,6 +347,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)'
+  },
+  alertView: {
+    backgroundColor: '#1a1b1c',
+    borderRadius: 15,
+    padding: 10,
+    alignSelf: 'center',
+    maxWidth: '80%',
   },
   xButton: {
     flex: 1,
