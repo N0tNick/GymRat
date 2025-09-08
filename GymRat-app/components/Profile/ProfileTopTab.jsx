@@ -28,11 +28,11 @@ const TopTab = () => {
           style={styles.tabStyle}
         >         
           <Layout style={styles.tabContainer}>
-              <Calendar/>
-              <TouchableOpacity style = {{margin: 20, width: screenWidth*0.9, height: 120, borderWidth:6, borderRadius: 10, borderColor: '#6a5acd'}}
+              <Calendar />
+              <TouchableOpacity style = {{margin: 20, width: screenWidth*0.9, height: 120, borderWidth:3, borderRadius: 10, borderColor: '#6a5acd'}}
               onPress={() => router.push('/ExerciseGoals')}
               >
-                <Text category='h6' style = {{color:'white', position: 'absolute', fontWeight: 'bold' }}>Exercise Goals</Text>
+                <Text category='h6' style = {{color:'white', position: 'absolute', fontWeight: 'bold', marginLeft:5 }}>Exercise Goals</Text>
                 <Image style={{width: 50, height: 50, position:'absolute', right:20, marginTop: 25, borderWidth: 2, borderRadius:25, borderColor:'gray', backgroundColor:'white'}} 
                   source={{
                     uri: 'https://www.freeiconspng.com/thumbs/plus-icon/plus-icon-black-2.png',
@@ -97,14 +97,6 @@ const TopTab = () => {
 
                 </View>
             </View>
-          </Layout>
-        </Tab>
-
-        <Tab 
-          title={evaProps => <Text {...evaProps} style={styles.tabText}>Goals</Text>}
-          style={styles.tabStyle}
-        >         
-          <Layout style={styles.tabContainer}>
           </Layout>
         </Tab>
 
