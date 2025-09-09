@@ -47,7 +47,8 @@ const TopTab = () => {
           style={styles.tabStyle}
         >         
           <Layout style={styles.tabContainer}>
-            <View style={{width:screenWidth*0.95, height:100, borderWidth:3, borderRadius:8, borderColor:'#6a5acd'}}>
+
+            <View style={{width:screenWidth*0.95, height:100, borderWidth:3, borderRadius:8, borderColor:'#6a5acd', marginBottom:10}}>
               <Text category='h6' style={textStyles.compText}>Composition</Text>
                 <View style = {{ flexDirection:'row', alignItems: 'center', justifyContent: 'flex-start' }}>
                       <View>
@@ -94,12 +95,45 @@ const TopTab = () => {
                           <Text category='h7' style = {textStyles.compBodyText}>-</Text>
                         </TouchableOpacity>
                       </View>
-
                 </View>
             </View>
+
+            <View style={{width:screenWidth*0.95, height:100, borderWidth:3, borderRadius:8, borderColor:'#6a5acd'}}>
+              <Text category='h6' style={textStyles.compText}>Goals</Text>
+              <View style = {{ flexDirection:'row', alignItems: 'center', justifyContent: 'flex-start' }}>
+
+                <View>
+                  <View style={{flexDirection:'row'}}>
+                    <Text category='h6' style={textStyles.compTitlesText}>Goal Weight</Text>
+                  </View>
+                  <TouchableOpacity style = {styles.bodyCompContainers}>
+                    <Text category='h7' style = {textStyles.compBodyText}>- </Text>
+                  </TouchableOpacity>
+                </View>  
+
+                <View>
+                  <View style={{flexDirection:'row'}}>
+                    <Text category='h6' style={textStyles.compTitlesText}>Gain Speed</Text>
+                  </View>
+                  <TouchableOpacity style = {styles.bodyCompContainers}>
+                    <Text category='h7' style = {textStyles.compBodyText}>- </Text>
+                  </TouchableOpacity>
+                </View>    
+
+                <View>
+                  <View style={{flexDirection:'row'}}>
+                    <Text category='h6' style={textStyles.compTitlesText}>Activity Level</Text>
+                  </View>
+                  <TouchableOpacity style = {styles.bodyCompContainers}>
+                    <Text category='h7' style = {textStyles.compBodyText}>- </Text>
+                  </TouchableOpacity>
+                </View>  
+
+              </View>
+            </View>
+
           </Layout>
         </Tab>
-
       </TabView>
     );
 }
@@ -124,6 +158,8 @@ const styles = StyleSheet.create({
   tabContainer: {
     height: screenHeight,
     width: screenWidth,
+    justifyContent:'flex-start',
+    flexDirection:'column',
     alignItems: 'center',
     backgroundColor: '#2a2a2aff',
     padding:10
