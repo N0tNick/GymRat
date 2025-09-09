@@ -1,6 +1,6 @@
 import { React, useState } from 'react';
-import { StyleSheet, Dimensions, TouchableOpacity, Image, View, Modal, Pressable } from 'react-native';
-import { Layout, Tab, TabView, Text } from '@ui-kitten/components'
+import { StyleSheet, Dimensions, TouchableOpacity, Image, View, Modal, Pressable, Text } from 'react-native';
+import { Layout, Tab, TabView } from '@ui-kitten/components'
 import { useRouter } from 'expo-router';
 import Calendar from './ProfileCalendar'
 import { QuestionModal1, QuestionModal2, QuestionModal3 } from './bodyTabModals'
@@ -15,7 +15,7 @@ const TopTab = () => {
   const [isQuestionModal2Visible, setQuestionModal2Visible] = useState(false);
   const [isQuestionModal3Visible, setQuestionModal3Visible] = useState(false);
   const router = useRouter();
-
+      
   return (
       <TabView 
       selectedIndex={selectedIndex} 
@@ -32,7 +32,7 @@ const TopTab = () => {
               <TouchableOpacity style = {{margin: 20, width: screenWidth*0.95, height: 120, borderWidth:3, borderRadius: 10, borderColor: '#6a5acd'}}
               onPress={() => router.push('/ExerciseGoals')}
               >
-                <Text category='h6' style = {{color:'white', position: 'absolute', fontWeight: 'bold', marginLeft:8 }}>Exercise Goals</Text>
+                <Text style = {{color:'white', position: 'absolute', fontFamily:'Didot', fontSize:'16', fontWeight: 'bold', marginLeft:8 }}>Exercise Goals</Text>
                 <Image style={{width: 50, height: 50, position:'absolute', right:20, marginTop: 25, borderWidth: 2, borderRadius:25, borderColor:'gray', backgroundColor:'white'}} 
                   source={{
                     uri: 'https://www.freeiconspng.com/thumbs/plus-icon/plus-icon-black-2.png',
