@@ -52,7 +52,15 @@ const ProfileCalendar = () => {
             enableSwipeMonths={false}
             markedDates={marked}
             style={{width:screenWidth * 0.95, backgroundColor: 'transparent', borderRadius:10, borderWidth:3, borderColor:'#6a5acd'}}
-            theme={{calendarBackground: '#2a2a2aff', dayTextColor:'white',monthTextColor:'white'}}
+            theme={{
+                calendarBackground: '#2a2a2aff', 
+                dayTextColor:'white',
+                monthTextColor:'white',
+                textDayFontWeight:'bold',
+                textMonthFontWeight:'bold',
+                textMonthFontSize:'17',
+                todayTextColor:'#6a5acd', 
+                arrowColor:'#6a5acd'}}
         />
     )
 };
