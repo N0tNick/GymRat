@@ -32,7 +32,7 @@ const TopTab = () => {
               <TouchableOpacity style = {{margin: 20, width: screenWidth*0.95, height: 120, borderWidth:3, borderRadius: 10, borderColor: '#6a5acd'}}
               onPress={() => router.push('/ExerciseGoals')}
               >
-                <Text style = {{color:'white', position: 'absolute', fontFamily:'Didot', fontSize:'16', fontWeight: 'bold', marginLeft:8 }}>Exercise Goals</Text>
+                <Text style = {{color:'white', position: 'absolute', fontFamily:'Didot', fontSize:16, fontWeight: 'bold', marginLeft:8 }}>Exercise Goals</Text>
                 <Image style={{width: 50, height: 50, position:'absolute', right:20, marginTop: 25, borderWidth: 2, borderRadius:25, borderColor:'gray', backgroundColor:'white'}} 
                   source={{
                     uri: 'https://www.freeiconspng.com/thumbs/plus-icon/plus-icon-black-2.png',

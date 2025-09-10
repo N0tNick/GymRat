@@ -58,7 +58,7 @@ const ProfileCalendar = () => {
                 monthTextColor:'white',
                 textDayFontWeight:'bold',
                 textMonthFontWeight:'bold',
-                textMonthFontSize:'17',
+                textMonthFontSize:17,
                 todayTextColor:'#6a5acd', 
                 arrowColor:'#6a5acd'}}
         />
