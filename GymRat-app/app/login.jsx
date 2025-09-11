@@ -6,12 +6,17 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig.js';
 import { useUser } from '../UserContext.js';
 
+import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import { useGoogleSignIn } from '../app/gogsignIn.jsx';
+
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { setUserId } = useUser();
   const db = useSQLiteContext();
+
+  const { signIn: googleSignIn } = useGoogleSignIn();
 
   return (
     <View style={styles.container}>
@@ -20,6 +25,8 @@ export default function LoginScreen() {
 
       <Text style={styles.label}>Password</Text>
       <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry />
+
+      <GoogleSigninButton style={{ width: 192, height: 48 }} size={GoogleSigninButton.Size.Wide} color={GoogleSigninButton.Color.Dark} onPress={googleSignIn} />
 
       <TouchableOpacity style={styles.button} onPress={async () => {
         try {

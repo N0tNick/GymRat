@@ -2,17 +2,9 @@ import React, { useState } from 'react'
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native';
 
-// UNCOMMENT IF YOU ARE RUNNING DEVELOPMENT BUILD
 import { GoogleSignin, GoogleSigninButton, statusCodes, } from '@react-native-google-signin/google-signin'
-import {signIn as gogsignIn } from '../app/gogsignIn.jsx';
+import { useGoogleSignIn } from '../app/gogsignIn.jsx';
 
-GoogleSignin.configure({
-  webClientId: '467813529391-sg1j5mr6r75ae2fn9gnaf1jvcjjau7g8.apps.googleusercontent.com',
-  scopes: ['https://www.googleapis.com/auth/drive.readonly'],
-  offlineAccess: true,
-  forceCodeForRefreshToken: true,
-  iosClientId: '467813529391-r54j585g28775613oglrohtr95seatvj.apps.googleusercontent.com',
-})
 // firebase auth
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth } from '../firebaseConfig.js'; // adjust path as needed
@@ -22,10 +14,7 @@ export default function RegistrationScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true })
-    .then(() => console.log("✅ Play Services available"))
-    .catch(err => console.error("❌ Play Services check failed:", err));
-
+    const { signIn: googleSignIn } = useGoogleSignIn();
 
     return (
         <View style={styles.container}>
@@ -57,12 +46,13 @@ export default function RegistrationScreen() {
             <TouchableOpacity onPress={() => router.push('/login')}>
                 <Text style={styles.linkText}>Already have an account? Login</Text>
             </TouchableOpacity>
-            <GoogleSigninButton style={{ width: 192, height: 48 }} size={GoogleSigninButton.Size.Wide} color={GoogleSigninButton.Color.Dark} onPress={gogsignIn} />
+            <View style={{alignItems: "center", marginTop: 20}} >
+                <GoogleSigninButton style={{ width: 192, height: 48 }} size={GoogleSigninButton.Size.Wide} color={GoogleSigninButton.Color.Dark} onPress={googleSignIn} />
+            </View>
+            
         </View>
     );
 }
-// PUT THIS UNDER TOUCHABLE OPACITY IN VIEW WHEN IN DEVELOPER MODE
-
 
 const styles = StyleSheet.create({
     container: {
