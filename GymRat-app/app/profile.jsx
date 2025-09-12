@@ -15,13 +15,11 @@ export default function ProfileScreen() {
   
   return (
      <SafeAreaProvider>
-        <LinearGradient colors={['#6a5acd', '#1a1b1c']} style={styles.container}>
-          <ScrollView>
+          <ScrollView style={{backgroundColor: '#2a2a2aff'}}>
             <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center' }}>
             <View style={settingsStyles.settingsWheelWrapper}>
               <SettingsWheel/>
             </View>
-            <Text style={styles.text}>Profile Screen</Text>
             <Modal
               animationType="fade"
               transparent={true}
@@ -43,7 +41,7 @@ export default function ProfileScreen() {
 
             </Modal>
              <TouchableOpacity
-              style={styles.logo}
+              style={{width:50, height:50, position:'relative', marginRight:300}}
               onPress={() => setModalVisible(true)}
             >
               <Image
@@ -62,7 +60,6 @@ export default function ProfileScreen() {
 
           </SafeAreaView>
           </ScrollView>
-        </LinearGradient>
         <NavBar />
     </SafeAreaProvider>
     
@@ -89,10 +86,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 180,
-    height: 180,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: '100%',
+    height: '100%',
   },
 }); 
 

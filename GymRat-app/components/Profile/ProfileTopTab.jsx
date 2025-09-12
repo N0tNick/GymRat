@@ -1,6 +1,6 @@
 import { React, useState } from 'react';
-import { StyleSheet, Dimensions, TouchableOpacity, Image, View, Modal, Pressable } from 'react-native';
-import { Layout, Tab, TabView, Text } from '@ui-kitten/components'
+import { StyleSheet, Dimensions, TouchableOpacity, Image, View, Modal, Pressable, Text } from 'react-native';
+import { Layout, Tab, TabView } from '@ui-kitten/components'
 import { useRouter } from 'expo-router';
 import Calendar from './ProfileCalendar'
 import { QuestionModal1, QuestionModal2, QuestionModal3 } from './bodyTabModals'
@@ -15,7 +15,7 @@ const TopTab = () => {
   const [isQuestionModal2Visible, setQuestionModal2Visible] = useState(false);
   const [isQuestionModal3Visible, setQuestionModal3Visible] = useState(false);
   const router = useRouter();
-
+      
   return (
       <TabView 
       selectedIndex={selectedIndex} 
@@ -28,11 +28,11 @@ const TopTab = () => {
           style={styles.tabStyle}
         >         
           <Layout style={styles.tabContainer}>
-              <Calendar/>
-              <TouchableOpacity style = {{margin: 20, width: screenWidth*0.9, height: 120, borderWidth:6, borderRadius: 10, borderColor: '#6a5acd'}}
+              <Calendar />
+              <TouchableOpacity style = {{margin: 20, width: screenWidth*0.95, height: 120, borderWidth:3, borderRadius: 10, borderColor: '#6a5acd'}}
               onPress={() => router.push('/ExerciseGoals')}
               >
-                <Text category='h6' style = {{color:'white', position: 'absolute', fontWeight: 'bold' }}>Exercise Goals</Text>
+                <Text style = {{color:'white', position: 'absolute', fontFamily:'Didot', fontSize:16, fontWeight: 'bold', marginLeft:8 }}>Exercise Goals</Text>
                 <Image style={{width: 50, height: 50, position:'absolute', right:20, marginTop: 25, borderWidth: 2, borderRadius:25, borderColor:'gray', backgroundColor:'white'}} 
                   source={{
                     uri: 'https://www.freeiconspng.com/thumbs/plus-icon/plus-icon-black-2.png',
@@ -47,7 +47,8 @@ const TopTab = () => {
           style={styles.tabStyle}
         >         
           <Layout style={styles.tabContainer}>
-            <View style={{width:screenWidth*0.95, height:100, borderWidth:3, borderRadius:8, borderColor:'#6a5acd'}}>
+
+            <View style={{width:screenWidth*0.95, height:100, borderWidth:3, borderRadius:8, borderColor:'#6a5acd', marginBottom:10}}>
               <Text category='h6' style={textStyles.compText}>Composition</Text>
                 <View style = {{ flexDirection:'row', alignItems: 'center', justifyContent: 'flex-start' }}>
                       <View>
@@ -94,20 +95,45 @@ const TopTab = () => {
                           <Text category='h7' style = {textStyles.compBodyText}>-</Text>
                         </TouchableOpacity>
                       </View>
-
                 </View>
             </View>
+
+            <View style={{width:screenWidth*0.95, height:100, borderWidth:3, borderRadius:8, borderColor:'#6a5acd'}}>
+              <Text category='h6' style={textStyles.compText}>Goals</Text>
+              <View style = {{ flexDirection:'row', alignItems: 'center', justifyContent: 'flex-start' }}>
+
+                <View>
+                  <View style={{flexDirection:'row'}}>
+                    <Text category='h6' style={textStyles.compTitlesText}>Goal Weight</Text>
+                  </View>
+                  <TouchableOpacity style = {styles.bodyCompContainers}>
+                    <Text category='h7' style = {textStyles.compBodyText}>- </Text>
+                  </TouchableOpacity>
+                </View>  
+
+                <View>
+                  <View style={{flexDirection:'row'}}>
+                    <Text category='h6' style={textStyles.compTitlesText}>Gain Speed</Text>
+                  </View>
+                  <TouchableOpacity style = {styles.bodyCompContainers}>
+                    <Text category='h7' style = {textStyles.compBodyText}>- </Text>
+                  </TouchableOpacity>
+                </View>    
+
+                <View>
+                  <View style={{flexDirection:'row'}}>
+                    <Text category='h6' style={textStyles.compTitlesText}>Activity Level</Text>
+                  </View>
+                  <TouchableOpacity style = {styles.bodyCompContainers}>
+                    <Text category='h7' style = {textStyles.compBodyText}>- </Text>
+                  </TouchableOpacity>
+                </View>  
+
+              </View>
+            </View>
+
           </Layout>
         </Tab>
-
-        <Tab 
-          title={evaProps => <Text {...evaProps} style={styles.tabText}>Goals</Text>}
-          style={styles.tabStyle}
-        >         
-          <Layout style={styles.tabContainer}>
-          </Layout>
-        </Tab>
-
       </TabView>
     );
 }
@@ -132,6 +158,8 @@ const styles = StyleSheet.create({
   tabContainer: {
     height: screenHeight,
     width: screenWidth,
+    justifyContent:'flex-start',
+    flexDirection:'column',
     alignItems: 'center',
     backgroundColor: '#2a2a2aff',
     padding:10
