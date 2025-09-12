@@ -2,23 +2,24 @@ import React from 'react';
 import { Platform } from 'react-native';
 
 import * as Application from 'expo-application';
-
-import {
-  GoogleSignin,
-  isErrorWithCode,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
-
 const isExpoGo = Application.applicationName === "Expo Go";
 
+// Lazy require variables
+let GoogleSignin, isErrorWithCode, statusCodes;
+
 if (Platform.OS === 'android' && !isExpoGo) {
+  const googleModule = require('@react-native-google-signin/google-signin');
+  GoogleSignin = googleModule.GoogleSignin;
+  isErrorWithCode = googleModule.isErrorWithCode;
+  statusCodes = googleModule.statusCodes;
+
   GoogleSignin.configure({
     webClientId: '467813529391-sg1j5mr6r75ae2fn9gnaf1jvcjjau7g8.apps.googleusercontent.com',
     scopes: ['email', 'profile'],
     offlineAccess: true,
     forceCodeForRefreshToken: true,
     iosClientId: '467813529391-r54j585g28775613oglrohtr95seatvj.apps.googleusercontent.com',
-  })
+  });
 }
 
 

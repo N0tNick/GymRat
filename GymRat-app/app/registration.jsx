@@ -2,10 +2,18 @@ import React, { useState } from 'react'
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native';
 import { Platform } from 'react-native';
-import { GoogleSignin, GoogleSigninButton, statusCodes, } from '@react-native-google-signin/google-signin'
-import { useGoogleSignIn } from '../app/gogsignIn.jsx';
+// Lazy imports to avoid crashing Expo Go
+let GoogleSigninButton;
+let useGoogleSignIn;
 
 import * as Application from 'expo-application';
+
+const isExpoGo = Application.applicationName === "Expo Go";
+if (Platform.OS === "android" && !isExpoGo) {
+  GoogleSigninButton = require('@react-native-google-signin/google-signin').GoogleSigninButton;
+  useGoogleSignIn = require('../app/gogsignIn.jsx').useGoogleSignIn;
+}
+
 
 // firebase auth
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
@@ -17,7 +25,7 @@ export default function RegistrationScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const { signIn: googleSignIn } = useGoogleSignIn();
+    const googleSignIn = useGoogleSignIn ? useGoogleSignIn().signIn : null;
 
     const isExpoGo = Application.applicationName === "Expo Go";
 
@@ -52,12 +60,16 @@ export default function RegistrationScreen() {
                 <Text style={styles.linkText}>Already have an account? Login</Text>
             </TouchableOpacity>
             
-            {Platform.OS === "android" && !isExpoGo && (
-                <View style={{alignItems: "center", marginTop: 20}} >
-                <GoogleSigninButton style={{ width: 192, height: 48 }} size={GoogleSigninButton.Size.Wide} color={GoogleSigninButton.Color.Dark} onPress={googleSignIn} />
-            </View>
+            {GoogleSigninButton && googleSignIn && (
+              <View style={{ alignItems: "center", marginTop: 20 }}>
+                <GoogleSigninButton
+                  style={{ width: 192, height: 48 }}
+                  size={GoogleSigninButton.Size.Wide}
+                  color={GoogleSigninButton.Color.Dark}
+                  onPress={googleSignIn}
+                />
+              </View>
             )}
-            
             
         </View>
     );

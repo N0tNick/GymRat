@@ -9,8 +9,15 @@ import { Platform } from 'react-native';
 
 import * as Application from 'expo-application';
 
-import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
-import { useGoogleSignIn } from '../app/gogsignIn.jsx';
+// Lazy imports to avoid crashing Expo Go
+let GoogleSigninButton;
+let useGoogleSignIn;
+
+const isExpoGo = Application.applicationName === "Expo Go";
+if (Platform.OS === "android" && !isExpoGo) {
+  GoogleSigninButton = require('@react-native-google-signin/google-signin').GoogleSigninButton;
+  useGoogleSignIn = require('../app/gogsignIn.jsx').useGoogleSignIn;
+}
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -19,9 +26,7 @@ export default function LoginScreen() {
   const { setUserId } = useUser();
   const db = useSQLiteContext();
 
-  const { signIn: googleSignIn } = useGoogleSignIn();
-
-  const isExpoGo = Application.applicationName === "Expo Go";
+  const googleSignIn = useGoogleSignIn ? useGoogleSignIn().signIn : null;
 
   return (
     <View style={styles.container}>
@@ -80,9 +85,14 @@ export default function LoginScreen() {
         <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
 
-      {Platform.OS === "android" && !isExpoGo && (
-        <View style={{alignItems: "center", marginTop: 20}} >
-          <GoogleSigninButton style={{ width: 192, height: 48 }} size={GoogleSigninButton.Size.Wide} color={GoogleSigninButton.Color.Dark} onPress={googleSignIn} />
+      {GoogleSigninButton && googleSignIn && (
+        <View style={{ alignItems: "center", marginTop: 20 }}>
+          <GoogleSigninButton
+            style={{ width: 192, height: 48 }}
+            size={GoogleSigninButton.Size.Wide}
+            color={GoogleSigninButton.Color.Dark}
+            onPress={googleSignIn}
+          />
         </View>
       )}
       
