@@ -7,6 +7,8 @@ import { auth } from '../firebaseConfig.js';
 import { useUser } from '../UserContext.js';
 import { Platform } from 'react-native';
 
+import * as Application from 'expo-application';
+
 import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import { useGoogleSignIn } from '../app/gogsignIn.jsx';
 
@@ -18,6 +20,8 @@ export default function LoginScreen() {
   const db = useSQLiteContext();
 
   const { signIn: googleSignIn } = useGoogleSignIn();
+
+  const isExpoGo = Application.applicationName === "Expo Go";
 
   return (
     <View style={styles.container}>
@@ -76,7 +80,7 @@ export default function LoginScreen() {
         <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
 
-      {Platform.OS === 'android' && (
+      {Platform.OS === "android" && !isExpoGo && (
         <View style={{alignItems: "center", marginTop: 20}} >
           <GoogleSigninButton style={{ width: 192, height: 48 }} size={GoogleSigninButton.Size.Wide} color={GoogleSigninButton.Color.Dark} onPress={googleSignIn} />
         </View>

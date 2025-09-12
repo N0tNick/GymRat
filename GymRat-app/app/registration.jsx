@@ -5,9 +5,12 @@ import { Platform } from 'react-native';
 import { GoogleSignin, GoogleSigninButton, statusCodes, } from '@react-native-google-signin/google-signin'
 import { useGoogleSignIn } from '../app/gogsignIn.jsx';
 
+import * as Application from 'expo-application';
+
 // firebase auth
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
-import { auth } from '../firebaseConfig.js'; // adjust path as needed
+import { auth } from '../firebaseConfig.js';
+
 export default function RegistrationScreen() {
     const router = useRouter();
     const [name, setName] = useState('');
@@ -15,6 +18,8 @@ export default function RegistrationScreen() {
     const [password, setPassword] = useState('');
 
     const { signIn: googleSignIn } = useGoogleSignIn();
+
+    const isExpoGo = Application.applicationName === "Expo Go";
 
     return (
         <View style={styles.container}>
@@ -47,7 +52,7 @@ export default function RegistrationScreen() {
                 <Text style={styles.linkText}>Already have an account? Login</Text>
             </TouchableOpacity>
             
-            {Platform.OS === 'android' && (
+            {Platform.OS === "android" && !isExpoGo && (
                 <View style={{alignItems: "center", marginTop: 20}} >
                 <GoogleSigninButton style={{ width: 192, height: 48 }} size={GoogleSigninButton.Size.Wide} color={GoogleSigninButton.Color.Dark} onPress={googleSignIn} />
             </View>

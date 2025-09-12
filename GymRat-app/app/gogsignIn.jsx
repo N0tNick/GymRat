@@ -1,13 +1,17 @@
 import React from 'react';
 import { Platform } from 'react-native';
 
+import * as Application from 'expo-application';
+
 import {
   GoogleSignin,
   isErrorWithCode,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 
-if (Platform.OS === 'android') {
+const isExpoGo = Application.applicationName === "Expo Go";
+
+if (Platform.OS === 'android' && !isExpoGo) {
   GoogleSignin.configure({
     webClientId: '467813529391-sg1j5mr6r75ae2fn9gnaf1jvcjjau7g8.apps.googleusercontent.com',
     scopes: ['email', 'profile'],
@@ -15,7 +19,7 @@ if (Platform.OS === 'android') {
     forceCodeForRefreshToken: true,
     iosClientId: '467813529391-r54j585g28775613oglrohtr95seatvj.apps.googleusercontent.com',
   })
-}  
+}
 
 
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
