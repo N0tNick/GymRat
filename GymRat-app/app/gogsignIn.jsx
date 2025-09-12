@@ -1,17 +1,22 @@
 import React from 'react';
+import { Platform } from 'react-native';
+
 import {
   GoogleSignin,
   isErrorWithCode,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 
-GoogleSignin.configure({
-  webClientId: '467813529391-sg1j5mr6r75ae2fn9gnaf1jvcjjau7g8.apps.googleusercontent.com',
-  scopes: ['email', 'profile'],
-  offlineAccess: true,
-  forceCodeForRefreshToken: true,
-  iosClientId: '467813529391-r54j585g28775613oglrohtr95seatvj.apps.googleusercontent.com',
-})
+if (Platform.OS === 'android') {
+  GoogleSignin.configure({
+    webClientId: '467813529391-sg1j5mr6r75ae2fn9gnaf1jvcjjau7g8.apps.googleusercontent.com',
+    scopes: ['email', 'profile'],
+    offlineAccess: true,
+    forceCodeForRefreshToken: true,
+    iosClientId: '467813529391-r54j585g28775613oglrohtr95seatvj.apps.googleusercontent.com',
+  })
+}  
+
 
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
