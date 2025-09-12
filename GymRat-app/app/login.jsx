@@ -26,7 +26,9 @@ export default function LoginScreen() {
       <Text style={styles.label}>Password</Text>
       <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry />
 
-      <GoogleSigninButton style={{ width: 192, height: 48 }} size={GoogleSigninButton.Size.Wide} color={GoogleSigninButton.Color.Dark} onPress={googleSignIn} />
+      
+      {/* UNCOMMENT WHEN READY
+      <GoogleSigninButton style={{ width: 192, height: 48 }} size={GoogleSigninButton.Size.Wide} color={GoogleSigninButton.Color.Dark} onPress={googleSignIn} />*/}
 
       <TouchableOpacity style={styles.button} onPress={async () => {
         try {

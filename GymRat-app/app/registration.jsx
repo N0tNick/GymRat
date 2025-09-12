@@ -46,9 +46,10 @@ export default function RegistrationScreen() {
             <TouchableOpacity onPress={() => router.push('/login')}>
                 <Text style={styles.linkText}>Already have an account? Login</Text>
             </TouchableOpacity>
+            {/* UNCOMMENT WHEN READY
             <View style={{alignItems: "center", marginTop: 20}} >
                 <GoogleSigninButton style={{ width: 192, height: 48 }} size={GoogleSigninButton.Size.Wide} color={GoogleSigninButton.Color.Dark} onPress={googleSignIn} />
-            </View>
+            </View>*/}
             
         </View>
     );
