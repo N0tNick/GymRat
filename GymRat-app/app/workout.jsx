@@ -9,19 +9,15 @@ import NavBar from '../components/NavBar';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
-const router = useRouter();
 
 export default function WorkoutScreen() {
   const db = useSQLiteContext()
   const [userTemplates, setUserTemplates] = useState([])
+  const router = useRouter();
 
   const loadTemplates = async() => {
     const result = await db.getAllAsync("SELECT * FROM workoutTemplates;")
-    /*for (i = 0; i < result.length; i++) {
-      result[i] = JSON.parse(result[i])
-    }*/
     setUserTemplates(result)
-    //console.log('loaded templates: ', result)
   }
 
   useFocusEffect(
@@ -151,9 +147,10 @@ export default function WorkoutScreen() {
   const [eFilterButtonVal, setEFilterButtonVal] = useState('Any Equipment')
   const [exerciseInfoModal, setExerciseInfoModal] = useState(false)
   const [exerciseItem, setExerciseItem] = useState('')
-  const [manageTemplateModal, setManageTemplateModal] = useState(false);
+  const [manageTemplateModal, setManageTemplateModal] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const [workoutModal, setWorkoutModal] = useState(null)
+  const [ongoingWorkoutButton, setOngoingWorkoutButton] = useState(false)
 
     useEffect(() => {
       const filtered = exercises.filter((exercise) =>
@@ -286,11 +283,28 @@ export default function WorkoutScreen() {
                   {selectedTemplate ? `Do you want to start your ${selectedTemplate.name} workout?` : ''}
                 </Text>
                 <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
-                  <TouchableOpacity style={styles.button} onPress={() => {setWorkoutModal(true)}}>
+                  <TouchableOpacity style={styles.button} onPress={() => {setWorkoutModal(true);setManageTemplateModal(false);setOngoingWorkoutButton(true)}}>
                     <Text style={{color: '#fff', fontSize: 20, fontWeight: 'bold'}}>Start</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.button} onPress={() => setManageTemplateModal(false)}>
                     <Text style={{color: '#fff', fontSize: 20, fontWeight: 'bold'}}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+
+          {/* Workout Modal */}
+          <Modal
+            visible={workoutModal}
+            transparent={true}
+            onRequestClose={() => setWorkoutModal(false)}
+          >
+            <View style={styles.centeredView}>
+              <View style={{backgroundColor: '#1a1b1c', height: '90%', width: '100%', borderRadius: 10}}>
+                <View style={{flexDirection: 'row'}}>
+                  <TouchableOpacity style={styles.button} onPress={() => setWorkoutModal(false)}>
+                    <Text style={{color: '#fff'}}>Close</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -307,6 +321,17 @@ export default function WorkoutScreen() {
             <TouchableOpacity style={styles.button} onPress ={() => router.push('/createTemplate')}><Text style={{color: '#fff'}}>+ Template</Text></TouchableOpacity>
           </View>
 
+          {/* View Ongoing Workout Button */}
+          {ongoingWorkoutButton ? (
+            <TouchableOpacity 
+            style={{backgroundColor: '#1478db', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
+            onPress={() => {}}
+            >
+              <Text style={{color: '#fff', fontWeight: 'bold'}}>View Ongoing Workout</Text>
+            </TouchableOpacity>
+          ) : null}
+          
+
           <FlatList
           data={userTemplates}
           keyExtractor={(item) => item.id.toString()}
@@ -314,7 +339,6 @@ export default function WorkoutScreen() {
           style={{padding: 10}}
           ItemSeparatorComponent={<View style={{padding: 5}}/>}
           />
-          
         </SafeAreaView>
         </View>
         <NavBar />
