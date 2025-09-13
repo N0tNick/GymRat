@@ -6,6 +6,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import exercises from '../assets/exercises.json';
 import schema from '../assets/schema.json';
 import NavBar from '../components/NavBar';
+import WorkoutModal from '../components/WorkoutModal';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -152,6 +153,43 @@ export default function WorkoutScreen() {
   const [workoutModal, setWorkoutModal] = useState(null)
   const [ongoingWorkoutButton, setOngoingWorkoutButton] = useState(false)
 
+  {/*// Timer functions are from geeksforgeeks.org
+  const [time, setTime] = useState(0);
+  const timeSeconds = time % 60
+  const timeMinutes = Math.floor(time / 60)
+  const timeHours = Math.floor(time / 3600)
+  const [running, setRunning] = useState(false);
+  const intervalRef = useRef(null);
+  const startTimeRef = useRef(0);
+
+  const startStopwatch = () => {
+    // Set the start time, accounting for any previously elapsed time
+    startTimeRef.current = Date.now() - time * 1000;
+    // Start interval to update time every second
+    intervalRef.current = setInterval(() => {
+        // Update time state with elapsed seconds
+        setTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
+    }, 1000);
+    // Set running state to true
+    setRunning(true);
+  };
+
+  const pauseStopwatch = () => {
+    // Clear the interval to stop updating time
+    clearInterval(intervalRef.current);
+    // Set running state to false
+    setRunning(false);
+  };
+
+  const resetStopwatch = () => {
+    // Clear the interval
+    clearInterval(intervalRef.current);
+    // Reset time to 0
+    setTime(0);
+    // Set running state to false
+    setRunning(false);
+  };*/}
+
     useEffect(() => {
       const filtered = exercises.filter((exercise) =>
         exercise.name.toLowerCase().includes(searchText.toLowerCase())
@@ -283,7 +321,10 @@ export default function WorkoutScreen() {
                   {selectedTemplate ? `Do you want to start your ${selectedTemplate.name} workout?` : ''}
                 </Text>
                 <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
-                  <TouchableOpacity style={styles.button} onPress={() => {setWorkoutModal(true);setManageTemplateModal(false);setOngoingWorkoutButton(true)}}>
+                  <TouchableOpacity style={styles.button} onPress={() => {
+                    setWorkoutModal(true)
+                    setManageTemplateModal(false)
+                    setOngoingWorkoutButton(true)}}>
                     <Text style={{color: '#fff', fontSize: 20, fontWeight: 'bold'}}>Start</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.button} onPress={() => setManageTemplateModal(false)}>
@@ -295,21 +336,26 @@ export default function WorkoutScreen() {
           </Modal>
 
           {/* Workout Modal */}
-          <Modal
+          <WorkoutModal workoutModal={workoutModal} setWorkoutModal={setWorkoutModal} template={selectedTemplate}/>
+          {/*<Modal
             visible={workoutModal}
             transparent={true}
             onRequestClose={() => setWorkoutModal(false)}
           >
             <View style={styles.centeredView}>
-              <View style={{backgroundColor: '#1a1b1c', height: '90%', width: '100%', borderRadius: 10}}>
-                <View style={{flexDirection: 'row'}}>
+              <View style={{backgroundColor: '#1a1b1c', height: '90%', width: '100%', borderRadius: 10, padding: 10}}>
+                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                   <TouchableOpacity style={styles.button} onPress={() => setWorkoutModal(false)}>
                     <Text style={{color: '#fff'}}>Close</Text>
+                  </TouchableOpacity>
+                  <Text style={{color: '#fff', fontWeight: 'normal', fontSize: 20}}>{timeHours}:{timeMinutes}:{timeSeconds}</Text>
+                  <TouchableOpacity style={[styles.button, {backgroundColor: '#10bb21ff'}]} onPress={() => setWorkoutModal(false)}>
+                    <Text style={{color: '#fff'}}>Finish</Text>
                   </TouchableOpacity>
                 </View>
               </View>
             </View>
-          </Modal>
+          </Modal>*/}
 
           <View style={{flexDirection: 'row', justifyContent: 'space-between', padding: 10}}>
             <Text style={styles.text}>Workout Screen</Text>
@@ -325,7 +371,7 @@ export default function WorkoutScreen() {
           {ongoingWorkoutButton ? (
             <TouchableOpacity 
             style={{backgroundColor: '#1478db', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
-            onPress={() => {}}
+            onPress={() => setWorkoutModal(true)}
             >
               <Text style={{color: '#fff', fontWeight: 'bold'}}>View Ongoing Workout</Text>
             </TouchableOpacity>
