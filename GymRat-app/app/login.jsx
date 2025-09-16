@@ -5,6 +5,19 @@ import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-nativ
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig.js';
 import { useUser } from '../UserContext.js';
+import { Platform } from 'react-native';
+
+import * as Application from 'expo-application';
+
+// Lazy imports to avoid crashing Expo Go
+let GoogleSigninButton;
+let useGoogleSignIn;
+
+const isExpoGo = Application.applicationName === "Expo Go";
+if (Platform.OS === "android" && !isExpoGo) {
+  GoogleSigninButton = require('@react-native-google-signin/google-signin').GoogleSigninButton;
+  useGoogleSignIn = require('../app/gogsignIn.jsx').useGoogleSignIn;
+}
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -12,6 +25,8 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const { setUserId } = useUser();
   const db = useSQLiteContext();
+
+  const googleSignIn = useGoogleSignIn ? useGoogleSignIn().signIn : null;
 
   return (
     <View style={styles.container}>
@@ -69,6 +84,18 @@ export default function LoginScreen() {
       <TouchableOpacity onPress={() => router.push('/registration')}>
         <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
+
+      {GoogleSigninButton && googleSignIn && (
+        <View style={{ alignItems: "center", marginTop: 20 }}>
+          <GoogleSigninButton
+            style={{ width: 192, height: 48 }}
+            size={GoogleSigninButton.Size.Wide}
+            color={GoogleSigninButton.Color.Dark}
+            onPress={googleSignIn}
+          />
+        </View>
+      )}
+      
     </View>
   );
 }

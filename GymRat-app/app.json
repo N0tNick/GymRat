@@ -1,16 +1,20 @@
 {
   "expo": {
-    "name": "GymRat-app",
-    "slug": "GymRat-app",
+    "name": "GymRat",
+    "slug": "GymRat",
     "owner": "lant405",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "gymratapp",
+    "scheme": "gymrat",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.LANT.GymRat",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +22,11 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.LANT.GymRatapp"
+      "package": "com.LANT.GymRat",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -53,7 +61,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "20089ac4-f797-4a65-804d-c6de06f8aeef"
+        "projectId": "ee53e41c-544f-4dd6-95ab-f49053904ad4"
       }
     }
   }

@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "467813529391",
+    "project_id": "gymrat405-3afb8",
+    "storage_bucket": "gymrat405-3afb8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:467813529391:android:f92bc116a9c6710b7a13da",
+        "android_client_info": {
+          "package_name": "com.LANT.GymRat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "467813529391-56o85aq0u86crcmvb3p9gp0mtl0eblub.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.LANT.GymRat",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "467813529391-sg1j5mr6r75ae2fn9gnaf1jvcjjau7g8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAK8Np66Pql4WVtn_Pk8XJjsAIYdleEZqw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "467813529391-sg1j5mr6r75ae2fn9gnaf1jvcjjau7g8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "467813529391-r54j585g28775613oglrohtr95seatvj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.LANT.GymRat"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

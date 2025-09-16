@@ -1,4 +1,4 @@
-package com.LANT.GymRatapp
+package com.LANT.GymRat
 
 import android.app.Application
 import android.content.res.Configuration

@@ -1,4 +1,4 @@
-package com.LANT.GymRatapp
+package com.LANT.GymRat
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
