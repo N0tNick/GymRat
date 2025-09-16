@@ -3,6 +3,7 @@ import { ApplicationProvider, Text } from '@ui-kitten/components';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // required for userId's
 import { SQLiteProvider } from 'expo-sqlite';
@@ -15,6 +16,7 @@ const MyTheme = {
 export default function App() {
   const router = useRouter();
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <ApplicationProvider {...eva} theme={MyTheme}>
     <SQLiteProvider
       databaseName="UserDatabase.db"
@@ -104,5 +106,7 @@ export default function App() {
       </UserProvider>
     </SQLiteProvider>
     </ApplicationProvider>
+    </GestureHandlerRootView>
+    
   );
 }
