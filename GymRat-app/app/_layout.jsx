@@ -107,6 +107,5 @@ export default function App() {
     </SQLiteProvider>
     </ApplicationProvider>
     </GestureHandlerRootView>
-    
   );
 }

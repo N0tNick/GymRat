@@ -760,6 +760,7 @@ const styles = StyleSheet.create({
     zIndex: 99,
   },
   gridItem: { 
+    // for cards width
     width: screenWidth * 0.90, 
     alignItems: 'center' 
   },
