@@ -1,16 +1,22 @@
+import DateTimePicker from '@react-native-community/datetimepicker';
+import * as Calendar from 'expo-calendar';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState} from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, ScrollView, Dimensions, Touchable, Modal, TextInput } from 'react-native';
+import { useSQLiteContext } from 'expo-sqlite';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Dimensions, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../components/NavBar';
-import * as Calendar from 'expo-calendar';
-import { cals } from './goal';
-import { useSQLiteContext } from 'expo-sqlite';
 import { useUser } from '../UserContext';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { cals } from './goal';
+
+
+
+
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
+
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -28,6 +34,12 @@ export default function HomeScreen() {
   const [dayTotals, setDayTotals] = useState(null);
   const [weekData, setWeekData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
+
+  const [customizeModalVisible, setCustomizeModalVisible] = useState(false);
+  const [showTasks, setShowTasks] = useState(true);
+  const [showNutrition, setShowNutrition] = useState(true);
+  const [showWeekly, setShowWeekly] = useState(true);
+  const [moduleOrder, setModuleOrder] = useState(['tasks', 'nutrition', 'weekly']);
 
   // function to add daily event
   const handleAddEvent = () => {
@@ -150,13 +162,168 @@ export default function HomeScreen() {
     })();
   }, [db, userId]);
 
+  const gridData = useMemo(() => {
+  const enabled = [];
+  if (showTasks)    enabled.push('tasks');
+  if (showNutrition) enabled.push('nutrition');
+  if (showWeekly)   enabled.push('weekly');
+
+  return moduleOrder.filter(k => enabled.includes(k)).map(k => ({ key: k }));}, 
+  [showTasks, showNutrition, showWeekly, moduleOrder]);
+
+  const renderModule = useCallback(({ item, drag, isActive }) => {
+  switch (item.key) {
+    case 'tasks':
+      return (
+        <ScaleDecorator>
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onLongPress={drag}
+            disabled={isActive}
+            style={styles.gridItem}
+          >
+            {/* --- your existing Tasks module content --- */}
+            <View style={styles.homeModule}>
+              <Text style={styles.moduleTitle}>Tasks to do today</Text>
+              <ScrollView contentContainerStyle={styles.taskList}>
+                {Array.isArray(events) && events.length > 0 ? (
+                  events.map((event, index) => (
+                    <View key={event.id}>
+                      {index === 0 && <View style={styles.divider} />}
+                      <View style={styles.taskRow}>
+                        <View style={styles.timeWrapper}>
+                          <Text style={styles.time}>{formatTime(event.startDate)}</Text>
+                        </View>
+                        <View style={styles.textWrapper}>
+                          <Text style={styles.task}>{event.title}</Text>
+                        </View>
+                      </View>
+                      {index < events.length - 1 && <View style={styles.divider} />}
+                    </View>
+                  ))
+                ) : (
+                  <Text style={styles.noTask}>No events for today</Text>
+                )}
+              </ScrollView>
+              <TouchableOpacity style={styles.addEventButton} onPress={() => setModalVisible(true)}>
+                <Text style={styles.addEventText}>Add Event</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </ScaleDecorator>
+      );
+
+    case 'nutrition':
+      return (
+        <ScaleDecorator>
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onLongPress={drag}
+            disabled={isActive}
+            style={styles.gridItem}
+          >
+            <View style={styles.homeModule}>
+              <Text style={styles.moduleTitle}>Nutrition Rundown</Text>
+
+              <View style={styles.nutrientRow}>
+                <Text style={styles.nutrientLabel}>Energy - {dailyTotals?.totalCalories ?? 0} / {cals} kcal</Text>
+                <View style={styles.barContainer}>
+                  <View style={[styles.barFill, { backgroundColor: '#00eaff', width: `${Math.min(((dailyTotals?.totalCalories ?? 0) / cals) * 100, 100)}%` }]} />
+                </View>
+              </View>
+
+              <View style={styles.nutrientRow}>
+                <Text style={styles.nutrientLabel}>Protein - {dailyTotals?.totalProtein ?? 0} / {Math.round((cals * 0.25) / 4)}g</Text>
+                <View style={styles.barContainer}>
+                  <View style={[styles.barFill, { backgroundColor: '#ff00ff', width: `${Math.min(((dailyTotals?.totalProtein ?? 0) / ((cals * 0.25) / 4)) * 100, 100)}%` }]} />
+                </View>
+              </View>
+
+              <View style={styles.nutrientRow}>
+                <Text style={styles.nutrientLabel}>Carbs - {dailyTotals?.totalCarbs ?? 0} / {Math.round((cals * 0.45) / 4)}g</Text>
+                <View style={styles.barContainer}>
+                  <View style={[styles.barFill, { backgroundColor: '#00ff00', width: `${Math.min(((dailyTotals?.totalCarbs ?? 0) / ((cals * 0.45) / 4)) * 100, 100)}%` }]} />
+                </View>
+              </View>
+
+              <View style={styles.nutrientRow}>
+                <Text style={styles.nutrientLabel}>Fat - {dailyTotals?.totalFat ?? 0} / {Math.round((cals * 0.30) / 9)}g</Text>
+                <View style={styles.barContainer}>
+                  <View style={[styles.barFill, { backgroundColor: '#ff0000', width: `${Math.min(((dailyTotals?.totalFat ?? 0) / ((cals * 0.30) / 9)) * 100, 100)}%` }]} />
+                </View>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </ScaleDecorator>
+      );
+
+    case 'weekly':
+      return (
+        <ScaleDecorator>
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onLongPress={drag}
+            disabled={isActive}
+            style={styles.gridItem}
+          >
+            <View style={styles.homeModule}>
+              <Text style={styles.moduleTitle}>Weekly Calendar</Text>
+              <View style={styles.weekRow}>
+                {weekData.map((dayInfo, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.dayColumn}
+                    onPress={async () => {
+                      setSelectedDate(dayInfo.date);
+                      if (dayInfo.hasLog) {
+                        const totals = await loadTotalsForDate(dayInfo.date, "historyLog");
+                        setDayTotals(totals);
+                      } else {
+                        setDayTotals(null);
+                      }
+                      setDayModalVisible(true);
+                    }}
+                  >
+                    <Text style={styles.dayLabel}>
+                      {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][dayInfo.date.getDay()]}
+                    </Text>
+                    <View style={styles.dayContent}>
+                      <Text style={{ color: "#fff" }}>{dayInfo.date.getDate()}</Text>
+                      <View style={[
+                        styles.logIndicator,
+                        { backgroundColor: dayInfo.hasLog ? "green" : "transparent" }
+                      ]}/>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </TouchableOpacity>
+        </ScaleDecorator>
+      );
+
+    default:
+      return null;
+  }
+}, [events, dailyTotals, weekData, setDayModalVisible]);
+
+
+
   return (
     <SafeAreaProvider>
         <View style={styles.container}>
           <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center', justifyContent: 'center' }}>
           <Text style={styles.text}>GymRat</Text>
 
-          <View style={styles.homeModule}>
+           <DraggableFlatList
+            data={gridData}
+            keyExtractor={(item) => item.key}
+            renderItem={renderModule}
+            numColumns={1}
+            contentContainerStyle={{ alignItems: 'center' }}
+            onDragEnd={({ data }) => setModuleOrder(data.map(d => d.key))}
+          />
+          {/* <View style={styles.homeModule}>
             <Text style={styles.moduleTitle}>Tasks to do today</Text>
             <ScrollView contentContainerStyle={styles.taskList}>
               {events.length === 0 ? (
@@ -182,9 +349,10 @@ export default function HomeScreen() {
               <Text style={styles.addEventText}>Add Event</Text>
             </TouchableOpacity>
           </View>
+        
 
           
-          {dailyTotals && (
+          
           <View style={styles.homeModule}>
             <Text style={styles.moduleTitle}>Nutrition Rundown</Text>
 
@@ -216,8 +384,9 @@ export default function HomeScreen() {
               </View>
             </View>
           </View>
-          )}
+        
 
+        
           <View style={styles.homeModule}>
             <Text style={styles.moduleTitle}>Weekly Calendar</Text>
             <View style={styles.weekRow}>
@@ -251,7 +420,8 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
+          </View> */}
+        
 
           {/* Day Modal */}
           <Modal
@@ -290,6 +460,14 @@ export default function HomeScreen() {
           </TouchableOpacity>
           </SafeAreaView>
         </View>
+
+        <TouchableOpacity
+          style={styles.customizeButton}
+          onPress={() => setCustomizeModalVisible(true)}
+        >
+          <Text style={styles.buttonText}>⚙️</Text>
+        </TouchableOpacity>
+
 
         <NavBar />
         <Modal animation Type="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
@@ -330,6 +508,41 @@ export default function HomeScreen() {
             </View>
           </View>
         </Modal>
+
+        <Modal
+          transparent={true}
+          visible={customizeModalVisible}
+          onRequestClose={() => setCustomizeModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Customize Home Modules</Text>
+
+              <TouchableOpacity onPress={() => setShowTasks(!showTasks)}>
+                <Text style={{ color: showTasks ? '#32a852' : '#888', marginBottom: 10 }}>
+                  {showTasks ? '✓ ' : '○ '}Tasks
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => setShowNutrition(!showNutrition)}>
+                <Text style={{ color: showNutrition ? '#00eaff' : '#888', marginBottom: 10 }}>
+                  {showNutrition ? '✓ ' : '○ '}Nutrition Rundown
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => setShowWeekly(!showWeekly)}>
+                <Text style={{ color: showWeekly ? '#ffa500' : '#888', marginBottom: 10 }}>
+                  {showWeekly ? '✓ ' : '○ '}Weekly Calendar
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => setCustomizeModalVisible(false)}>
+                <Text style={styles.cancelText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
     </SafeAreaProvider>
   );
 }
@@ -364,7 +577,7 @@ const styles = StyleSheet.create({
     padding: 4,
     paddingTop: 10,
     marginTop: 20,
-    width: '90%',
+    width: '95%',
     maxHeight: 300,
   },
   moduleTitle: {
@@ -535,5 +748,20 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "green",
     marginTop: 4,
+  },
+  customizeButton: {
+    position: 'absolute',
+    bottom: 85,
+    left: 20,
+    backgroundColor: '#444',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    zIndex: 99,
+  },
+  gridItem: { 
+    // for cards width
+    width: screenWidth * 0.90, 
+    alignItems: 'center' 
   },
 });

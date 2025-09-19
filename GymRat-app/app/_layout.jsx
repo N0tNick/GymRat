@@ -3,6 +3,7 @@ import { ApplicationProvider, Text } from '@ui-kitten/components';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { TouchableOpacity } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { syncStorage } from 'use-state-persist';
 
 // required for userId's
@@ -29,6 +30,7 @@ export default function App() {
   }, []);
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <ApplicationProvider {...eva} theme={MyTheme}>
     <SQLiteProvider
       databaseName="UserDatabase.db"
@@ -118,5 +120,6 @@ export default function App() {
       </UserProvider>
     </SQLiteProvider>
     </ApplicationProvider>
+    </GestureHandlerRootView>
   );
 }
