@@ -1,10 +1,13 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useRef, useState } from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useStatePersist } from 'use-state-persist';
 
-export default function WorkoutModal({workoutModal, setWorkoutModal, template}) {
-    const db = useSQLiteContext();
-    const [workoutData, setWorkoutData] = useState(null);
+export default function WorkoutModal({workoutModal, setWorkoutModal, template, finishWorkout}) {
+    const db = useSQLiteContext()
+    const [workoutData, setWorkoutData] = useState(null)
+    const [exercises, setExercises] = useState([])
+    const [numOfSets, setNumOfSets] = useState({})
 
     useEffect(() => {
         if (!template) {
@@ -18,8 +21,16 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, template}) 
                     [template.id]
                 );
                 if (rows && rows.length > 0) {
-                    setWorkoutData(rows[0]);
+                    const workout = rows[0]
+                    setWorkoutData(workout)
                     console.log('Found row:', rows[0]);
+                    if (workout.data) {
+                      const parsed = JSON.parse(workout.data);
+                      setExercises(parsed.exercises || []);
+                    }
+                    else { 
+                      setExercises([])
+                    }
                 } else {
                     setWorkoutData(null);
                     console.log(`No row found with id = ${template.id}`);
@@ -33,7 +44,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, template}) 
     }, [template]);
 
     // Timer functions are from geeksforgeeks.org
-    const [time, setTime] = useState(0);
+    const [time, setTime] = useStatePersist('@timer', 0);
     const timeSeconds = time % 60
     const timeMinutes = Math.floor(time / 60)
     const timeHours = Math.floor(time / 3600)
@@ -73,12 +84,80 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, template}) 
         if (workoutModal) {
             startStopwatch();
         } else {
-            pauseStopwatch();
+            //pauseStopwatch();
             //resetStopwatch();
         }
         // Cleanup interval on unmount
         return () => clearInterval(intervalRef.current);
     }, [workoutModal]);
+
+    const ExerciseSetComponent = ({ index, itemId }) => {
+      const setData = numOfSets[itemId][index];
+
+      const handleWeightChange = (text) => {
+        setNumOfSets((prev) => {
+          const sets = [...prev[itemId]];
+          sets[index] = { ...sets[index], weight: text };
+          return { ...prev, [itemId]: sets };
+        });
+      };
+
+      const handleRepsChange = (text) => {
+        setNumOfSets((prev) => {
+          const sets = [...prev[itemId]];
+          sets[index] = { ...sets[index], reps: text };
+          return { ...prev, [itemId]: sets };
+        });
+      };
+    
+      return (
+        <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10}}>
+          <Text style={styles.whiteText}>{'  ' + (index + 1) + ' '}</Text>
+          <Text style={styles.whiteText}>-</Text>
+          <Text style={styles.whiteText}>{setData.weight}</Text>
+          <Text style={styles.whiteText}>{setData.reps}</Text>
+        </View>
+      )
+    }
+
+    const renderItem = ({ item }) => (
+      <View>
+        <Text style={[styles.whiteText, {paddingVertical: 10}]}>{item.name}</Text>
+  
+        <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10}}>
+          <Text style={styles.whiteText}>Set</Text>
+          <Text style={styles.whiteText}>Previous</Text>
+          <Text style={styles.whiteText}>lbs</Text>
+          <Text style={styles.whiteText}>Reps</Text>
+        </View>
+  
+        {item.sets.map((set, index) => (
+          <View key={index} style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5}}>
+            <Text style={styles.whiteText}>{'  ' + (index + 1) + ' '}</Text>
+            <Text style={styles.whiteText}>{
+            set.weight ? (set.weight + 'x' + set.reps).padStart(10,' ') : '         -     '
+            }</Text>
+            <TextInput
+            style={styles.templateInput}
+            onChangeText={() => {}}
+            onEndEditing={() => {}}
+            defaultValue=''
+            placeholder=''
+            keyboardType='numeric'
+            />
+            <TextInput
+            style={styles.templateInput}
+            onChangeText={() => {}}
+            onEndEditing={() => {}}
+            defaultValue=''
+            placeholder=''
+            keyboardType='numeric'
+            />
+          </View>
+        ))}
+
+      </View>
+    );
     
     return(
         // Workout Modal
@@ -94,12 +173,18 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, template}) 
                     <Text style={{color: '#fff'}}>Close</Text>
                     </TouchableOpacity>
                     <Text style={{color: '#fff', fontWeight: 'normal', fontSize: 20}}>{timeHours}:{timeMinutes}:{timeSeconds}</Text>
-                    <TouchableOpacity style={[styles.button, {backgroundColor: '#10bb21ff'}]} onPress={() => setWorkoutModal(false)}>
+                    <TouchableOpacity style={[styles.button, {backgroundColor: '#10bb21ff'}]} onPress={() => {setWorkoutModal(false);finishWorkout(true)}}>
                     <Text style={{color: '#fff'}}>Finish</Text>
                     </TouchableOpacity>
                 </View>
 
                 <Text style={{color: '#fff', fontSize: 30, fontWeight: 'bold', padding: 20}}>{workoutData ? workoutData.name : 'No Workout found'}</Text>
+
+                <FlatList
+                data={exercises}
+                keyExtractor={(item, index) => String(item.id ?? index)}
+                renderItem={renderItem}
+                />
                 </View>
             </View>
         </Modal>
@@ -202,5 +287,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#666',
     borderWidth: '1',
     borderRadius: 10,
+  },
+  whiteText: {
+    color: '#fff', 
+    fontSize: 20,
+  },
+  templateInput: {
+    backgroundColor: '#999',
+    width: 40,
+    borderRadius: 5,
+    fontWeight: 'bold',
+    textAlign: 'center'
   }
 })

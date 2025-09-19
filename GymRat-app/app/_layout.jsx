@@ -1,8 +1,9 @@
 import * as eva from '@eva-design/eva';
 import { ApplicationProvider, Text } from '@ui-kitten/components';
 import { Stack, useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { TouchableOpacity } from 'react-native';
+import { syncStorage } from 'use-state-persist';
 
 // required for userId's
 import { SQLiteProvider } from 'expo-sqlite';
@@ -14,6 +15,19 @@ const MyTheme = {
 
 export default function App() {
   const router = useRouter();
+
+  useEffect(() => {
+    async function setUpTimer() {
+      try {
+        // used for workout timer
+        await syncStorage.init();
+      } catch (err) {
+          console.error(err.message);
+      }
+    }
+    setUpTimer()
+  }, []);
+
   return (
     <ApplicationProvider {...eva} theme={MyTheme}>
     <SQLiteProvider

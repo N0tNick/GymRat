@@ -9,14 +9,15 @@ import ExerciseListModal from '../components/ExerciseListModal';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
-const router = useRouter();
 
 export default function CreateTemplateScreen() {
   const db = useSQLiteContext();
+  const router = useRouter();
   const [templateName, setTemplateName] = useState('New Template')
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedExercises, setSelectedExercises] = useState([]);
   const [numOfSets, setNumOfSets] = useState({})
+  var temp = ''
 
   const saveTemplateToDB = async (user_id, name, templateData) => {
     try {
@@ -68,19 +69,21 @@ export default function CreateTemplateScreen() {
   
     return (
       <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10}}>
-        <Text style={styles.whiteText}>{index + 1}</Text>
-        <Text style={styles.whiteText}>-</Text>
+        <Text style={styles.whiteText}>{'  ' + (index + 1) + ' '}</Text>
+        <Text style={styles.whiteText}>          -          </Text>
         <TextInput
-        style={styles.whiteText}
-        onChangeText={handleWeightChange}
-        value={setData.weight}
+        style={styles.templateInput}
+        onChangeText={(val) => temp = val}
+        onEndEditing={() => {setData.weight;handleWeightChange(temp)}}
+        defaultValue={setData.weight}
         placeholder='-'
         keyboardType='numeric'
         />
         <TextInput
-        style={styles.whiteText}
-        onChangeText={handleRepsChange}
-        value={setData.reps}
+        style={styles.templateInput}
+        onChangeText={(val) => temp = val}
+        onEndEditing={() => {setData.reps;handleRepsChange(temp)}}
+        defaultValue={setData.reps}
         placeholder='-'
         keyboardType='numeric'
         />
@@ -260,5 +263,12 @@ const styles = StyleSheet.create({
   whiteText: {
     color: '#fff', 
     fontSize: 20,
+  },
+  templateInput: {
+    backgroundColor: '#999',
+    width: 40,
+    borderRadius: 5,
+    fontWeight: 'bold',
+    textAlign: 'center'
   }
 });
