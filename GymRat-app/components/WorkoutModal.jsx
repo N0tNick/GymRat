@@ -6,42 +6,52 @@ import { useStatePersist } from 'use-state-persist';
 export default function WorkoutModal({workoutModal, setWorkoutModal, template, finishWorkout}) {
     const db = useSQLiteContext()
     const [workoutData, setWorkoutData] = useState(null)
-    const [exercises, setExercises] = useState([])
-    const [numOfSets, setNumOfSets] = useState({})
+  const [exercises, setExercises] = useState([])
+  // Track user-updated values for each set
+  const [updatedExercises, setUpdatedExercises] = useState([])
 
-    useEffect(() => {
-        if (!template) {
-            setWorkoutData(null);
-            return;
+  useEffect(() => {
+    if (!template) {
+      setWorkoutData(null);
+      setExercises([]);
+      setUpdatedExercises([]);
+      return;
+    }
+    const fetchWorkout = async () => {
+      try {
+        const rows = await db.getAllAsync(
+          `SELECT * FROM workoutTemplates WHERE id = ?`,
+          [template.id]
+        );
+        if (rows && rows.length > 0) {
+          const workout = rows[0]
+          setWorkoutData(workout)
+          console.log('Found row:', rows[0]);
+          if (workout.data) {
+            const parsed = JSON.parse(workout.data);
+            setExercises(parsed.exercises || []);
+            // Deep copy for user editing
+            setUpdatedExercises(JSON.parse(JSON.stringify(parsed.exercises || [])));
+          }
+          else { 
+            setExercises([])
+            setUpdatedExercises([])
+          }
+        } else {
+          setWorkoutData(null);
+          setExercises([]);
+          setUpdatedExercises([]);
+          console.log(`No row found with id = ${template.id}`);
         }
-        const fetchWorkout = async () => {
-            try {
-                const rows = await db.getAllAsync(
-                    `SELECT * FROM workoutTemplates WHERE id = ?`,
-                    [template.id]
-                );
-                if (rows && rows.length > 0) {
-                    const workout = rows[0]
-                    setWorkoutData(workout)
-                    console.log('Found row:', rows[0]);
-                    if (workout.data) {
-                      const parsed = JSON.parse(workout.data);
-                      setExercises(parsed.exercises || []);
-                    }
-                    else { 
-                      setExercises([])
-                    }
-                } else {
-                    setWorkoutData(null);
-                    console.log(`No row found with id = ${template.id}`);
-                }
-            } catch (err) {
-                console.error(err.message);
-                setWorkoutData(null);
-            }
-        };
-        fetchWorkout();
-    }, [template]);
+      } catch (err) {
+        console.error(err.message);
+        setWorkoutData(null);
+        setExercises([]);
+        setUpdatedExercises([]);
+      }
+    };
+    fetchWorkout();
+  }, [template]);
 
     // Timer functions are from geeksforgeeks.org
     const [time, setTime] = useStatePersist('@timer', 0);
@@ -91,67 +101,45 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, template, f
         return () => clearInterval(intervalRef.current);
     }, [workoutModal]);
 
-    const ExerciseSetComponent = ({ index, itemId }) => {
-      const setData = numOfSets[itemId][index];
+    // Helper to update user input for a set
+    const handleSetChange = (exerciseIdx, setIdx, field, value) => {
+      setUpdatedExercises(prev => {
+        const updated = [...prev];
+        if (!updated[exerciseIdx] || !updated[exerciseIdx].sets[setIdx]) return prev;
+        updated[exerciseIdx] = { ...updated[exerciseIdx], sets: [...updated[exerciseIdx].sets] };
+        updated[exerciseIdx].sets[setIdx] = { ...updated[exerciseIdx].sets[setIdx], [field]: value };
+        return updated;
+      });
+    };
 
-      const handleWeightChange = (text) => {
-        setNumOfSets((prev) => {
-          const sets = [...prev[itemId]];
-          sets[index] = { ...sets[index], weight: text };
-          return { ...prev, [itemId]: sets };
-        });
-      };
-
-      const handleRepsChange = (text) => {
-        setNumOfSets((prev) => {
-          const sets = [...prev[itemId]];
-          sets[index] = { ...sets[index], reps: text };
-          return { ...prev, [itemId]: sets };
-        });
-      };
-    
-      return (
-        <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10}}>
-          <Text style={styles.whiteText}>{'  ' + (index + 1) + ' '}</Text>
-          <Text style={styles.whiteText}>-</Text>
-          <Text style={styles.whiteText}>{setData.weight}</Text>
-          <Text style={styles.whiteText}>{setData.reps}</Text>
-        </View>
-      )
-    }
-
-    const renderItem = ({ item }) => (
+    const renderItem = ({ item, index: exerciseIdx }) => (
       <View>
         <Text style={[styles.whiteText, {paddingVertical: 10}]}>{item.name}</Text>
-  
+
         <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10}}>
           <Text style={styles.whiteText}>Set</Text>
           <Text style={styles.whiteText}>Previous</Text>
           <Text style={styles.whiteText}>lbs</Text>
           <Text style={styles.whiteText}>Reps</Text>
         </View>
-  
-        {item.sets.map((set, index) => (
-          <View key={index} style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5}}>
-            <Text style={styles.whiteText}>{'  ' + (index + 1) + ' '}</Text>
-            <Text style={styles.whiteText}>{
-            set.weight ? (set.weight + 'x' + set.reps).padStart(10,' ') : '         -     '
-            }</Text>
+
+        {(item.sets || []).map((set, setIdx) => (
+          <View key={setIdx} style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5}}>
+            <Text style={styles.whiteText}>{'  ' + (setIdx + 1) + ' '}</Text>
+            <Text style={styles.whiteText}>{set.weight ? (set.weight + 'x' + set.reps).padStart(10,' ') : '         -     '}</Text>
             <TextInput
-            style={styles.templateInput}
-            onChangeText={() => {}}
-            onEndEditing={() => {}}
-            defaultValue=''
-            placeholder=''
-            keyboardType='numeric'
+              style={styles.templateInput}
+              value={updatedExercises[exerciseIdx]?.sets[setIdx]?.weight?.toString() || ''}
+              onChangeText={val => handleSetChange(exerciseIdx, setIdx, 'weight', val)}
+              placeholder=''
+              keyboardType='numeric'
             />
             <TextInput
-            style={styles.templateInput}
-            onChangeText={() => {}}
-            onEndEditing={() => {}}
-            defaultValue=''
-            placeholder=''
-            keyboardType='numeric'
+              style={styles.templateInput}
+              value={updatedExercises[exerciseIdx]?.sets[setIdx]?.reps?.toString() || ''}
+              onChangeText={val => handleSetChange(exerciseIdx, setIdx, 'reps', val)}
+              placeholder=''
+              keyboardType='numeric'
             />
           </View>
         ))}
@@ -159,6 +147,21 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, template, f
       </View>
     );
     
+    // Save updated workout to DB
+    const saveUpdatedWorkout = async () => {
+      if (!workoutData) return;
+      try {
+        const updatedData = JSON.stringify({ exercises: updatedExercises });
+        await db.runAsync(
+          `UPDATE workoutTemplates SET data = ? WHERE id = ?`,
+          [updatedData, workoutData.id]
+        );
+        console.log('Workout updated!');
+      } catch (err) {
+        console.error('Failed to update workout:', err.message);
+      }
+    };
+
     return(
         // Workout Modal
         <Modal
@@ -173,8 +176,16 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, template, f
                     <Text style={{color: '#fff'}}>Close</Text>
                     </TouchableOpacity>
                     <Text style={{color: '#fff', fontWeight: 'normal', fontSize: 20}}>{timeHours}:{timeMinutes}:{timeSeconds}</Text>
-                    <TouchableOpacity style={[styles.button, {backgroundColor: '#10bb21ff'}]} onPress={() => {setWorkoutModal(false);finishWorkout(true)}}>
-                    <Text style={{color: '#fff'}}>Finish</Text>
+                    <TouchableOpacity
+                      style={[styles.button, {backgroundColor: '#10bb21ff'}]}
+                      onPress={async () => {
+                        await saveUpdatedWorkout();
+                        setWorkoutModal(false);
+                        finishWorkout(true);
+                        resetStopwatch();
+                      }}
+                    >
+                      <Text style={{color: '#fff'}}>Finish</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -183,7 +194,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, template, f
                 <FlatList
                 data={exercises}
                 keyExtractor={(item, index) => String(item.id ?? index)}
-                renderItem={renderItem}
+                renderItem={({item, index}) => renderItem({item, index})}
                 />
                 </View>
             </View>
