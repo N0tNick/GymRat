@@ -7,7 +7,7 @@ import exercises from '../assets/exercises.json';
 import schema from '../assets/schema.json';
 import NavBar from '../components/NavBar';
 import WorkoutModal from '../components/WorkoutModal';
-import usePersistedBoolean from './ongoingWorkout';
+import { usePersistedBoolean, usePersistedWorkout } from './ongoingWorkout';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -17,6 +17,7 @@ export default function WorkoutScreen() {
   const [userTemplates, setUserTemplates] = useState([])
   const router = useRouter();
   const [isOngoingWorkout, setIsOngoingWorkout] = usePersistedBoolean('isOngoingWorkout', false);
+  const [selectedTemplate, setSelectedTemplate] = usePersistedWorkout('selectedTemplate', null)
 
   const loadTemplates = async() => {
     const result = await db.getAllAsync("SELECT * FROM workoutTemplates;")
@@ -155,7 +156,7 @@ export default function WorkoutScreen() {
   const [exerciseInfoModal, setExerciseInfoModal] = useState(false)
   const [exerciseItem, setExerciseItem] = useState('')
   const [manageTemplateModal, setManageTemplateModal] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState(null)
+  //const [selectedTemplate, setSelectedTemplate] = useState(null)
   const [workoutModal, setWorkoutModal] = useState(null)
 
     useEffect(() => {

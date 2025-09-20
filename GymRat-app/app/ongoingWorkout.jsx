@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 
-// A custom hook to persist a boolean state variable
-const usePersistedBoolean = (key, initialValue) => {
+// A generic hook to persist any state variable
+const usePersistedState = (key, initialValue) => {
   const [value, setValue] = useState(initialValue);
 
   // Load the value from AsyncStorage on component mount
@@ -11,11 +11,10 @@ const usePersistedBoolean = (key, initialValue) => {
       try {
         const storedValue = await AsyncStorage.getItem(key);
         if (storedValue !== null) {
-          // Convert the stored string "true" or "false" back to a boolean
           setValue(JSON.parse(storedValue));
         }
       } catch (e) {
-        console.error('Failed to load value from storage', e);
+        console.error(`Failed to load value for ${key}`, e);
       }
     };
     loadStoredValue();
@@ -27,7 +26,7 @@ const usePersistedBoolean = (key, initialValue) => {
       try {
         await AsyncStorage.setItem(key, JSON.stringify(value));
       } catch (e) {
-        console.error('Failed to save value to storage', e);
+        console.error(`Failed to save value for ${key}`, e);
       }
     };
     saveValue();
@@ -36,4 +35,14 @@ const usePersistedBoolean = (key, initialValue) => {
   return [value, setValue];
 };
 
-export default usePersistedBoolean;
+// Backwards-compatible boolean hook
+export const usePersistedBoolean = (key, initialValue) => {
+  return usePersistedState(key, initialValue);
+};
+
+// New hook for workout data
+export const usePersistedWorkout = (key = 'selectedTemplate', initialValue = {}) => {
+  return usePersistedState(key, initialValue);
+};
+
+export default usePersistedState;
