@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   templateBox: {
     padding: 10,
     backgroundColor: '#666',
-    borderWidth: '1',
+    borderWidth: 1,
     borderRadius: 10,
   }
 });
