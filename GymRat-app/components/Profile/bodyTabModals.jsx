@@ -74,7 +74,7 @@ export const QuestionModal2 = ({ isVisible, onClose }) => {
                             <Text style={modalStyles.modalBodyText}>
                                 BMI is a health measure gotten by comparing a person's weight relative to their height.    
                             </Text>
-                                <Lightbox style={{marginLeft:20,marginTop:8,width:screenWidth*0.8, height:screenHeight*0.168, borderWidth:4,borderRadius:8,borderColor:'#6a5acd',overflow:'hidden'}}>
+                                <Lightbox style={{marginLeft:24,marginTop:8,width:screenWidth*0.8, height:screenHeight*0.168, borderWidth:4,borderRadius:8,borderColor:'#6a5acd',overflow:'hidden'}}>
                                     <Image style={styles.logo} resizeMode='contain' source={{uri:'https://www.ifafitness.com/book/images/BMI-chart.jpg'}}/>
                                 </Lightbox>  
                                 <Text style={modalStyles.modalBodyTextSmall}>
@@ -138,6 +138,76 @@ export const QuestionModal3 = ({ isVisible, onClose }) => {
                         <Text style={modalStyles.modalHeaderText}>What is BMR?</Text>
                         <View style={modalStyles.modalRectangle}>
                             <Text style={modalStyles.modalBodyText}>
+                                Base metabolic rate (BMR) is the amount of caloric energy your body needs to maintain homeostasis at a base level and accounts for the majority of your total energy consumption. (50-80%)
+                            </Text>
+                            <Text style={modalStyles.modalBodyText}>
+                                In simpler terms, this measures how many calories per day your body needs for its systems to function correctly.
+                            </Text>
+                            <Text style={modalStyles.modalBodyText}>
+                                BMR is largely determined by your total lean mass, especially muscle mass, with more mass increasing your BMR and less decreasing it. Your activity level is also considered when determining BMR.
+                            </Text>
+                            <View style={{width:screenWidth*0.85, height:screenHeight*0.54, borderWidth:3, borderRadius:10, borderColor:'#6a5acd', alignSelf:'center'}}>
+                                <Text style={modalStyles.modalBodyText}>
+                                    Factors that affect BMR
+                                </Text>
+                                <View style={{flexDirection:'column'}}>
+                                    <Text style={modalStyles.BMRText}>Body Size:</Text>
+                                    <Text style={modalStyles.BMRTextSmall}>-Larger bodies usually have a higher BMR.</Text>
+                                </View>
+                                <View style={{flexDirection:'column'}}>
+                                    <Text style={modalStyles.BMRText}>Lean Muscle amount:</Text>
+                                    <Text style={modalStyles.BMRTextSmall}>-Muscles use more kilojoules of energy than regular tissue.</Text>
+
+                                </View>
+                                <View style={{flexDirection:'column'}}>
+                                    <Text style={modalStyles.BMRText}>Bad dieting, starving or fasting: </Text>
+                                    <Text style={modalStyles.BMRTextSmall}>-Routinely eating too few calories changes your metabolism, and in turn dropping your BMR by up to 15%.</Text>
+                                </View>
+                                <View style={{flexDirection:'column'}}>
+                                    <Text style={modalStyles.BMRText}>Age: </Text>
+                                    <Text style={modalStyles.BMRTextSmall}>-Metabolism and BMR slow down with age, because of hormonal changes and the loss of muscle tissue.</Text>
+                                </View>
+                                <View style={{flexDirection:'column'}}>
+                                    <Text style={modalStyles.BMRText}>Activity Level: </Text>
+                                    <Text style={modalStyles.BMRTextSmall}>-Regular exercise increases muscle mass and teaches the body to burn energy at a faster rate, even at rest. </Text>
+                                </View>
+                                <View style={{flexDirection:'column'}}> 
+                                    <Text style={modalStyles.BMRText}>Drugs: </Text>
+                                    <Text style={modalStyles.BMRTextSmall}>-like caffiene or nicotine, can increase BMR</Text>
+                                </View>
+                                <View style={{flexDirection:'column'}}> 
+                                    <Text style={modalStyles.BMRText}>Dietary Deficiencies: </Text>
+                                    <Text style={modalStyles.BMRTextSmall}>-for example, a diet low in iodine reduces thyroid function and slows the metabolism</Text>
+                                </View>
+                            </View>
+                            <Text style={modalStyles.modalBodyText}>For the equations used, we decided to use the Oxford method, listed below</Text>
+                            <View style={{flexDirection:'column', alignSelf:'center', marginBottom:10}}>
+                                <View style={modalStyles.BMRBox}>
+                                    <Text style={modalStyles.modalBodyText}>Males:</Text>
+                                    <Text style={modalStyles.BMRTextSmall}>Age            Formula                                                           </Text>
+                                    <Text style={modalStyles.BMRTextSmall}>3-10           61.0 x Weight [kg] - 33.7                 </Text> 
+                                    <Text style={modalStyles.BMRTextSmall}>3-10           23.3 x Weight [kg] + 514                 </Text>
+                                    <Text style={modalStyles.BMRTextSmall}>10-18         18.4 x Weight [kg] + 581                 </Text>
+                                    <Text style={modalStyles.BMRTextSmall}>18-30         16.0 x Weight [kg] + 545                 </Text>
+                                    <Text style={modalStyles.BMRTextSmall}>30-60        14.2 x Weight [kg] + 593                 </Text>
+                                    <Text style={modalStyles.BMRTextSmall}>60+             13.5 x Weight [kg] + 514                 </Text>
+
+
+                                </View>
+                                <View style={modalStyles.BMRBox}>
+                                    <Text style={modalStyles.modalBodyText}>Women:</Text>
+                                    <Text style={modalStyles.BMRTextSmall}>Age            Formula                                                           </Text>
+                                    <Text style={modalStyles.BMRTextSmall}>3-10           58.9 x Weight [kg] - 23.1                </Text> 
+                                    <Text style={modalStyles.BMRTextSmall}>3-10           20.1 x Weight [kg] + 507                 </Text>
+                                    <Text style={modalStyles.BMRTextSmall}>10-18         11.1 x Weight [kg] + 761                 </Text>
+                                    <Text style={modalStyles.BMRTextSmall}>18-30         13.1 x Weight [kg] + 558                 </Text>
+                                    <Text style={modalStyles.BMRTextSmall}>30-60        9.74 x Weight [kg] + 694                 </Text>
+                                    <Text style={modalStyles.BMRTextSmall}>60+             10.1 x Weight [kg] + 569                 </Text>
+                                </View>
+                            </View>
+                            
+                            <Text style={modalStyles.BMRTextSmall}>
+                                This information was provided by the Better Health's Channel page on Metabolism.
                             </Text>
                         </View>
                     </ScrollView>
@@ -174,8 +244,8 @@ const modalStyles = StyleSheet.create ({
   modalRectangle: {
     marginLeft:6,
     marginTop:40, 
+    marginBottom:20,
     width:screenWidth*0.93,
-    height:screenHeight,
     borderWidth:2, 
     borderRadius:8, 
     borderColor:'#6a5acd',
@@ -187,6 +257,16 @@ const modalStyles = StyleSheet.create ({
     height:30,
     marginLeft:345,
     marginTop:5
+  },
+  BMRBox:{
+    flexDirection:'column',
+    alignItems:'center',
+    marginTop:10,
+    width:screenWidth*0.7,
+    height:screenHeight*0.25,
+    borderWidth:3,
+    borderRadius:10,
+    borderColor:'#6a5acd'
   },
   textStyle: {
     color: 'white',
@@ -210,8 +290,8 @@ const modalStyles = StyleSheet.create ({
     marginRight:5,
     marginTop:4,
     marginBottom:8,
-    textAlign:'center'
-
+    textAlign:'center',
+    letterSpacing:0.3
   },
   modalBodyTextSmall: {
     fontSize:12, 
@@ -222,7 +302,38 @@ const modalStyles = StyleSheet.create ({
     marginTop:4,
     marginBottom: 6,
     textAlign:'center'
-  }
+  },
+  modalBodySources: {
+    fontSize:10, 
+    fontWeight:'bold',
+    color:'white',
+    marginLeft:10,
+    marginRight:8,
+    marginTop:4,
+    marginBottom:0,
+    letterSpacing:0.3,
+  },
+  BMRText: {
+    fontSize:13, 
+    fontWeight:'bold',
+    color:'white',
+    marginLeft:5,
+    marginRight:0,
+    marginTop:0,
+    marginBottom:2,
+    textAlign:'auto',
+    letterSpacing:0.3
+  },
+  BMRTextSmall: {
+    fontSize:12, 
+    fontWeight:'bold',
+    color:'white',
+    marginLeft:15,
+    marginRight:1,
+    marginBottom:10,
+    textAlign:'auto',
+    letterSpacing:0.3
+  },
 
 });
 
@@ -231,4 +342,4 @@ const styles = StyleSheet.create({
         width:'100%',
         height:'100%',
     },
-})
+})  

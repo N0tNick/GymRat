@@ -32,7 +32,7 @@ const TopTab = () => {
               <TouchableOpacity style = {{margin: 20, width: screenWidth*0.95, height: 120, borderWidth:3, borderRadius: 10, borderColor: '#6a5acd'}}
               onPress={() => router.push('/ExerciseGoals')}
               >
-                <Text style = {{color:'white', position: 'absolute', fontFamily:'Didot', fontSize:16, fontWeight: 'bold', marginLeft:8 }}>Exercise Goals</Text>
+                <Text style = {{color:'white', position: 'absolute', fontWeight: 'bold', marginLeft:8 }}>Exercise Goals</Text>
                 <Image style={{width: 50, height: 50, position:'absolute', right:20, marginTop: 25, borderWidth: 2, borderRadius:25, borderColor:'gray', backgroundColor:'white'}} 
                   source={{
                     uri: 'https://www.freeiconspng.com/thumbs/plus-icon/plus-icon-black-2.png',
@@ -47,6 +47,31 @@ const TopTab = () => {
           style={styles.tabStyle}
         >         
           <Layout style={styles.tabContainer}>
+
+            <View style={{width:screenWidth*0.95, height:100, marginBottom:20,borderWidth:3, borderRadius:8, borderColor:'#6a5acd'}}>
+              <Text category='h6' style={textStyles.compText}>Progress</Text>
+              <View style = {{ flexDirection:'row', alignItems: 'center', justifyContent: 'flex-start' }}>
+
+                <View>
+                  <View style={{flexDirection:'row', marginRight:180}}>
+                    <Text category='h6' style={textStyles.compTitlesText}>Weight</Text>
+                  </View>
+                  <TouchableOpacity style = {styles.bodyCompContainers}>
+                    <Text category='h7' style = {textStyles.compBodyText}>- </Text>
+                  </TouchableOpacity>
+                </View>  
+
+                <View>
+                  <View style={{flexDirection:'row'}}>
+                    <Text category='h6' style={textStyles.compTitlesText}>Goal Weight</Text>
+                  </View>
+                  <TouchableOpacity style = {styles.bodyCompContainers}>
+                    <Text category='h7' style = {textStyles.compBodyText}>- </Text>
+                  </TouchableOpacity>
+                </View>  
+
+              </View>
+            </View>
 
             <View style={{width:screenWidth*0.95, height:100, borderWidth:3, borderRadius:8, borderColor:'#6a5acd', marginBottom:10}}>
               <Text category='h6' style={textStyles.compText}>Composition</Text>
@@ -96,40 +121,6 @@ const TopTab = () => {
                         </TouchableOpacity>
                       </View>
                 </View>
-            </View>
-
-            <View style={{width:screenWidth*0.95, height:100, borderWidth:3, borderRadius:8, borderColor:'#6a5acd'}}>
-              <Text category='h6' style={textStyles.compText}>Goals</Text>
-              <View style = {{ flexDirection:'row', alignItems: 'center', justifyContent: 'flex-start' }}>
-
-                <View>
-                  <View style={{flexDirection:'row'}}>
-                    <Text category='h6' style={textStyles.compTitlesText}>Goal Weight</Text>
-                  </View>
-                  <TouchableOpacity style = {styles.bodyCompContainers}>
-                    <Text category='h7' style = {textStyles.compBodyText}>- </Text>
-                  </TouchableOpacity>
-                </View>  
-
-                <View>
-                  <View style={{flexDirection:'row'}}>
-                    <Text category='h6' style={textStyles.compTitlesText}>Gain Speed</Text>
-                  </View>
-                  <TouchableOpacity style = {styles.bodyCompContainers}>
-                    <Text category='h7' style = {textStyles.compBodyText}>- </Text>
-                  </TouchableOpacity>
-                </View>    
-
-                <View>
-                  <View style={{flexDirection:'row'}}>
-                    <Text category='h6' style={textStyles.compTitlesText}>Activity Level</Text>
-                  </View>
-                  <TouchableOpacity style = {styles.bodyCompContainers}>
-                    <Text category='h7' style = {textStyles.compBodyText}>- </Text>
-                  </TouchableOpacity>
-                </View>  
-
-              </View>
             </View>
 
           </Layout>
