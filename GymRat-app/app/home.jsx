@@ -9,10 +9,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../components/NavBar';
 import { useUser } from '../UserContext';
 import { cals } from './goal';
-
-
-
-
+import  JimRat  from '../components/jimRat'
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -40,6 +37,9 @@ export default function HomeScreen() {
   const [showNutrition, setShowNutrition] = useState(true);
   const [showWeekly, setShowWeekly] = useState(true);
   const [moduleOrder, setModuleOrder] = useState(['tasks', 'nutrition', 'weekly']);
+  // check if daily log has entries for Jim rat
+  const [hasEntries, setHasEntries] = useState(false);
+  const [hasWorkout, setHasWorkout] = useState(false);
 
   // function to add daily event
   const handleAddEvent = () => {
@@ -75,13 +75,23 @@ export default function HomeScreen() {
       const results = [];
       for (const dateObj of days) {
         const dateStr = dateObj.toISOString().split("T")[0];
-        const res = await db.getAllAsync(
+
+        // check nutrition
+        const nutRes = await db.getAllAsync(
           `SELECT COUNT(*) as count FROM historyLog WHERE user_id = ? AND date = ?`, // change to FROM storedNutLog when it works
           [userId, dateStr]
         );
+
+        const workoutRes = await db.getAllAsync(
+          `SELECT COUNT(*) as count FROM workoutLog
+          WHERE user_id = ? AND date = ?`,
+          [userId, dateStr]
+        );
+
         results.push({
           date: dateObj,
-          hasLog: res[0]?.count > 0
+          hasLog: nutRes[0]?.count > 0,
+          hasWorkout: workoutRes[0]?.count > 0
         });
       }
       setWeekData(results);
@@ -157,10 +167,34 @@ export default function HomeScreen() {
 
   useEffect(() => {
     (async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const res = await db.getAllAsync(
+        `SELECT COUNT(*) as count FROM workoutLog WHERE user_id = ? AND date = ?`,
+        [userId, today]
+      );
+      setHasWorkout(res[0]?.count > 0);
+
       const todayTotals = await loadTotalsForDate(new Date(), "dailyNutLog");
       setDailyTotals(todayTotals);
+
+      const entriesExist = await checkIfFoodLoggedToday(db, userId);
+      setHasEntries(entriesExist);
     })();
   }, [db, userId]);
+
+  const checkIfFoodLoggedToday = async (db, userId) => {
+    const today = new Date().toISOString().split("T")[0];
+    try {
+      const result = await db.getAllAsync(
+        `SELECT COUNT(*) as count FROM dailyNutLog WHERE user_id = ? AND date = ?`,
+        [userId, today]
+      );
+      return result[0]?.count > 0; // true if there are entries
+    } catch (err) {
+      console.error("Error checking food log:", err);
+      return false;
+    }
+  };
 
   const gridData = useMemo(() => {
   const enabled = [];
@@ -275,12 +309,24 @@ export default function HomeScreen() {
                     style={styles.dayColumn}
                     onPress={async () => {
                       setSelectedDate(dayInfo.date);
+
+                      let totals = null;
+                      let workout = null;
+
                       if (dayInfo.hasLog) {
-                        const totals = await loadTotalsForDate(dayInfo.date, "historyLog");
-                        setDayTotals(totals);
-                      } else {
-                        setDayTotals(null);
-                      }
+                        totals = await loadTotalsForDate(dayInfo.date, "historyLog");
+                      } 
+                      
+                      if (dayInfo.hasWorkout) {
+                        const res = await db.getAllAsync(
+                          `SELECT workout_name FROM workoutLog
+                          WHERE user_id = ? AND date = ?`,
+                          [userId, dayInfo.date.toISOString().split("T")[0]]
+                        );
+                        workout = res[0]?.workout_name;
+                      } 
+
+                      setDayTotals({ ...(totals || {}), workout});
                       setDayModalVisible(true);
                     }}
                   >
@@ -292,6 +338,11 @@ export default function HomeScreen() {
                       <View style={[
                         styles.logIndicator,
                         { backgroundColor: dayInfo.hasLog ? "green" : "transparent" }
+                      ]}/>
+
+                      <View style={[
+                        styles.logIndicator,
+                        { backgroundColor: dayInfo.hasWorkout ? "red" : "transparent", marginTop: 3 }
                       ]}/>
                     </View>
                   </TouchableOpacity>
@@ -312,8 +363,21 @@ export default function HomeScreen() {
   return (
     <SafeAreaProvider>
         <View style={styles.container}>
-          <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center', justifyContent: 'center' }}>
+          <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center', justifyContent: 'center', paddingTop: 100}}>
           <Text style={styles.text}>GymRat</Text>
+          
+          {dailyTotals && (
+            <JimRat
+              dailyTotals={dailyTotals}
+              targets={{
+                proteinTarget: Math.round((cals * 0.25) / 4),
+                carbsTarget: Math.round((cals * 0.45) / 4),
+                fatTarget: Math.round((cals * 0.30) / 9),
+              }}
+              hasEntries={hasEntries}
+              hasWorkout={hasWorkout}
+            />
+          )}
 
            <DraggableFlatList
             data={gridData}
@@ -434,16 +498,23 @@ export default function HomeScreen() {
                 <Text style={styles.modalTitle}>
                   {selectedDate?.toDateString()}
                 </Text>
-                {dayTotals ? (
+                <Text style={{ color: "#fff", fontStyle: "italic", marginBottom: 10 }}>
+                  {dayTotals?.workout
+                    ? `Workout: ${dayTotals.workout}`
+                    : "No workout logged today"}
+                </Text>
+                  
+                {dayTotals && (dayTotals.totalCalories || dayTotals.totalProtein) ? (
                   <>
                     <Text style={{ color: "#fff" }}>Calories: {dayTotals.totalCalories}</Text>
-                    <Text style={{ color: "#fff" }}>Protein: {dayTotals.totalProtein}</Text>
-                    <Text style={{ color: "#fff" }}>Carbs: {dayTotals.totalCarbs}</Text>
-                    <Text style={{ color: "#fff" }}>Fat: {dayTotals.totalFat}</Text>
+                    <Text style={{ color: "#fff" }}>Protein: {dayTotals.totalProtein}g</Text>
+                    <Text style={{ color: "#fff" }}>Carbs: {dayTotals.totalCarbs}g</Text>
+                    <Text style={{ color: "#fff" }}>Fat: {dayTotals.totalFat}g</Text>
                   </>
                 ) : (
-                  <Text style={{ color: "#fff", fontStyle: "italic" }}>Nothing logged this day</Text>
+                  <Text style={{ color: "#fff", fontStyle: "italic" }}>No food logged this day</Text>
                 )}
+
                 <TouchableOpacity onPress={() => setDayModalVisible(false)}>
                   <Text style={styles.cancelText}>Close</Text>
                 </TouchableOpacity>
@@ -663,7 +734,7 @@ const styles = StyleSheet.create({
     borderColor: '#444',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 20,
+    paddingVertical: 30,
   },
   dayLabel: {
     color: '#fff',

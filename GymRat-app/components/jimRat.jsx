@@ -15,6 +15,16 @@ const tips = [
     }
   },
   {
+    id: "no_workout_today",
+    weight: 100,
+    getMessage: () => "No workout logged today! Log one!",
+    condition: (totals, targets, hasEntries, hasWorkout) => !hasWorkout,
+    action: {
+      label: "Go to Workouts",
+      route: "/workout"  // 👈 adjust to your workout page route
+    }
+  },
+  {
     id: "low_protein",
     weight: 90,
     getMessage: (totals, targets) =>
@@ -43,24 +53,24 @@ const tips = [
   },
 ];
 
-function getApplicableTips(totals, targets, hasEntries) {
-  const validTips = tips.filter((tip) => tip.condition(totals, targets, hasEntries));
+function getApplicableTips(totals, targets, hasEntries, hasWorkout) {
+  const validTips = tips.filter((tip) => tip.condition(totals, targets, hasEntries, hasWorkout));
   validTips.sort((a, b) => b.weight - a.weight);
   return validTips;
 }
 
-export default function JimRat({ dailyTotals, targets, hasEntries }) {
+export default function JimRat({ dailyTotals, targets, hasEntries, hasWorkout }) {
   const [messages, setMessages] = useState([]);
   const [index, setIndex] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
     if (dailyTotals && targets) {
-      const results = getApplicableTips(dailyTotals, targets, hasEntries);
+      const results = getApplicableTips(dailyTotals, targets, hasEntries, hasWorkout);
       setMessages(results);
       setIndex(0);
     }
-  }, [dailyTotals, targets, hasEntries]);
+  }, [dailyTotals, targets, hasEntries, hasWorkout]);
 
   const nextMessage = () => {
     setIndex((prev) => (prev + 1) % messages.length);
