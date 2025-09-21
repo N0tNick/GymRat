@@ -50,7 +50,7 @@ export default function App() {
         await db.execAsync(
           `CREATE TABLE IF NOT EXISTS storedNutLog (user_id INTEGER NOT NULL, date TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL, calories TEXT NOT NULL, protein TEXT NOT NULL, cholesterol TEXT NOT NULL, sodium TEXT NOT NULL, total_Fat TEXT NOT NULL, saturated_Fat TEXT NOT NULL, trans_Fat TEXT NOT NULL, polyunsaturated_Fat TEXT NOT NULL, monosaturated_Fat TEXT NOT NULL, total_Carbs TEXT NOT NULL, fiber TEXT NOT NULL, sugar TEXT NOT NULL, vitamin_A TEXT NOT NULL, vitamin_C TEXT NOT NULL, vitamin_D TEXT NOT NULL, vitamin_E TEXT NOT NULL, vitamin_K TEXT NOT NULL, vitamin_B1 TEXT NOT NULL, vitamin_B2 TEXT NOT NULL, vitamin_B3 TEXT NOT NULL, vitamin_B5 TEXT NOT NULL, vitamin_B6 TEXT NOT NULL, vitamin_B7 TEXT NOT NULL, vitamin_B9 TEXT NOT NULL, vitamin_B12 TEXT NOT NULL, iron TEXT NOT NULL, calcium TEXT NOT NULL, potassium TEXT NOT NULL, FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE);`
         );
-        db.execAsync(`DROP TABLE IF EXISTS workoutTemplates;`);
+        //db.execAsync(`DROP TABLE IF EXISTS workoutTemplates;`);
         await db.execAsync(
           `CREATE TABLE IF NOT EXISTS workoutTemplates (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -59,7 +59,7 @@ export default function App() {
           data TEXT
           );`
         );
-        db.execAsync(`DROP TABLE IF EXISTS workoutLog;`);
+        //db.execAsync(`DROP TABLE IF EXISTS workoutLog;`);
         await db.execAsync(
           `CREATE TABLE IF NOT EXISTS workoutLog (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
