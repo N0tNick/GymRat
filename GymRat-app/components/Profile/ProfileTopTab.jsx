@@ -3,7 +3,10 @@ import { StyleSheet, Dimensions, TouchableOpacity, Image, View, Modal, Pressable
 import { Layout, Tab, TabView } from '@ui-kitten/components'
 import { useRouter } from 'expo-router';
 import Calendar from './ProfileCalendar'
-import { QuestionModal1, QuestionModal2, QuestionModal3 } from './bodyTabModals'
+import { 
+  QuestionModal1, QuestionModal2, QuestionModal3, WeightTouchable
+  ,GoalWeightTouchable, BodyFatTouchable, BMITouchable, BMRTouchable
+ } from './bodyTabModals'
 
 
 const { height: screenHeight } = Dimensions.get('window');
@@ -14,6 +17,11 @@ const TopTab = () => {
   const [isQuestionModal1Visible, setQuestionModal1Visible] = useState(false);
   const [isQuestionModal2Visible, setQuestionModal2Visible] = useState(false);
   const [isQuestionModal3Visible, setQuestionModal3Visible] = useState(false);
+  const [isWeightTouchableVisible, setWeightTouchableVisible] = useState(false);
+  const [isGoalWeightTouchableVisible, setGoalWeightTouchableVisible] = useState(false);
+  const [isBodyFatTouchableVisible, setBodyFatTouchableVisible] = useState(false);
+  const [isBMITouchableVisible, setBMiTouchableVisible] = useState(false);
+  const [isBMRTouchableVisible, setBMRTouchableVisible] = useState(false);
   const router = useRouter();
       
   return (
@@ -29,7 +37,7 @@ const TopTab = () => {
         >         
           <Layout style={styles.tabContainer}>
               <Calendar />
-              <TouchableOpacity style = {{margin: 20, width: screenWidth*0.95, height: 120, borderWidth:3, borderRadius: 10, borderColor: '#6a5acd'}}
+              <TouchableOpacity style = {{margin: 20, width: screenWidth*0.95,height: 120, borderWidth:3, borderRadius: 10, borderColor: '#6a5acd'}}
               onPress={() => router.push('/ExerciseGoals')}
               >
                 <Text style = {{color:'white', position: 'absolute', fontWeight: 'bold', marginLeft:8 }}>Exercise Goals</Text>
@@ -51,12 +59,14 @@ const TopTab = () => {
             <View style={{width:screenWidth*0.95, height:100, marginBottom:20,borderWidth:3, borderRadius:8, borderColor:'#6a5acd'}}>
               <Text category='h6' style={textStyles.compText}>Progress</Text>
               <View style = {{ flexDirection:'row', alignItems: 'center', justifyContent: 'flex-start' }}>
-
                 <View>
                   <View style={{flexDirection:'row', marginRight:180}}>
                     <Text category='h6' style={textStyles.compTitlesText}>Weight</Text>
                   </View>
-                  <TouchableOpacity style = {styles.bodyCompContainers}>
+                  <WeightTouchable isVisible={isWeightTouchableVisible} onClose={() => setWeightTouchableVisible(false)}/>
+                  <TouchableOpacity 
+                    style = {styles.bodyCompContainers}
+                    onPress={() => setWeightTouchableVisible(true)}>
                     <Text category='h7' style = {textStyles.compBodyText}>- </Text>
                   </TouchableOpacity>
                 </View>  
@@ -65,7 +75,10 @@ const TopTab = () => {
                   <View style={{flexDirection:'row'}}>
                     <Text category='h6' style={textStyles.compTitlesText}>Goal Weight</Text>
                   </View>
-                  <TouchableOpacity style = {styles.bodyCompContainers}>
+                  <GoalWeightTouchable isVisible={isGoalWeightTouchableVisible} onClose={() => setGoalWeightTouchableVisible(false)}/>
+                  <TouchableOpacity 
+                    style = {styles.bodyCompContainers}
+                    onPress={() => setGoalWeightTouchableVisible(true)}>
                     <Text category='h7' style = {textStyles.compBodyText}>- </Text>
                   </TouchableOpacity>
                 </View>  
@@ -86,11 +99,14 @@ const TopTab = () => {
                               <Image style={styles.logo} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
                             </TouchableOpacity>
                         </View>
-                        <TouchableOpacity style = {styles.bodyCompContainers}>
+                        <BodyFatTouchable isVisible={isBodyFatTouchableVisible} onClose={() => setBodyFatTouchableVisible(false)}/>
+                        <TouchableOpacity 
+                          style = {styles.bodyCompContainers}
+                          onPress={() => setBodyFatTouchableVisible(true)}>
                           <Text category='h7' style = {textStyles.compBodyText}>- </Text>
                         </TouchableOpacity>
                       </View>
-
+ 
                       <View>
                         <View style={{flexDirection:'row'}}>
                           <Text category='h6' style={textStyles.compTitlesText}>BMI</Text>
@@ -101,11 +117,14 @@ const TopTab = () => {
                             <Image style={styles.logo} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
                           </TouchableOpacity>
                         </View>
-                        <TouchableOpacity style = {styles.bodyCompContainers}>
+                        <BMITouchable isVisible={isBMITouchableVisible} onClose={() => setBMiTouchableVisible(false)}/>
+                        <TouchableOpacity 
+                          style = {styles.bodyCompContainers}
+                          onPress={() => setBMiTouchableVisible(true)}>
                           <Text category='h7' style = {textStyles.compBodyText}>-</Text>
                         </TouchableOpacity>
                       </View>
-
+ 
                       <View>
                         <View style={{flexDirection:'row'}}>
                           <Text category='h6' style={textStyles.compTitlesText}>BMR</Text>
@@ -116,7 +135,10 @@ const TopTab = () => {
                             <Image style={styles.logo} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
                           </TouchableOpacity>
                         </View>
-                        <TouchableOpacity style = {styles.bodyCompContainers}>
+                        <BMRTouchable isVisible={isBMRTouchableVisible} onClose={() => setBMRTouchableVisible(false)}/>
+                        <TouchableOpacity 
+                          style = {styles.bodyCompContainers}
+                          onPress={() => setBMRTouchableVisible(true)}>
                           <Text category='h7' style = {textStyles.compBodyText}>-</Text>
                         </TouchableOpacity>
                       </View>
@@ -165,7 +187,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     marginTop: 30,
-    marginLeft:4,
+    marginLeft:5,
   },
   logo: {
     width:'100%',
@@ -187,7 +209,7 @@ const textStyles = StyleSheet.create({
     paddingLeft:10,
     color:'white', 
     fontWeight: 'bold', 
-    fontSize: 15
+    fontSize: 16
   },
   compBodyText: {
     marginTop:10, 

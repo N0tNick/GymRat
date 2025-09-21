@@ -217,9 +217,123 @@ export const QuestionModal3 = ({ isVisible, onClose }) => {
     );
 };
 
+export const WeightTouchable = ({ isVisible, onClose })  => {
+    return (
+        <Modal 
+            animationType="slide"  
+            transparent={true}
+            visible={isVisible}
+            onRequestClose={onClose}
+        >
+            <View style={modalStyles.centeredView}>
+                <SafeAreaView style={modalStyles.touchableHeight}>
+                    <ScrollView style={modalStyles.modalView}>
+                    <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
+                        <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
+                    </TouchableOpacity>
+                    <Text style={modalStyles.modalHeaderText}>Log New Weight</Text>
+                    </ScrollView>
+                </SafeAreaView>
+            </View>
+        </Modal>
+    )
+}
+
+export const GoalWeightTouchable = ({ isVisible, onClose })  => {
+    return (
+        <Modal 
+            animationType="slide"  
+            transparent={true}
+            visible={isVisible}
+            onRequestClose={onClose}
+        >
+            <View style={modalStyles.centeredView}>
+                <SafeAreaView style={modalStyles.touchableHeight}>
+                    <ScrollView style={modalStyles.modalView}>
+                    <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
+                        <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
+                    </TouchableOpacity>
+                    <Text style={modalStyles.modalHeaderText}>Log New Goal</Text>
+                    </ScrollView>
+                </SafeAreaView>
+            </View>
+        </Modal>
+    )
+}
+
+export const BodyFatTouchable = ({ isVisible, onClose })  => {
+    return (
+        <Modal 
+            animationType="slide"  
+            transparent={true}
+            visible={isVisible}
+            onRequestClose={onClose}
+        >
+            <View style={modalStyles.centeredView}>
+                <SafeAreaView style={modalStyles.touchableHeight}>
+                    <ScrollView style={modalStyles.modalView}>
+                    <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
+                        <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
+                    </TouchableOpacity>
+                    <Text style={modalStyles.modalHeaderText}>Log New Body Fat %</Text>
+                    </ScrollView>
+                </SafeAreaView>
+            </View>
+        </Modal>
+    )
+}
+
+export const BMITouchable = ({ isVisible, onClose })  => {
+    return (
+        <Modal 
+            animationType="slide"  
+            transparent={true}
+            visible={isVisible}
+            onRequestClose={onClose}
+        >
+            <View style={modalStyles.centeredView}>
+                <SafeAreaView style={modalStyles.touchableHeight}>
+                    <ScrollView style={modalStyles.modalView}>
+                    <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
+                        <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
+                    </TouchableOpacity>
+                    <Text style={modalStyles.modalHeaderText}>Log New BMI</Text>
+                    </ScrollView>
+                </SafeAreaView>
+            </View>
+        </Modal>
+    )
+}
+
+export const BMRTouchable = ({ isVisible, onClose })  => {
+    return (
+        <Modal 
+            animationType="slide"  
+            transparent={true}
+            visible={isVisible}
+            onRequestClose={onClose}
+        >
+            <View style={modalStyles.centeredView}>
+                <SafeAreaView style={modalStyles.touchableHeight}>
+                    <ScrollView style={modalStyles.modalView}>
+                    <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
+                        <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
+                    </TouchableOpacity>
+                    <Text style={modalStyles.modalHeaderText}>Log New BMR</Text>
+                    </ScrollView>
+                </SafeAreaView>
+            </View>
+        </Modal>
+    )
+}
+
+
 const modalStyles = StyleSheet.create ({
   modalHeight: {
     height:screenHeight*0.5,
+  },
+  touchableHeight: {
+    height:screenHeight*0.25,
   },
   centeredView: {
     flex: 1,
