@@ -58,9 +58,12 @@ export default function App() {
           weight TEXT DEFAULT '0' NOT NULL, 
           height TEXT DEFAULT '0' NOT NULL, 
           activity_lvl TEXT DEFAULT 'sedentary' NOT NULL, 
-          BMI TEXT DEFAULT '0' NOT NULL, BMR TEXT DEFAULT '0' NOT NULL, 
-          body_fat TEXT DEFAULT '0' NOT NULL, nut_goal TEXT DEFAULT 'maintenance' NOT NULL, 
-          goal_weight TEXT DEFAULT '0' NOT NULL, gain_speed TEXT DEFAULT 'moderate' NOT NULL, 
+          BMI TEXT DEFAULT '0' NOT NULL, 
+          BMR TEXT DEFAULT '0' NOT NULL, 
+          body_fat TEXT DEFAULT '0' NOT NULL, 
+          nut_goal TEXT DEFAULT 'maintenance' NOT NULL, 
+          goal_weight TEXT DEFAULT '0' NOT NULL,
+          gain_speed TEXT DEFAULT 'moderate' NOT NULL, 
           FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE);`
         );
 

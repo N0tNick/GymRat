@@ -448,7 +448,59 @@ export const GoalWeightTouchable = ({ isVisible, onClose })  => {
 }
 
 export const BodyFatTouchable = ({ isVisible, onClose })  => {
-    
+    const [body_fat, setBodyFat] = useState('')
+    const [lastBodyFat, setLastBodyFat] = useState(null) 
+
+    const db = useSQLiteContext()
+
+    useEffect(() => {
+        if (isVisible && db) {
+            fetchLastBodyFat();
+        }
+    }, [isVisible, db]);
+
+    const fetchLastBodyFat = async () => {
+        try {
+            const user_id = 1; 
+            const result = await db.getFirstAsync(
+                'SELECT body_fat FROM userStats WHERE user_id = ?',
+                [user_id]
+            );
+            
+            if (result && result.body_fat) {
+                setLastBodyFat(result.body_fat);
+            }
+        } catch (error) {
+            console.error('Error fetching last body_fat:', error);
+        }
+    };
+
+    const saveBodyFat = async () => {
+        const bfVal = parseFloat(body_fat);
+        if (isNaN(bfVal) || bfVal <= 0) {
+            console.log('Error', 'Please enter a valid weight value');
+            return;
+        }
+        try {
+            const user_id = 1;
+            const result = await db.runAsync(
+                'UPDATE userStats SET body_fat = ? WHERE user_id = ?',
+                [body_fat.trim(), user_id]
+            );
+            if (result.changes === 0) {
+                await db.runAsync(
+                    'INSERT INTO userStats (user_id, body_fat) VALUES (?, ?)',
+                    [user_id, body_fat.trim()]
+                );
+            }    
+            console.log('Success', 'Body_fat saved successfully');      
+            onClose();         
+        } catch (error) {
+            console.log('Error saving Body_fat:', error);
+            console.log('Error', 'Failed to save Body_fat. Please try again.');
+        }
+    }; 
+
     return (
         <Modal 
             animationType="slide"  
@@ -459,18 +511,28 @@ export const BodyFatTouchable = ({ isVisible, onClose })  => {
             <View style={modalStyles.centeredView}>
                 <SafeAreaView style={modalStyles.touchableHeight}>
                     <View style={modalStyles.modalView}>
-                        <TouchableOpacity style={modalStyles.confirmIcon} onPress={onClose}>
+                        <TouchableOpacity style={modalStyles.confirmIcon} onPress={saveBodyFat}>
                             <Image style={styles.logo} source={{uri:'https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/checkmark-white-round-icon.png'}}/>
                         </TouchableOpacity>
                         <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
                             <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
                         </TouchableOpacity>
                         <Text style={modalStyles.inputHeaderText}>Log Body Fat %</Text>
-                        <TouchableOpacity 
+
+                        <View
                         style={{flexDirection:'row',alignItems:'center',marginTop:45,margin:6,marginBottom:1,width:screenWidth*0.93,height:screenHeight*0.06,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
                         onPress={() => null}>
                             <Text style={modalStyles.modalInputText}>Body Fat %:</Text>
-                        </TouchableOpacity>
+                            <View style={{left:200}}>
+                                <TextInput 
+                                style={modalStyles.modalInputText}
+                                value={body_fat}
+                                onChangeText={setBodyFat}
+                                placeholder={lastBodyFat ? `${lastBodyFat}%` : '___'}
+                                keyboardType='numeric'
+                                />
+                            </View>
+                        </View>
 
                         <TouchableOpacity   
                             onPress={() => {}} 
@@ -486,7 +548,58 @@ export const BodyFatTouchable = ({ isVisible, onClose })  => {
 }
 
 export const BMRTouchable = ({ isVisible, onClose })  => {
-    
+    const [BMR, setBMR] = useState('')
+    const [lastBMR, setLastBMR] = useState(null) 
+
+    const db = useSQLiteContext()
+
+    useEffect(() => {
+        if (isVisible && db) {
+            fetchBMR();
+        }
+    }, [isVisible, db]);
+
+    const fetchBMR = async () => {
+        try {
+            const user_id = 1; 
+            const result = await db.getFirstAsync(
+                'SELECT BMR FROM userStats WHERE user_id = ?',
+                [user_id]
+            );
+            
+            if (result && result.BMR) {
+                setLastBMR(result.BMR);
+            }
+        } catch (error) {
+            console.error('Error fetching last BMR:', error);
+        }
+    };
+
+    const saveBMR = async () => {
+        const BMRVal = parseFloat(BMR);
+        if (isNaN(BMRVal) || BMRVal <= 0) {
+            console.log('Error', 'Please enter a valid weight value');
+            return;
+        }
+        try {
+            const user_id = 1;
+            const result = await db.runAsync(
+                'UPDATE userStats SET BMR = ? WHERE user_id = ?',
+                [BMR.trim(), user_id]
+            );
+            if (result.changes === 0) {
+                await db.runAsync(
+                    'INSERT INTO userStats (user_id, BMR) VALUES (?, ?)',
+                    [user_id, BMR.trim()]
+                );
+            }    
+            console.log('Success', 'Body_fat saved successfully');      
+            onClose();         
+        } catch (error) {
+            console.log('Error saving Body_fat:', error);
+            console.log('Error', 'Failed to save Body_fat. Please try again.');
+        }
+    };  
     return (
         <Modal 
             animationType="slide"  
@@ -497,7 +610,7 @@ export const BMRTouchable = ({ isVisible, onClose })  => {
             <View style={modalStyles.centeredView}>
                 <SafeAreaView style={modalStyles.touchableHeight}>
                     <View style={modalStyles.modalView}>
-                        <TouchableOpacity style={modalStyles.confirmIcon} onPress={onClose}>
+                        <TouchableOpacity style={modalStyles.confirmIcon} onPress={saveBMR}>
                             <Image style={styles.logo} source={{uri:'https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/checkmark-white-round-icon.png'}}/>
                         </TouchableOpacity>
                         <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
@@ -510,11 +623,20 @@ export const BMRTouchable = ({ isVisible, onClose })  => {
                             <Text style={{fontSize:14,fontWeight:'bold',color:'white',marginLeft:8,marginRight:8,marginBottom:6,textAlign:'center'}}>Unless you've used a machine method to get BMR (such as a KORR machine), or your activity level is changing long term we don't recommend changing it.</Text>
                          </View>
 
-                        <TouchableOpacity 
+                        <View 
                         style={{flexDirection:'row',alignSelf:'center',alignItems:'center',width:screenWidth*0.93,height:screenHeight*0.06,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
                         onPress={() => null}>
                             <Text style={modalStyles.modalInputText}>BMR:</Text>
-                        </TouchableOpacity>
+                            <View style={{left:270}}>
+                                <TextInput 
+                                style={modalStyles.modalInputText}
+                                value={BMR}
+                                onChangeText={setBMR}
+                                placeholder={lastBMR ? `${lastBMR}` : '___'}
+                                keyboardType='numeric'
+                                />
+                            </View>
+                        </View>
 
                         <TouchableOpacity 
                         style={{flexDirection:'row',alignSelf:'center',alignItems:'center',justifyContent:'center',margin:6,marginBottom:15,width:screenWidth*0.6,height:screenHeight*0.05,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}

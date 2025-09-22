@@ -27,15 +27,28 @@ const TopTab = () => {
   const [goalWeight, setGoalWeight] = useState('')
   const [lastGoalWeight, setLastGoalWeight] = useState(null) 
 
+  const [BMI, setBMI] = useState('')
+  const [lastBMI, setLastBMI] = useState(null) 
+
+  const [body_fat, setBodyFat] = useState('')
+  const [lastBodyFat, setLastBodyFat] = useState(null)
+  
+  const [BMR, setBMR] = useState('')
+  const [lastBMR, setLastBMR] = useState(null) 
+  
   const db = useSQLiteContext()
   
   useEffect(() => {
       if (db) {
-          fetchLastWeight();
+          fetchWeight();
+          fetchGoalWeight();
+          fetchBodyFat()
+          fetchBMI()
+          fetchBMR()
       }
   }, [db]);
   
-  const fetchLastWeight = async () => {
+  const fetchWeight = async () => {
     try {
       const user_id = 1; 
       const result = await db.getFirstAsync(
@@ -52,13 +65,7 @@ const TopTab = () => {
   };
 
 
-    useEffect(() => {
-        if (db) {
-            fetchLastGoalWeight();
-        }
-    }, [db]);
-
-    const fetchLastGoalWeight = async () => {
+    const fetchGoalWeight = async () => {
         try {
             const user_id = 1; 
             const result = await db.getFirstAsync(
@@ -74,6 +81,53 @@ const TopTab = () => {
         }
     };
 
+    const fetchBodyFat = async () => {
+        try {
+            const user_id = 1; 
+            const result = await db.getFirstAsync(
+                'SELECT body_fat FROM userStats WHERE user_id = ?',
+                [user_id]
+            );
+            
+            if (result && result.body_fat) {
+                setLastBodyFat(result.body_fat);
+            }
+        } catch (error) {
+            console.error('Error fetching last body_fat:', error);
+        }
+    };
+
+    const fetchBMI = async () => {
+        try {
+            const user_id = 1; 
+            const result = await db.getFirstAsync(
+                'SELECT BMI FROM userStats WHERE user_id = ?',
+                [user_id]
+            );
+            
+            if (result && result.BMI) {
+                setLastBMI(result.BMI);
+            }
+        } catch (error) {
+            console.error('Error fetching last BMI:', error);
+        }
+    };
+
+    const fetchBMR = async () => {
+        try {
+            const user_id = 1; 
+            const result = await db.getFirstAsync(
+                'SELECT BMR FROM userStats WHERE user_id = ?',
+                [user_id]
+            );
+            
+            if (result && result.BMR) {
+                setLastBMR(result.BMR);
+            }
+        } catch (error) {
+            console.error('Error fetching last BMR:', error);
+        }
+    };
   return (
       <TabView 
       selectedIndex={selectedIndex} 
@@ -157,7 +211,8 @@ const TopTab = () => {
                         <TouchableOpacity 
                           style = {styles.bodyCompContainers}
                           onPress={() => setBodyFatTouchableVisible(true)}>
-                          <Text category='h7' style = {textStyles.compBodyText}>- </Text>
+                          <Text category='h7' style = {textStyles.compBodyText}>
+                            -{lastBodyFat ? `${lastBodyFat}%` : '___'} </Text>
                         </TouchableOpacity>
                       </View>
  
@@ -173,7 +228,8 @@ const TopTab = () => {
                         </View>
                         <View 
                           style = {styles.bodyCompContainers}>
-                          <Text category='h7' style = {textStyles.compBodyText}>-</Text>
+                          <Text category='h7' style = {textStyles.compBodyText}>
+                            -{lastBMI ? `${lastBMI}` : '___'}</Text>
                         </View>
                       </View>
  
@@ -191,12 +247,12 @@ const TopTab = () => {
                         <TouchableOpacity 
                           style = {styles.bodyCompContainers}
                           onPress={() => setBMRTouchableVisible(true)}>
-                          <Text category='h7' style = {textStyles.compBodyText}>-</Text>
+                          <Text category='h7' style = {textStyles.compBodyText}>
+                            -{lastBMR ? `${lastBMR}` : '___'}</Text>
                         </TouchableOpacity>
                       </View>
                 </View>
             </View>
-
           </Layout>
         </Tab>
       </TabView>
