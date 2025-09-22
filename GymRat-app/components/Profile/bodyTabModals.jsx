@@ -1,8 +1,10 @@
-import { React, useState } from 'react';
-import { StyleSheet, Dimensions, TouchableOpacity, Image, View, Modal, Pressable, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Dimensions, TouchableOpacity, Image, View, Modal, Pressable, ScrollView, Button  } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@ui-kitten/components';
 import Lightbox from 'react-native-lightbox-v2';
+import DateTimePickerModal from 'react-native-modal-datetime-picker'
+
 
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
@@ -218,6 +220,9 @@ export const QuestionModal3 = ({ isVisible, onClose }) => {
 };
 
 export const WeightTouchable = ({ isVisible, onClose })  => {
+    const [date, setDate] = useState(new Date())
+    const [open, setOpen] = useState(false)
+
     return (
         <Modal 
             animationType="slide"  
@@ -227,12 +232,41 @@ export const WeightTouchable = ({ isVisible, onClose })  => {
         >
             <View style={modalStyles.centeredView}>
                 <SafeAreaView style={modalStyles.touchableHeight}>
-                    <ScrollView style={modalStyles.modalView}>
-                    <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
-                        <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
-                    </TouchableOpacity>
-                    <Text style={modalStyles.modalHeaderText}>Log New Weight</Text>
-                    </ScrollView>
+                    <View style={modalStyles.modalView}>
+                        <TouchableOpacity style={modalStyles.confirmIcon} onPress={onClose}>
+                            <Image style={styles.logo} source={{uri:'https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/checkmark-white-round-icon.png'}}/>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
+                            <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
+                        </TouchableOpacity>
+                        <Text style={modalStyles.inputHeaderText}>Log New Weight</Text>
+
+                        <TouchableOpacity 
+                        style={{flexDirection:'row',alignItems:'center',marginTop:45,margin:6,width:screenWidth*0.93,height:screenHeight*0.08,borderWidth:2,borderRadius:8,borderColor:'#6a5acd'}}
+                        onPress={() => null}>
+                            <Text style={modalStyles.modalInputText}>Weight:</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity 
+                        style={{flexDirection:'row',alignItems:'center',marginBottom:15,margin:6,width:screenWidth*0.93,height:screenHeight*0.08,borderWidth:2,borderRadius:8,borderColor:'#6a5acd'}}
+                        onPress = {() => setOpen(true)}>
+                            <Text style={modalStyles.modalInputText}>Date:</Text>
+                            <View style={{left:150}}>
+                                <Button title={date.toDateString('en-US')} onPress={() => setOpen(true)} /> 
+
+                                <DateTimePickerModal 
+                                    isVisible={open}
+                                    mode="date"
+                                    date={date}
+                                    onConfirm={(d) => {
+                                        setOpen(false)
+                                        setDate(d)
+                                    }}
+                                    onCancel={() => setOpen(false)}
+                                />
+                            </View>
+                        </TouchableOpacity>
+                    </View>
                 </SafeAreaView>
             </View>
         </Modal>
@@ -365,6 +399,13 @@ const modalStyles = StyleSheet.create ({
     borderColor:'#6a5acd',
     justifyContent: 'flex-start'
   },
+  confirmIcon:{
+    position:'absolute', 
+    width:30,
+    height:30,
+    marginLeft:10,
+    marginTop:5
+  },
   closeIcon:{
     position:'absolute', 
     width:30,
@@ -393,6 +434,15 @@ const modalStyles = StyleSheet.create ({
     color:'white',
     position:'absolute',
     left:10,
+    marginTop:8,
+    marginBottom: 15,
+  },
+  inputHeaderText: {
+    fontSize:18,
+    fontWeight:'bold',
+    color:'white',
+    position:'absolute',
+    alignSelf:'center',
     marginTop:8,
     marginBottom: 15,
   },
@@ -447,6 +497,14 @@ const modalStyles = StyleSheet.create ({
     marginBottom:10,
     textAlign:'auto',
     letterSpacing:0.3
+  },
+  modalInputText: {
+    fontSize:16, 
+    fontWeight:'bold',
+    color:'white',
+    marginLeft:5,
+    marginRight:5,
+    letterSpacing:0.3,
   },
 
 });
