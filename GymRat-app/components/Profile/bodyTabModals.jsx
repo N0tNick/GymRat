@@ -420,7 +420,8 @@ const modalStyles = StyleSheet.create ({
     borderWidth:2, 
     borderRadius:8, 
     borderColor:'#6a5acd',
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
+    backgroundColor:'#2c2c2e'
   },
   confirmIcon:{
     position:'absolute', 
