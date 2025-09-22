@@ -152,10 +152,21 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, template, f
       if (!workoutData) return;
       try {
         const updatedData = JSON.stringify({ exercises: updatedExercises });
+        const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
         await db.runAsync(
           `UPDATE workoutTemplates SET data = ? WHERE id = ?`,
           [updatedData, workoutData.id]
         );
+        await db.runAsync(
+          `INSERT INTO workoutLog (user_id, workout_name, date) VALUES (?, ?, ?)`,
+          [workoutData.user_id, workoutData.name, today]
+        );
+
+        const workRows = await db.getAllAsync(
+          `SELECT * FROM workoutLog WHERE id = ?`,
+          [template.id]
+        );
+        console.log(workRows[0])
         console.log('Workout updated!');
       } catch (err) {
         console.error('Failed to update workout:', err.message);

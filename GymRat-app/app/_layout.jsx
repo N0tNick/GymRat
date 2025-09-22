@@ -68,6 +68,16 @@ export default function App() {
           instructions TEXT
           );`
         )
+        //db.execAsync(`DROP TABLE IF EXISTS workoutLog;`);
+        await db.execAsync(
+          `CREATE TABLE IF NOT EXISTS workoutLog (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            workout_name TEXT NOT NULL,
+            date TEXT NOT NULL,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+          );`
+        );
 
         await db.execAsync('PRAGMA journal_mode=WAL');
         }}
@@ -133,3 +143,4 @@ export default function App() {
     </GestureHandlerRootView>
   );
 }
+  
