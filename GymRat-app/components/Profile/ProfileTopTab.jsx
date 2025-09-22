@@ -3,10 +3,7 @@ import { StyleSheet, Dimensions, TouchableOpacity, Image, View, Modal, Pressable
 import { Layout, Tab, TabView } from '@ui-kitten/components'
 import { useRouter } from 'expo-router';
 import Calendar from './ProfileCalendar'
-import { 
-  QuestionModal1, QuestionModal2, QuestionModal3, WeightTouchable
-  ,GoalWeightTouchable, BodyFatTouchable, BMITouchable, BMRTouchable
- } from './bodyTabModals'
+import { QuestionModal1, QuestionModal2, QuestionModal3, WeightTouchable ,GoalWeightTouchable, BodyFatTouchable, BMRTouchable } from './bodyTabModals'
 
 
 const { height: screenHeight } = Dimensions.get('window');
@@ -20,7 +17,6 @@ const TopTab = () => {
   const [isWeightTouchableVisible, setWeightTouchableVisible] = useState(false);
   const [isGoalWeightTouchableVisible, setGoalWeightTouchableVisible] = useState(false);
   const [isBodyFatTouchableVisible, setBodyFatTouchableVisible] = useState(false);
-  const [isBMITouchableVisible, setBMiTouchableVisible] = useState(false);
   const [isBMRTouchableVisible, setBMRTouchableVisible] = useState(false);
   const router = useRouter();
       
@@ -29,7 +25,7 @@ const TopTab = () => {
       selectedIndex={selectedIndex} 
       onSelect={index => setSelectedIndex(index)} 
       indicatorStyle={styles.indicator}
-      style={{backgroundColor: '#2a2a2aff', borderTopWidth:3, borderRadius:1, borderColor:'#6a5acd'}}
+      style={{backgroundColor: '#1a1b1c', borderTopWidth:3, borderRadius:1, borderColor:'#6a5acd'}}
       >
         <Tab 
           title={evaProps => <Text {...evaProps} style={styles.tabText}>Overview</Text>}
@@ -117,12 +113,10 @@ const TopTab = () => {
                             <Image style={styles.logo} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
                           </TouchableOpacity>
                         </View>
-                        <BMITouchable isVisible={isBMITouchableVisible} onClose={() => setBMiTouchableVisible(false)}/>
-                        <TouchableOpacity 
-                          style = {styles.bodyCompContainers}
-                          onPress={() => setBMiTouchableVisible(true)}>
+                        <View 
+                          style = {styles.bodyCompContainers}>
                           <Text category='h7' style = {textStyles.compBodyText}>-</Text>
-                        </TouchableOpacity>
+                        </View>
                       </View>
  
                       <View>
@@ -156,7 +150,7 @@ export default TopTab
 const styles = StyleSheet.create({
   tabStyle: {
     padding:2, 
-    backgroundColor: '#2a2a2aff',
+    backgroundColor: '#1a1b1c',
     margin:2
   },
   tabText: {
@@ -174,7 +168,7 @@ const styles = StyleSheet.create({
     justifyContent:'flex-start',
     flexDirection:'column',
     alignItems: 'center',
-    backgroundColor: '#2a2a2aff',
+    backgroundColor: '#1a1b1c',
     padding:10
   },
   bodyCompContainers: {

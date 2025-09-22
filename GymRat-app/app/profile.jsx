@@ -15,7 +15,7 @@ export default function ProfileScreen() {
   
   return (
      <SafeAreaProvider>
-          <ScrollView style={{backgroundColor: '#2a2a2aff'}}>
+          <ScrollView style={{backgroundColor: '#1a1b1c'}}>
             <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center' }}>
             <View style={settingsStyles.settingsWheelWrapper}>
               <SettingsWheel/>

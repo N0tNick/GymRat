@@ -53,7 +53,7 @@ const ProfileCalendar = () => {
             markedDates={marked}
             style={{width:screenWidth * 0.95, backgroundColor: 'transparent', borderRadius:10, borderWidth:3, borderColor:'#6a5acd'}}
             theme={{
-                calendarBackground: '#2a2a2aff', 
+                calendarBackground: '#1a1b1c', 
                 dayTextColor:'white',
                 monthTextColor:'white',
                 textDayFontWeight:'bold',

@@ -4,6 +4,8 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@ui-kitten/components';
 import Lightbox from 'react-native-lightbox-v2';
 import DateTimePickerModal from 'react-native-modal-datetime-picker'
+import { SetGoalSpeed } from '../../app/goal'
+import { router } from 'expo-router'
 
 
 
@@ -74,7 +76,7 @@ export const QuestionModal2 = ({ isVisible, onClose }) => {
                         <Text style={modalStyles.modalHeaderText}>What is BMI?</Text>
                         <View style={modalStyles.modalRectangle}>
                             <Text style={modalStyles.modalBodyText}>
-                                BMI is a health measure gotten by comparing a person's weight relative to their height.    
+                                BMI is a health measure gotten by comparing a person's weight relative to their height. This value automatically changes with fluctuations in height and weight and doesn't need to be logged   
                             </Text>
                                 <Lightbox style={{marginLeft:24,marginTop:8,width:screenWidth*0.8, height:screenHeight*0.168, borderWidth:4,borderRadius:8,borderColor:'#6a5acd',overflow:'hidden'}}>
                                     <Image style={styles.logo} resizeMode='contain' source={{uri:'https://www.ifafitness.com/book/images/BMI-chart.jpg'}}/>
@@ -274,6 +276,7 @@ export const WeightTouchable = ({ isVisible, onClose })  => {
 }
 
 export const GoalWeightTouchable = ({ isVisible, onClose })  => {
+    
     return (
         <Modal 
             animationType="slide"  
@@ -283,12 +286,28 @@ export const GoalWeightTouchable = ({ isVisible, onClose })  => {
         >
             <View style={modalStyles.centeredView}>
                 <SafeAreaView style={modalStyles.touchableHeight}>
-                    <ScrollView style={modalStyles.modalView}>
-                    <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
-                        <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
-                    </TouchableOpacity>
-                    <Text style={modalStyles.modalHeaderText}>Log New Goal</Text>
-                    </ScrollView>
+                    <View style={modalStyles.modalView}>
+                        <TouchableOpacity style={modalStyles.confirmIcon} onPress={onClose}>
+                            <Image style={styles.logo} source={{uri:'https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/checkmark-white-round-icon.png'}}/>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
+                            <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
+                        </TouchableOpacity>
+                        <Text style={modalStyles.inputHeaderText}>Log New Goal</Text>
+
+                        <TouchableOpacity 
+                        style={{flexDirection:'row',alignItems:'center',marginTop:45,margin:6,width:screenWidth*0.93,height:screenHeight*0.08,borderWidth:2,borderRadius:8,borderColor:'#6a5acd'}}
+                        onPress={() => null}>
+                            <Text style={modalStyles.modalInputText}>Goal Weight:</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity   
+                            onPress={() => { onClose(); router.push('/goal') }} 
+                            style={{alignSelf:'center', alignItems:'center',padding:10,marginBottom:10,width:screenWidth*0.4,height:screenHeight*0.05,borderWidth:2,borderRadius:8,borderColor:'#6a5acd'}}>
+                            <Text style={modalStyles.modalInputText}>Redo Goal</Text>
+                        </TouchableOpacity>
+                    
+                    </View>
                 </SafeAreaView>
             </View>
         </Modal>
@@ -310,28 +329,6 @@ export const BodyFatTouchable = ({ isVisible, onClose })  => {
                         <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
                     </TouchableOpacity>
                     <Text style={modalStyles.modalHeaderText}>Log New Body Fat %</Text>
-                    </ScrollView>
-                </SafeAreaView>
-            </View>
-        </Modal>
-    )
-}
-
-export const BMITouchable = ({ isVisible, onClose })  => {
-    return (
-        <Modal 
-            animationType="slide"  
-            transparent={true}
-            visible={isVisible}
-            onRequestClose={onClose}
-        >
-            <View style={modalStyles.centeredView}>
-                <SafeAreaView style={modalStyles.touchableHeight}>
-                    <ScrollView style={modalStyles.modalView}>
-                    <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
-                        <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
-                    </TouchableOpacity>
-                    <Text style={modalStyles.modalHeaderText}>Log New BMI</Text>
                     </ScrollView>
                 </SafeAreaView>
             </View>
@@ -375,7 +372,7 @@ const modalStyles = StyleSheet.create ({
     alignItems: 'center',
   },
   modalView: {
-    backgroundColor:'#2a2a2aff',
+    backgroundColor:'#2c2c2e',
     borderWidth:3,
     borderRadius: 10,
     borderColor:'#6a5acd',
