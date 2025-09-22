@@ -1,12 +1,13 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Dimensions, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, FlatList, Modal, ScrollView, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import exercises from '../assets/exercises.json';
 import schema from '../assets/schema.json';
 import NavBar from '../components/NavBar';
 import WorkoutModal from '../components/WorkoutModal';
+import ExerciseCreationModal from '../components/exerciseCreationModal';
 import { usePersistedBoolean, usePersistedWorkout } from './ongoingWorkout';
 
 const { height: screenHeight } = Dimensions.get('window');
@@ -22,6 +23,8 @@ export default function WorkoutScreen() {
   const loadTemplates = async() => {
     const result = await db.getAllAsync("SELECT * FROM workoutTemplates;")
     setUserTemplates(result)
+    const result2 = await db.getAllAsync("SELECT * FROM customExercises;")
+    setCustomExercises(result2)
   }
 
   function finishWorkout(bool) {
@@ -34,18 +37,64 @@ export default function WorkoutScreen() {
     }, [])
   )
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity 
-    style={styles.card}
-    onPress={() => {
-      setExerciseItem(item)
-      setExerciseInfoModal(true)
-      }}>
-      <Text style={styles.title}>{item.name}</Text>
-      <Text style={styles.subtitle}>Equipment: {item.equipment}</Text>
-      <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscles}</Text>
-    </TouchableOpacity>
-  );
+  const renderItem = ({ item }) => {
+    if (item.primaryMuscles) {
+      return (
+        <TouchableOpacity 
+        style={styles.card}
+        onPress={() => {
+          setExerciseItem(item)
+          setExerciseInfoModal(true)
+          }}>
+          <Text style={styles.title}>{item.name}</Text>
+          <Text style={styles.subtitle}>Equipment: {item.equipment}</Text>
+          <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscles}</Text>
+        </TouchableOpacity>
+      )
+    } else {
+      return (
+        <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+          <TouchableOpacity 
+          style={styles.card}
+          onPress={() => {
+            setExerciseItem(item)
+            setExerciseInfoModal(true)
+            }}>
+            <Text style={styles.title}>{item.name}</Text>
+            <Text style={styles.subtitle}>Equipment: {item.equipment}</Text>
+            <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscle}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{backgroundColor: '#999', alignItems: 'center', justifyContent: 'center',borderRadius: 10, padding: 10, height: 40}} onPress={() => deleteExercise(item.id)}><Text>Delete</Text></TouchableOpacity>
+        </View>
+      )
+    }
+    
+  }
+
+  const deleteExercise = (id) => {
+    Alert.alert('Delete Custom Exercise', 'Are you sure you want to delete this exercise?', [
+      {
+        text: 'Cancel',
+        style: 'cancel'
+      },
+      {
+        text: 'Yes',
+        onPress: async () => {
+          try {
+            await db.runAsync(
+              `DELETE FROM customExercises WHERE id = ?;`,
+              [id]
+            );
+            console.log('Exercise deleted successfully');
+            loadTemplates(); // refresh list AFTER deletion
+          } catch (error) {
+            console.log('Error deleting exercise: ', error);
+          }
+        },
+      }
+    ])
+    loadTemplates()
+  }
 
   const applyFilters = (muscle, equipment) => {
     let filtered = exercises
@@ -89,10 +138,16 @@ export default function WorkoutScreen() {
   };
 
   const displayInstructions = (instructions) => {
-    if (!Array.isArray(instructions)) return 'No instructions available.'
     let instructionText = ''
-    for (let i = 0; i < instructions.length; i++) {
-      instructionText += i+1 + '. ' + instructions[i] + '\n\n'
+    if (!Array.isArray(instructions)) {
+      instructionText = instructions
+      //console.log(instructions)
+      //return 'No instructions available.'
+    }
+    else {
+      for (let i = 0; i < instructions.length; i++) {
+        instructionText += i+1 + '. ' + instructions[i] + '\n\n'
+      }
     }
     return instructionText
   }
@@ -101,7 +156,7 @@ export default function WorkoutScreen() {
     const template = JSON.parse(item.data)
 
     return (
-      <TouchableOpacity onPress = {() => {manageTemplate(item.id, item.name)}} style={styles.templateBox}>
+      <TouchableOpacity onPress = {() => {if (!isOngoingWorkout) manageTemplate(item.id, item.name)}} style={styles.templateBox}>
         <View style={{flexDirection: 'row'}}>
           <Text style={styles.text}>{item.name}</Text>
           <TouchableOpacity onPress = {() => {deleteTemplate(item.id)}}><Text>Delete</Text></TouchableOpacity>
@@ -156,8 +211,9 @@ export default function WorkoutScreen() {
   const [exerciseInfoModal, setExerciseInfoModal] = useState(false)
   const [exerciseItem, setExerciseItem] = useState('')
   const [manageTemplateModal, setManageTemplateModal] = useState(false)
-  //const [selectedTemplate, setSelectedTemplate] = useState(null)
   const [workoutModal, setWorkoutModal] = useState(null)
+  const [exerciseCreation, setExerciseCreation] = useState(null)
+  const [customExercises, setCustomExercises] = useState([])
 
     useEffect(() => {
       const filtered = exercises.filter((exercise) =>
@@ -207,11 +263,23 @@ export default function WorkoutScreen() {
                   </TouchableOpacity>
                 </View>
 
-                <FlatList
-                  data={filteredExercises}
+                {/* Display Custom exercises if exists */}
+                {(customExercises.length > 0) ? (
+                  <SectionList
+                  sections={[{title: 'Custom Exercises', data: customExercises}, {title: 'Exercise List', data: filteredExercises}]}
                   keyExtractor={(item) => item.id}
                   renderItem={renderItem}
-                />
+                  renderSectionHeader={({section: {title}}) => (
+                    <Text style={styles.title}>{title}</Text>
+                  )}
+                  />
+                ) : (
+                  <FlatList
+                    data={filteredExercises}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderItem}
+                  />
+                )}
 
                 <Modal
                 visible={muscleFilterModal}
@@ -309,7 +377,13 @@ export default function WorkoutScreen() {
             workoutModal={workoutModal} 
             setWorkoutModal={setWorkoutModal} 
             template={selectedTemplate}
-            finishWorkout={finishWorkout}   // <-- pass it here
+            finishWorkout={finishWorkout}
+          />
+
+          {/* Exercise Creation Modal */}
+          <ExerciseCreationModal
+            visibility={exerciseCreation}
+            setVisibility={setExerciseCreation}
           />
 
           <View style={{flexDirection: 'row', justifyContent: 'space-between', padding: 10}}>
@@ -319,7 +393,10 @@ export default function WorkoutScreen() {
 
           <View style={{flexDirection: 'row', justifyContent: 'space-between', padding: 10}}>
             <Text style={{color: '#fff', fontSize: 20, fontWeight: 'bold',}}>Templates</Text>
-            <TouchableOpacity style={styles.button} onPress ={() => router.push('/createTemplate')}><Text style={{color: '#fff'}}>+ Template</Text></TouchableOpacity>
+            <View style={{flexDirection: 'row', gap: 10}}>
+              <TouchableOpacity style={styles.button} onPress ={() => setExerciseCreation(true)}><Text style={{color: '#fff'}}>+ Exercise</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress ={() => router.push('/createTemplate')}><Text style={{color: '#fff'}}>+ Template</Text></TouchableOpacity>
+            </View>
           </View>
 
           {/* View Ongoing Workout Button */}
@@ -347,7 +424,7 @@ export default function WorkoutScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',

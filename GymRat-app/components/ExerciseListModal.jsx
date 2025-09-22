@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
-import { FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+import { useCallback, useEffect, useState } from 'react';
+import { FlatList, Modal, ScrollView, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function ExerciseListModal({
   visible,
@@ -10,18 +12,42 @@ export default function ExerciseListModal({
   onSelect,
   ...props
 }) {
-  const renderItem = ({ item }) => (
-    <TouchableOpacity 
-    style={styles.card}
-    onPress={() => {
-      setExerciseItem(item)
-      setExerciseInfoModal(true)
-      }}>
-      <Text style={styles.title}>{item.name}</Text>
-      <Text style={styles.subtitle}>Equipment: {item.equipment}</Text>
-      <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscles}</Text>
-    </TouchableOpacity>
-  );
+
+  const db = useSQLiteContext()
+
+  const renderItem = ({ item }) => {
+    if (item.primaryMuscles) {
+      return (
+        <TouchableOpacity 
+        style={styles.card}
+        onPress={() => {
+          setExerciseItem(item)
+          setExerciseInfoModal(true)
+          }}>
+          <Text style={styles.title}>{item.name}</Text>
+          <Text style={styles.subtitle}>Equipment: {item.equipment}</Text>
+          <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscles}</Text>
+        </TouchableOpacity>
+      )
+    } else {
+      return (
+        <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+          <TouchableOpacity 
+          style={styles.card}
+          onPress={() => {
+            setExerciseItem(item)
+            setExerciseInfoModal(true)
+            }}>
+            <Text style={styles.title}>{item.name}</Text>
+            <Text style={styles.subtitle}>Equipment: {item.equipment}</Text>
+            <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscle}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{backgroundColor: '#999', alignItems: 'center', justifyContent: 'center',borderRadius: 10, padding: 10, height: 40}} onPress={() => deleteExercise(item.id)}><Text>Delete</Text></TouchableOpacity>
+        </View>
+      )
+    }
+    
+  }
 
   const applyFilters = (muscle, equipment) => {
     let filtered = exercises
@@ -81,6 +107,7 @@ export default function ExerciseListModal({
   const [eFilterButtonVal, setEFilterButtonVal] = useState('Any Equipment')
   const [exerciseInfoModal, setExerciseInfoModal] = useState(false)
   const [exerciseItem, setExerciseItem] = useState('')
+  const [customExercises, setCustomExercises] = useState([])
 
   
 
@@ -92,6 +119,17 @@ export default function ExerciseListModal({
       setEFilterButtonVal('Any Equipment')
       setMFilterButtonVal('Any Muscle')
     }, [searchText])
+
+  const loadExercises = async() => {
+    const result2 = await db.getAllAsync("SELECT * FROM customExercises;")
+    setCustomExercises(result2)
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      loadExercises()
+    }, [])
+  )
 
   return (
     <Modal visible={visible} transparent={true} onRequestClose={() => onClose}>
@@ -126,11 +164,22 @@ export default function ExerciseListModal({
             </TouchableOpacity>
         </View>
 
-        <FlatList
+        {(customExercises.length > 0) ? (
+          <SectionList
+          sections={[{title: 'Custom Exercises', data: customExercises}, {title: 'Exercise List', data: filteredExercises}]}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          renderSectionHeader={({section: {title}}) => (
+            <Text style={styles.title}>{title}</Text>
+          )}
+          />
+        ) : (
+          <FlatList
             data={filteredExercises}
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
-        />
+          />
+        )}
 
         <Modal
         visible={muscleFilterModal}
