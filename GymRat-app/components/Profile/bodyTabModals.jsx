@@ -244,13 +244,13 @@ export const WeightTouchable = ({ isVisible, onClose })  => {
                         <Text style={modalStyles.inputHeaderText}>Log New Weight</Text>
 
                         <TouchableOpacity 
-                        style={{flexDirection:'row',alignItems:'center',marginTop:45,margin:6,width:screenWidth*0.93,height:screenHeight*0.08,borderWidth:2,borderRadius:8,borderColor:'#6a5acd'}}
+                        style={{flexDirection:'row',alignItems:'center',marginTop:45,margin:6,marginBottom:1,width:screenWidth*0.93,height:screenHeight*0.06,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
                         onPress={() => null}>
                             <Text style={modalStyles.modalInputText}>Weight:</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity 
-                        style={{flexDirection:'row',alignItems:'center',marginBottom:15,margin:6,width:screenWidth*0.93,height:screenHeight*0.08,borderWidth:2,borderRadius:8,borderColor:'#6a5acd'}}
+                        style={{flexDirection:'row',alignItems:'center',marginBottom:15,margin:6,width:screenWidth*0.93,height:screenHeight*0.06,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
                         onPress = {() => setOpen(true)}>
                             <Text style={modalStyles.modalInputText}>Date:</Text>
                             <View style={{left:150}}>
@@ -276,6 +276,82 @@ export const WeightTouchable = ({ isVisible, onClose })  => {
 }
 
 export const GoalWeightTouchable = ({ isVisible, onClose })  => {
+    return (
+        <Modal 
+            animationType="slide"  
+            transparent={true}
+            visible={isVisible}
+            onRequestClose={onClose}
+        >
+            <View style={modalStyles.centeredView}>
+                <SafeAreaView style={modalStyles.touchableHeight}>
+                    <View style={modalStyles.modalView}>
+                        <TouchableOpacity style={modalStyles.confirmIcon} onPress={onClose}>
+                            <Image style={styles.logo} source={{uri:'https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/checkmark-white-round-icon.png'}}/>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
+                            <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
+                        </TouchableOpacity>
+                        <Text style={modalStyles.inputHeaderText}>Log New Goal</Text>
+
+                        <TouchableOpacity 
+                        style={{flexDirection:'row',alignItems:'center',marginTop:45,margin:6,marginBottom:1,width:screenWidth*0.93,height:screenHeight*0.06,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
+                        onPress={() => null}>
+                            <Text style={modalStyles.modalInputText}>Goal Weight:</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity 
+                        style={{flexDirection:'row',alignSelf:'center',alignItems:'center',justifyContent:'center',margin:6,marginBottom:15,width:screenWidth*0.6,height:screenHeight*0.05,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
+                        onPress={() => { onClose(); router.push('/goal') }}>
+                            <Text style={modalStyles.modalInputText}>Change Goal</Text>
+                        </TouchableOpacity>
+                    
+                    </View>
+                </SafeAreaView>
+            </View>
+        </Modal>
+    )
+}
+
+export const BodyFatTouchable = ({ isVisible, onClose })  => {
+    
+    return (
+        <Modal 
+            animationType="slide"  
+            transparent={true}
+            visible={isVisible}
+            onRequestClose={onClose}
+        >
+            <View style={modalStyles.centeredView}>
+                <SafeAreaView style={modalStyles.touchableHeight}>
+                    <View style={modalStyles.modalView}>
+                        <TouchableOpacity style={modalStyles.confirmIcon} onPress={onClose}>
+                            <Image style={styles.logo} source={{uri:'https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/checkmark-white-round-icon.png'}}/>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
+                            <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
+                        </TouchableOpacity>
+                        <Text style={modalStyles.inputHeaderText}>Log Body Fat %</Text>
+                        <TouchableOpacity 
+                        style={{flexDirection:'row',alignItems:'center',marginTop:45,margin:6,marginBottom:1,width:screenWidth*0.93,height:screenHeight*0.06,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
+                        onPress={() => null}>
+                            <Text style={modalStyles.modalInputText}>Body Fat %:</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity   
+                            onPress={() => {}} 
+                            style={{alignSelf:'center', alignItems:'center',justifyContent:'center',padding:10,marginBottom:15,margin:6,width:screenWidth*0.6,height:screenHeight*0.05,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}>
+                            <Text style={modalStyles.modalInputText}>Calculate Body Fat %</Text>
+                        </TouchableOpacity>
+                    
+                    </View>
+                </SafeAreaView>
+            </View>
+        </Modal>
+    )
+}
+
+export const BMRTouchable = ({ isVisible, onClose })  => {
     
     return (
         <Modal 
@@ -300,58 +376,8 @@ export const GoalWeightTouchable = ({ isVisible, onClose })  => {
                         onPress={() => null}>
                             <Text style={modalStyles.modalInputText}>Goal Weight:</Text>
                         </TouchableOpacity>
-
-                        <TouchableOpacity   
-                            onPress={() => { onClose(); router.push('/goal') }} 
-                            style={{alignSelf:'center', alignItems:'center',padding:10,marginBottom:10,width:screenWidth*0.4,height:screenHeight*0.05,borderWidth:2,borderRadius:8,borderColor:'#6a5acd'}}>
-                            <Text style={modalStyles.modalInputText}>Redo Goal</Text>
-                        </TouchableOpacity>
                     
                     </View>
-                </SafeAreaView>
-            </View>
-        </Modal>
-    )
-}
-
-export const BodyFatTouchable = ({ isVisible, onClose })  => {
-    return (
-        <Modal 
-            animationType="slide"  
-            transparent={true}
-            visible={isVisible}
-            onRequestClose={onClose}
-        >
-            <View style={modalStyles.centeredView}>
-                <SafeAreaView style={modalStyles.touchableHeight}>
-                    <ScrollView style={modalStyles.modalView}>
-                    <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
-                        <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
-                    </TouchableOpacity>
-                    <Text style={modalStyles.modalHeaderText}>Log New Body Fat %</Text>
-                    </ScrollView>
-                </SafeAreaView>
-            </View>
-        </Modal>
-    )
-}
-
-export const BMRTouchable = ({ isVisible, onClose })  => {
-    return (
-        <Modal 
-            animationType="slide"  
-            transparent={true}
-            visible={isVisible}
-            onRequestClose={onClose}
-        >
-            <View style={modalStyles.centeredView}>
-                <SafeAreaView style={modalStyles.touchableHeight}>
-                    <ScrollView style={modalStyles.modalView}>
-                    <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
-                        <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
-                    </TouchableOpacity>
-                    <Text style={modalStyles.modalHeaderText}>Log New BMR</Text>
-                    </ScrollView>
                 </SafeAreaView>
             </View>
         </Modal>
@@ -372,7 +398,7 @@ const modalStyles = StyleSheet.create ({
     alignItems: 'center',
   },
   modalView: {
-    backgroundColor:'#2c2c2e',
+    backgroundColor:'#1a1b1c',
     borderWidth:3,
     borderRadius: 10,
     borderColor:'#6a5acd',
