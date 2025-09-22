@@ -100,6 +100,10 @@ const SettingsWheel = () => {
                             <UserGoalsTab/>
                         </View>
 
+                        <TouchableOpacity style={styles.onboardingButton} onPress={() => {router.push('/nutsplash') }}>
+                            <Text style={styles.logoutButtonText}>Re-do Onboarding</Text>
+                        </TouchableOpacity>
+
                         <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
                             <Text style={styles.logoutButtonText}>Sign Out</Text>
                         </TouchableOpacity>
@@ -160,6 +164,16 @@ const styles = StyleSheet.create ({
         paddingHorizontal: 20,
         gap: 20,
     },
+    onboardingButton: { 
+        position: 'absolute', 
+        justifyContent:'center',
+        bottom: 50, 
+        backgroundColor: '#2c2c2e',
+        paddingVertical: 8, 
+        width:100,
+        borderRadius: 8, 
+        alignItems: 'center' 
+    },
     logoutButton: { 
         position: 'absolute', 
         bottom: 0, 
@@ -171,7 +185,8 @@ const styles = StyleSheet.create ({
     },
     logoutButtonText: { 
         color: '#fff', 
-        fontSize: 18 
+        fontSize: 18, 
+        textAlign:'center'
     },
 });
 

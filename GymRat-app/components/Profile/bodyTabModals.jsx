@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
-import { StyleSheet, Dimensions, TouchableOpacity, Image, View, Modal, Pressable, ScrollView, Button  } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { StyleSheet, Dimensions, TouchableOpacity, Image, View, Modal, Pressable, ScrollView, Button, TextInput  } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@ui-kitten/components';
 import Lightbox from 'react-native-lightbox-v2';
 import DateTimePickerModal from 'react-native-modal-datetime-picker'
 import { SetGoalSpeed } from '../../app/goal'
-import { router } from 'expo-router'
-
-
+import { useFocusEffect, router } from 'expo-router'
+import { useSQLiteContext } from 'expo-sqlite';
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
 
@@ -224,6 +223,65 @@ export const QuestionModal3 = ({ isVisible, onClose }) => {
 export const WeightTouchable = ({ isVisible, onClose })  => {
     const [date, setDate] = useState(new Date())
     const [open, setOpen] = useState(false)
+    const [weight, setWeight] = useState('')
+    const [lastWeight, setLastWeight] = useState(null) 
+
+    const db = useSQLiteContext()
+
+    useEffect(() => {
+        if (isVisible && db) {
+            fetchLastWeight();
+        }
+    }, [isVisible, db]);
+
+    const fetchLastWeight = async () => {
+        try {
+            const user_id = 1; 
+            const result = await db.getFirstAsync(
+                'SELECT weight FROM userStats WHERE user_id = ?',
+                [user_id]
+            );
+            
+            if (result && result.weight) {
+                setLastWeight(result.weight);
+            }
+        } catch (error) {
+            console.error('Error fetching last weight:', error);
+        }
+    };
+
+    const saveWeight = async () => {
+        const weightValue = parseFloat(weight);
+        if (isNaN(weightValue) || weightValue <= 0) {
+            console.log('Error', 'Please enter a valid weight value');
+            return;
+        }
+
+        try {
+            const user_id = 1;
+
+            const result = await db.runAsync(
+                'UPDATE userStats SET weight = ? WHERE user_id = ?',
+                [weight.trim(), user_id]
+            );
+
+            // If no rows were updated, insert a new row
+            if (result.changes === 0) {
+                await db.runAsync(
+                    'INSERT INTO userStats (user_id, weight) VALUES (?, ?)',
+                    [user_id, weight.trim()]
+                );
+            }
+            
+            console.log('Success', 'Weight saved successfully');
+            
+            onClose();
+            
+        } catch (error) {
+            console.log('Error saving weight:', error);
+            console.log('Error', 'Failed to save weight. Please try again.');
+        }
+    };
 
     return (
         <Modal 
@@ -235,7 +293,7 @@ export const WeightTouchable = ({ isVisible, onClose })  => {
             <View style={modalStyles.centeredView}>
                 <SafeAreaView style={modalStyles.touchableHeight}>
                     <View style={modalStyles.modalView}>
-                        <TouchableOpacity style={modalStyles.confirmIcon} onPress={onClose}>
+                        <TouchableOpacity style={modalStyles.confirmIcon} onPress={saveWeight}>
                             <Image style={styles.logo} source={{uri:'https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/checkmark-white-round-icon.png'}}/>
                         </TouchableOpacity>
                         <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
@@ -243,19 +301,28 @@ export const WeightTouchable = ({ isVisible, onClose })  => {
                         </TouchableOpacity>
                         <Text style={modalStyles.inputHeaderText}>Log New Weight</Text>
 
-                        <TouchableOpacity 
-                        style={{flexDirection:'row',alignItems:'center',marginTop:45,margin:6,marginBottom:1,width:screenWidth*0.93,height:screenHeight*0.06,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
-                        onPress={() => null}>
+                        <View
+                        style={{flexDirection:'row',alignSelf:'center',alignItems:'center',marginTop:45,marginBottom:7,width:screenWidth*0.93,height:screenHeight*0.06,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
+                        >
                             <Text style={modalStyles.modalInputText}>Weight:</Text>
-                        </TouchableOpacity>
+                            <View style={{left:240}}>
+                                <TextInput 
+                                style={modalStyles.modalInputText}
+                                value={weight}
+                                onChangeText={setWeight}
+                                placeholder={lastWeight ? `${lastWeight}` : '___'}
+                                keyboardType='numeric'
+                                />
+                            </View>
+                        </View>
+
 
                         <TouchableOpacity 
-                        style={{flexDirection:'row',alignItems:'center',marginBottom:15,margin:6,width:screenWidth*0.93,height:screenHeight*0.06,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
+                        style={{flexDirection:'row',alignSelf:'center',alignItems:'center',marginBottom:15,width:screenWidth*0.93,height:screenHeight*0.06,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
                         onPress = {() => setOpen(true)}>
                             <Text style={modalStyles.modalInputText}>Date:</Text>
                             <View style={{left:150}}>
                                 <Button title={date.toDateString('en-US')} onPress={() => setOpen(true)} /> 
-
                                 <DateTimePickerModal 
                                     isVisible={open}
                                     mode="date"
@@ -276,6 +343,64 @@ export const WeightTouchable = ({ isVisible, onClose })  => {
 }
 
 export const GoalWeightTouchable = ({ isVisible, onClose })  => {
+    const [goalWeight, setGoalWeight] = useState('')
+    const [lastGoalWeight, setLastGoalWeight] = useState(null) 
+
+    const db = useSQLiteContext()
+
+    useEffect(() => {
+        if (isVisible && db) {
+            fetchLastGoalWeight();
+        }
+    }, [isVisible, db]);
+
+    const fetchLastGoalWeight = async () => {
+        try {
+            const user_id = 1; 
+            const result = await db.getFirstAsync(
+                'SELECT goal_weight FROM userStats WHERE user_id = ?',
+                [user_id]
+            );
+            
+            if (result && result.goal_weight) {
+                setLastGoalWeight(result.goal_weight);
+            }
+        } catch (error) {
+            console.error('Error fetching last goal_weight:', error);
+        }
+    };
+
+    const saveGoalWeight = async () => {
+        const goalValue = parseFloat(goalWeight);
+        if (isNaN(goalValue) || goalValue <= 0) {
+            console.log('Error', 'Please enter a valid weight value');
+            return;
+        }
+
+        try {
+            const user_id = 1;
+            const result = await db.runAsync(
+                'UPDATE userStats SET goal_weight = ? WHERE user_id = ?',
+                [goalWeight.trim(), user_id]
+            );
+
+            // If no rows were updated, insert a new row
+            if (result.changes === 0) {
+                await db.runAsync(
+                    'INSERT INTO userStats (user_id, goal_weight) VALUES (?, ?)',
+                    [user_id, goalWeight.trim()]
+                );
+            }
+            
+            console.log('Success', 'Goal weight saved successfully');
+            
+            onClose();
+            
+        } catch (error) {
+            console.log('Error saving goal weight:', error);
+            console.log('Error', 'Failed to save goal weight. Please try again.');
+        }
+    };   
     return (
         <Modal 
             animationType="slide"  
@@ -286,7 +411,7 @@ export const GoalWeightTouchable = ({ isVisible, onClose })  => {
             <View style={modalStyles.centeredView}>
                 <SafeAreaView style={modalStyles.touchableHeight}>
                     <View style={modalStyles.modalView}>
-                        <TouchableOpacity style={modalStyles.confirmIcon} onPress={onClose}>
+                        <TouchableOpacity style={modalStyles.confirmIcon} onPress={saveGoalWeight}>
                             <Image style={styles.logo} source={{uri:'https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/checkmark-white-round-icon.png'}}/>
                         </TouchableOpacity>
                         <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
@@ -294,11 +419,20 @@ export const GoalWeightTouchable = ({ isVisible, onClose })  => {
                         </TouchableOpacity>
                         <Text style={modalStyles.inputHeaderText}>Log New Goal</Text>
 
-                        <TouchableOpacity 
+                        <View
                         style={{flexDirection:'row',alignItems:'center',marginTop:45,margin:6,marginBottom:1,width:screenWidth*0.93,height:screenHeight*0.06,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
                         onPress={() => null}>
                             <Text style={modalStyles.modalInputText}>Goal Weight:</Text>
-                        </TouchableOpacity>
+                            <View style={{left:200}}>
+                                <TextInput 
+                                style={modalStyles.modalInputText}
+                                value={goalWeight}
+                                onChangeText={setGoalWeight}
+                                placeholder={lastGoalWeight ? `${lastGoalWeight}` : '___'}
+                                keyboardType='numeric'
+                                />
+                            </View>
+                        </View>
 
                         <TouchableOpacity 
                         style={{flexDirection:'row',alignSelf:'center',alignItems:'center',justifyContent:'center',margin:6,marginBottom:15,width:screenWidth*0.6,height:screenHeight*0.05,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
@@ -369,14 +503,24 @@ export const BMRTouchable = ({ isVisible, onClose })  => {
                         <TouchableOpacity style={modalStyles.closeIcon} onPress={onClose}>
                             <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
                         </TouchableOpacity>
-                        <Text style={modalStyles.inputHeaderText}>Log New Goal</Text>
+                        <Text style={modalStyles.inputHeaderText}>Log Custom BMR</Text>
+
+                        <View style={{flexDirection:'column',alignSelf:'center',height:screenHeight*0.12,width:screenWidth*0.93,marginTop:45,marginBottom:7,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}>
+                            <Text style={{fontSize:16, fontWeight:'bold',color:'white',marginLeft:5,marginRight:5,marginTop:4,textAlign:'center',letterSpacing:0.3}}>DISCLAIMER:</Text>
+                            <Text style={{fontSize:14,fontWeight:'bold',color:'white',marginLeft:8,marginRight:8,marginBottom:6,textAlign:'center'}}>Unless you've used a machine method to get BMR (such as a KORR machine), or your activity level is changing long term we don't recommend changing it.</Text>
+                         </View>
 
                         <TouchableOpacity 
-                        style={{flexDirection:'row',alignItems:'center',marginTop:45,margin:6,width:screenWidth*0.93,height:screenHeight*0.08,borderWidth:2,borderRadius:8,borderColor:'#6a5acd'}}
+                        style={{flexDirection:'row',alignSelf:'center',alignItems:'center',width:screenWidth*0.93,height:screenHeight*0.06,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
                         onPress={() => null}>
-                            <Text style={modalStyles.modalInputText}>Goal Weight:</Text>
+                            <Text style={modalStyles.modalInputText}>BMR:</Text>
                         </TouchableOpacity>
-                    
+
+                        <TouchableOpacity 
+                        style={{flexDirection:'row',alignSelf:'center',alignItems:'center',justifyContent:'center',margin:6,marginBottom:15,width:screenWidth*0.6,height:screenHeight*0.05,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
+                        onPress={() => {}}>
+                            <Text style={modalStyles.modalInputText}>Re-calculate BMR</Text>
+                        </TouchableOpacity>
                     </View>
                 </SafeAreaView>
             </View>

@@ -1,9 +1,10 @@
-import { React, useState } from 'react';
+import { React, useState, useEffect } from 'react';
 import { StyleSheet, Dimensions, TouchableOpacity, Image, View, Modal, Pressable, Text } from 'react-native';
 import { Layout, Tab, TabView } from '@ui-kitten/components'
 import { useRouter } from 'expo-router';
 import Calendar from './ProfileCalendar'
 import { QuestionModal1, QuestionModal2, QuestionModal3, WeightTouchable ,GoalWeightTouchable, BodyFatTouchable, BMRTouchable } from './bodyTabModals'
+import { useSQLiteContext } from 'expo-sqlite';
 
 
 const { height: screenHeight } = Dimensions.get('window');
@@ -19,7 +20,60 @@ const TopTab = () => {
   const [isBodyFatTouchableVisible, setBodyFatTouchableVisible] = useState(false);
   const [isBMRTouchableVisible, setBMRTouchableVisible] = useState(false);
   const router = useRouter();
-      
+ 
+  const [weight, setWeight] = useState('')
+  const [lastWeight, setLastWeight] = useState(null) 
+  
+  const [goalWeight, setGoalWeight] = useState('')
+  const [lastGoalWeight, setLastGoalWeight] = useState(null) 
+
+  const db = useSQLiteContext()
+  
+  useEffect(() => {
+      if (db) {
+          fetchLastWeight();
+      }
+  }, [db]);
+  
+  const fetchLastWeight = async () => {
+    try {
+      const user_id = 1; 
+      const result = await db.getFirstAsync(
+        'SELECT weight FROM userStats WHERE user_id = ?',
+        [user_id]
+      );
+              
+      if (result && result.weight) {
+        setLastWeight(result.weight);
+      }
+      } catch (error) {
+        console.error('Error fetching last weight:', error);
+      }
+  };
+
+
+    useEffect(() => {
+        if (db) {
+            fetchLastGoalWeight();
+        }
+    }, [db]);
+
+    const fetchLastGoalWeight = async () => {
+        try {
+            const user_id = 1; 
+            const result = await db.getFirstAsync(
+                'SELECT goal_weight FROM userStats WHERE user_id = ?',
+                [user_id]
+            );
+            
+            if (result && result.goal_weight) {
+                setLastGoalWeight(result.goal_weight);
+            }
+        } catch (error) {
+            console.error('Error fetching last goal_weight:', error);
+        }
+    };
+
   return (
       <TabView 
       selectedIndex={selectedIndex} 
@@ -45,7 +99,7 @@ const TopTab = () => {
               </TouchableOpacity>
           </Layout>
         </Tab>
-
+        
         <Tab 
           title={evaProps => <Text {...evaProps} style={styles.tabText}>Body</Text>}
           style={styles.tabStyle}
@@ -63,7 +117,9 @@ const TopTab = () => {
                   <TouchableOpacity 
                     style = {styles.bodyCompContainers}
                     onPress={() => setWeightTouchableVisible(true)}>
-                    <Text category='h7' style = {textStyles.compBodyText}>- </Text>
+                    <Text category='h7' style = {textStyles.compBodyText}>
+                      -{lastWeight ? `${lastWeight}` : '___'}
+                    </Text>
                   </TouchableOpacity>
                 </View>  
 
@@ -75,7 +131,9 @@ const TopTab = () => {
                   <TouchableOpacity 
                     style = {styles.bodyCompContainers}
                     onPress={() => setGoalWeightTouchableVisible(true)}>
-                    <Text category='h7' style = {textStyles.compBodyText}>- </Text>
+                    <Text category='h7' style = {textStyles.compBodyText}>
+                      -{lastGoalWeight ? `${lastGoalWeight}` : '___'} 
+                    </Text>
                   </TouchableOpacity>
                 </View>  
 
