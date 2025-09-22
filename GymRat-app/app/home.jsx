@@ -99,6 +99,7 @@ export default function HomeScreen() {
 
         const workoutRes = await db.getAllAsync(
           `SELECT COUNT(*) as count FROM workoutLog WHERE user_id = ? AND date = ?`,
+          [userId, dateStr]
         );
         results.push({
           date: dateObj,
@@ -196,6 +197,20 @@ export default function HomeScreen() {
     })();
   }, [db, userId, foodModalVisible]);
 
+  const checkIfFoodLoggedToday = async (db, userId) => {
+    const today = new Date().toISOString().split("T")[0];
+    try {
+      const result = await db.getAllAsync(
+        `SELECT COUNT(*) as count FROM dailyNutLog WHERE user_id = ? AND date = ?`,
+        [userId, today]
+      );
+      return result[0]?.count > 0; // true if there are entries
+    } catch (err) {
+      console.error("Error checking food log:", err);
+      return false;
+    }
+  };
+
   const addEntry = () => {
     setNutrientEntries(prev => [
       ...prev,
@@ -222,18 +237,6 @@ export default function HomeScreen() {
     }
 
     const date = new Date().toISOString().split('T')[0];
-    const checkIfFoodLoggedToday = async (db, userId) => {
-    try {
-      const result = await db.getAllAsync(
-        `SELECT COUNT(*) as count FROM dailyNutLog WHERE user_id = ? AND date = ?`,
-        [userId, today]
-      );
-      return result[0]?.count > 0; // true if there are entries
-    } catch (err) {
-        console.error("Error checking food log:", err);
-        return false;
-      }
-    };
 
     try {
       const nutritionData = {
