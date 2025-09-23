@@ -1,7 +1,7 @@
-import { React, useState, useEffect } from 'react';
+import { React, useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Dimensions, TouchableOpacity, Image, View, Modal, Pressable, Text } from 'react-native';
 import { Layout, Tab, TabView } from '@ui-kitten/components'
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import Calendar from './ProfileCalendar'
 import { QuestionModal1, QuestionModal2, QuestionModal3, WeightTouchable ,GoalWeightTouchable, BodyFatTouchable, BMRTouchable } from './bodyTabModals'
 import { useSQLiteContext } from 'expo-sqlite';
@@ -39,95 +39,26 @@ const TopTab = () => {
   const db = useSQLiteContext()
   
   useEffect(() => {
-      if (db) {
-          fetchWeight();
-          fetchGoalWeight();
-          fetchBodyFat()
-          fetchBMI()
-          fetchBMR()
-      }
-  }, [db]);
+    fetchUserStats()
+  }, []);
   
-  const fetchWeight = async () => {
+  const fetchUserStats = async () => {
     try {
-      const user_id = 1; 
-      const result = await db.getFirstAsync(
-        'SELECT weight FROM userStats WHERE user_id = ?',
-        [user_id]
-      );
-              
-      if (result && result.weight) {
-        setLastWeight(result.weight);
-      }
-      } catch (error) {
-        console.error('Error fetching last weight:', error);
-      }
-  };
-
-
-    const fetchGoalWeight = async () => {
-        try {
-            const user_id = 1; 
-            const result = await db.getFirstAsync(
-                'SELECT goal_weight FROM userStats WHERE user_id = ?',
-                [user_id]
-            );
-            
-            if (result && result.goal_weight) {
-                setLastGoalWeight(result.goal_weight);
-            }
-        } catch (error) {
-            console.error('Error fetching last goal_weight:', error);
-        }
-    };
-
-    const fetchBodyFat = async () => {
-        try {
-            const user_id = 1; 
-            const result = await db.getFirstAsync(
-                'SELECT body_fat FROM userStats WHERE user_id = ?',
-                [user_id]
-            );
-            
-            if (result && result.body_fat) {
-                setLastBodyFat(result.body_fat);
-            }
-        } catch (error) {
-            console.error('Error fetching last body_fat:', error);
-        }
-    };
-
-    const fetchBMI = async () => {
-        try {
-            const user_id = 1; 
-            const result = await db.getFirstAsync(
-                'SELECT BMI FROM userStats WHERE user_id = ?',
-                [user_id]
-            );
-            
-            if (result && result.BMI) {
-                setLastBMI(result.BMI);
-            }
-        } catch (error) {
-            console.error('Error fetching last BMI:', error);
-        }
-    };
-
-    const fetchBMR = async () => {
-        try {
-            const user_id = 1; 
-            const result = await db.getFirstAsync(
-                'SELECT BMR FROM userStats WHERE user_id = ?',
-                [user_id]
-            );
-            
-            if (result && result.BMR) {
-                setLastBMR(result.BMR);
-            }
-        } catch (error) {
-            console.error('Error fetching last BMR:', error);
-        }
-    };
+      const result = await db.getFirstAsync('SELECT * FROM userStats')
+      //console.log(result)
+      setLastWeight(result['weight']) 
+      setLastGoalWeight(result['goal_weight'])
+      setLastBodyFat(result['body_fat'])
+      setLastBMI(result['BMI']) 
+      setLastBMR(result['BMR']) 
+    } catch (error) {
+      console.error('Error fetching last weight:', error)
+    }
+  }
+    useFocusEffect(
+      useCallback(() => {
+      }, [])
+    )
   return (
       <TabView 
       selectedIndex={selectedIndex} 

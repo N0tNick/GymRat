@@ -236,17 +236,10 @@ export const WeightTouchable = ({ isVisible, onClose })  => {
 
     const fetchLastWeight = async () => {
         try {
-            const user_id = 1; 
-            const result = await db.getFirstAsync(
-                'SELECT weight FROM userStats WHERE user_id = ?',
-                [user_id]
-            );
-            
-            if (result && result.weight) {
-                setLastWeight(result.weight);
-            }
+            const result = await db.getFirstAsync('SELECT weight FROM userStats')
+            setLastWeight(result.weight)
         } catch (error) {
-            console.error('Error fetching last weight:', error);
+            console.error('Error fetching last weight:', error)
         }
     };
 
@@ -356,17 +349,10 @@ export const GoalWeightTouchable = ({ isVisible, onClose })  => {
 
     const fetchLastGoalWeight = async () => {
         try {
-            const user_id = 1; 
-            const result = await db.getFirstAsync(
-                'SELECT goal_weight FROM userStats WHERE user_id = ?',
-                [user_id]
-            );
-            
-            if (result && result.goal_weight) {
-                setLastGoalWeight(result.goal_weight);
-            }
+            const result = await db.getFirstAsync('SELECT goal_weight FROM userStats')
+            setLastGoalWeight(result.goal_weight)
         } catch (error) {
-            console.error('Error fetching last goal_weight:', error);
+            console.error('Error fetching last goal_weight:', error)
         }
     };
 
@@ -461,17 +447,10 @@ export const BodyFatTouchable = ({ isVisible, onClose })  => {
 
     const fetchLastBodyFat = async () => {
         try {
-            const user_id = 1; 
-            const result = await db.getFirstAsync(
-                'SELECT body_fat FROM userStats WHERE user_id = ?',
-                [user_id]
-            );
-            
-            if (result && result.body_fat) {
-                setLastBodyFat(result.body_fat);
-            }
+            const result = await db.getFirstAsync('SELECT body_fat FROM userStats')
+            setLastBodyFat(result.body_fat)
         } catch (error) {
-            console.error('Error fetching last body_fat:', error);
+            console.error('Error fetching last body_fat:', error)
         }
     };
 
@@ -561,17 +540,10 @@ export const BMRTouchable = ({ isVisible, onClose })  => {
 
     const fetchBMR = async () => {
         try {
-            const user_id = 1; 
-            const result = await db.getFirstAsync(
-                'SELECT BMR FROM userStats WHERE user_id = ?',
-                [user_id]
-            );
-            
-            if (result && result.BMR) {
-                setLastBMR(result.BMR);
-            }
+            const result = await db.getFirstAsync('SELECT BMR FROM userStats')
+            setLastBMR(result.BMR)
         } catch (error) {
-            console.error('Error fetching last BMR:', error);
+            console.error('Error fetching last BMR:', error)
         }
     };
 
