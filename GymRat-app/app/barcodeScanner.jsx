@@ -10,6 +10,8 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../components/NavBar';
 import { auth } from '../firebaseConfig';
 
+import { Picker } from '@react-native-picker/picker';
+
 import { useSQLiteContext } from 'expo-sqlite';
 import { useUser } from '../UserContext';
 
@@ -70,6 +72,9 @@ export default function BarcodeScannerScreen() {
   // logging test modal
   const [showLogModal, setShowLogModal] = useState(false);
   const [dailyTotals, setDailyTotals] = useState(null);
+  // selecting serving and setting quantity
+  const [selectedServingIndex, setSelectedServingIndex] = useState(0);
+  const [quantity, setQuantity] = useState("1");
 
   const { userId } = useUser();
   const db = useSQLiteContext();
@@ -77,6 +82,60 @@ export default function BarcodeScannerScreen() {
   const currentDate = new Date();
   const day = currentDate.getDate();
   const todayLocal = () => new Date().toLocaleDateString('en-CA'); // "YYYY-MM-DD"
+
+  // helper to get servings
+  const getServingsArray = () => {
+    const s = productInfo?.servings?.serving;
+    if (!s) return [];
+
+    const arr = Array.isArray(s) ? s : [s];
+
+    // Check if any serving is already per gram
+    const hasPerGram = arr.some(
+      (srv) =>
+        srv.metric_serving_unit?.toLowerCase() === "g" &&
+        parseFloat(srv.metric_serving_amount) === 1
+    );
+
+    if (!hasPerGram) {
+      const first = arr[0];
+      if (first.metric_serving_unit?.toLowerCase() === "g") {
+        const grams = parseFloat(first.metric_serving_amount);
+        if (grams > 1) {
+          const perGram = {
+            serving_description: "1 g",
+            metric_serving_amount: "1",
+            metric_serving_unit: "g",
+            calories: (parseFloat(first.calories) / grams).toFixed(2),
+            protein: (parseFloat(first.protein) / grams).toFixed(2),
+            carbohydrate: (parseFloat(first.carbohydrate) / grams).toFixed(2),
+            fat: (parseFloat(first.fat) / grams).toFixed(2),
+          };
+          arr.push(perGram);
+        }
+      }
+    }
+
+    return arr;
+  };
+
+  const servingsArray = getServingsArray();
+
+  // calculate scaled nutrition
+  const getScaledNutrition = () => {
+    if (!servingsArray.length) return null;
+    const serving = servingsArray[selectedServingIndex];
+    const q = parseFloat(quantity) || 1;
+
+    return {
+      calories: (parseFloat(serving.calories) || 0) * q,
+      protein: (parseFloat(serving.protein) || 0) * q,
+      carbs: (parseFloat(serving.carbohydrate) || 0) * q,
+      fat: (parseFloat(serving.fat) || 0) * q,
+    };
+  };
+
+  const scaled = getScaledNutrition();
 
   const loadTodaysTotals = async (userId) => {
     const date = new Date().toISOString().split('T')[0];
@@ -255,13 +314,6 @@ export default function BarcodeScannerScreen() {
     );
   }
 
-  // sign out button MOVE TO PROFILE SCREEN
-  //const handleSignOut = () => {
-  //  signOut(auth)
-  //    .then(() => router.replace('/login'))
-  //    .catch(console.error);
-  //};
-
   // handles barcode scanner from expo-camera
   const handleBarCodeScanned = async (scanningResult) => {
     console.log('--- NEW SCAN ---');
@@ -414,7 +466,7 @@ export default function BarcodeScannerScreen() {
 
   return (
     <SafeAreaProvider>
-        <LinearGradient colors={['#FFFFFF', '#808080']} style={styles.container}>
+        <LinearGradient colors={['#1a1b1c', '#1a1b1c']} style={styles.container}>
           <SafeAreaView style={{ flex: 1 }}>
           <View style={styles.overlay}>
             <CameraView
@@ -430,12 +482,9 @@ export default function BarcodeScannerScreen() {
               <Text style={styles.scanText}>Align barcode within the frame</Text>  
             </CameraView>
 
-            {/*<TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
-              <Text style={styles.logoutButtonText}>Sign Out</Text>
-            </TouchableOpacity>*/}
-            <TouchableOpacity styles={styles.logoutButton} onPress={() => Linking.openURL("https://www.fatsecret.com")}>
+            <TouchableOpacity color="#e0e0e0" onPress={() => Linking.openURL("https://www.fatsecret.com")}>
               {/*<!-- Begin fatsecret Platform API HTML Attribution Snippet -->*/}
-              <Text href="https://www.fatsecret.com">Powered by fatsecret</Text>
+              <Text color="#e0e0e0" href="https://www.fatsecret.com">Powered by fatsecret</Text>
               {/*<!-- End fatsecret Platform API HTML Attribution Snippet -->*/}
             </TouchableOpacity>
             
@@ -449,13 +498,13 @@ export default function BarcodeScannerScreen() {
         {/* NUTRITION MODAL WHEN SCAN WORKS : shows the nutrition info */}
         <Modal
           animationType="slide"
-          transparent={true}
+          transparent={false}
           visible={showNutritionModal}
           onRequestClose={() => setShowNutritionModal(false)}
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <TouchableOpacity style={styles.closeButton} onPress={() => setShowNutritionModal(false)}>
+              <TouchableOpacity style={styles.closeButton} onPress={() => { setShowNutritionModal(false); resetScanner(); }}>
                 <Text style={styles.closeButtonText}>X</Text>
               </TouchableOpacity>
 
@@ -474,44 +523,94 @@ export default function BarcodeScannerScreen() {
                   return (
                     <>
                       <Text style={styles.modalTitle}>Nutrition Information</Text>
-                      <View style={styles.nutritionList}>
-                        <Text style={styles.foodName}>{productInfo.food_name}</Text>
-                        <View style={styles.nutritionItem}>
-                          <Text style={styles.nutritionLabel}>Calories:</Text>
-                          <Text style={styles.nutritionValue}>{serving?.calories ?? 'N/A'}</Text>
-                        </View>
-                        <View style={styles.nutritionItem}>
-                          <Text style={styles.nutritionLabel}>Protein:</Text>
-                          <Text style={styles.nutritionValue}>{serving?.protein ?? 'N/A'}g</Text>
-                        </View>
-                        <View style={styles.nutritionItem}>
-                          <Text style={styles.nutritionLabel}>Carbs:</Text>
-                          <Text style={styles.nutritionValue}>{serving?.carbohydrate ?? 'N/A'}g</Text>
-                        </View>
-                        <View style={styles.nutritionItem}>
-                          <Text style={styles.nutritionLabel}>Fat:</Text>
-                          <Text style={styles.nutritionValue}>{serving?.fat ?? 'N/A'}g</Text>
+                      <Text style={styles.foodName}>{productInfo.brand_name}: {productInfo.food_name}</Text>
+
+                      {/* Dropdown for serving options */}
+                      <View style={{ width: "100%", marginBottom: 10 , color: "#e0e0e0"}}>
+                        <Text style={{ marginBottom: 5, color: "#e0e0e0" }}>Select Serving:</Text>
+                        <View style={{ borderWidth: 1, borderColor: "#e0e0e0", borderRadius: 8, paddingHorizontal: 8, flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+                          <Picker
+                            selectedValue={selectedServingIndex}
+                            onValueChange={(val) => setSelectedServingIndex(val)}
+                            style={{ flex: 1, color: "#e0e0e0" }} // picker text color
+                            dropdownIconColor="#888"
+                          >
+                            {servingsArray.map((s, idx) => (
+                              <Picker.Item
+                                key={idx}
+                                label={`${s.serving_description || "Serving"} (${s.metric_serving_amount || ""} ${s.metric_serving_unit || ""})`}
+                                value={idx}
+                              />
+                            ))}
+                          </Picker>
                         </View>
                       </View>
 
-                      <TouchableOpacity style={styles.rescanButton} onPress={resetScanner}>
-                        <Text style={styles.rescanButtonText}>Scan Another Item</Text>
-                      </TouchableOpacity>
+                      {/* Quantity input */}
+                      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 15, color: "#e0e0e0" }}>
+                        <Text style={{ marginRight: 10, color: "#e0e0e0", }}>Quantity:</Text>
+                        <TextInput
+                          style={{
+                            borderWidth: 1,
+                            borderColor: "#e0e0e0",
+                            borderRadius: 8,
+                            padding: 8,
+                            width: 80,
+                            textAlign: "center",
+                            color: "#e0e0e0"
+                          }}
+                          keyboardType="numeric"
+                          value={quantity}
+                          onChangeText={setQuantity}
+                        />
+                      </View>
+
+                      {/* Nutrition List */}
+                      <View style={styles.nutritionList}>
+                        <View style={styles.nutritionItem}>
+                          <Text style={styles.nutritionLabel}>Calories:</Text>
+                          <Text style={styles.nutritionValue}>{scaled?.calories.toFixed(0)}</Text>
+                        </View>
+                        <View style={styles.nutritionItem}>
+                          <Text style={styles.nutritionLabel}>Protein:</Text>
+                          <Text style={styles.nutritionValue}>{scaled?.protein.toFixed(1)} g</Text>
+                        </View>
+                        <View style={styles.nutritionItem}>
+                          <Text style={styles.nutritionLabel}>Carbs:</Text>
+                          <Text style={styles.nutritionValue}>{scaled?.carbs.toFixed(1)} g</Text>
+                        </View>
+                        <View style={styles.nutritionItem}>
+                          <Text style={styles.nutritionLabel}>Fat:</Text>
+                          <Text style={styles.nutritionValue}>{scaled?.fat.toFixed(1)} g</Text>
+                        </View>
+                      </View>
 
                       <TouchableOpacity style={styles.rescanButton} onPress={async () => {
                         try {
-                          await insertIntoDailyLog(userId, productInfo);
+                          const serving = servingsArray[selectedServingIndex];
+                          const scaledServing = {
+                            ...serving,
+                            calories: scaled.calories,
+                            protein: scaled.protein,
+                            carbohydrates: scaled.carbs,
+                            fat: scaled.fat,
+                          }
+                          await insertIntoDailyLog(userId, {...productInfo, servings: { serving: scaledServing } });
                           await loadTodaysTotals(userId);
                         } catch (e) {
                           console.error('Error:', e);
                         }
                       }}>
-                        <Text style={styles.rescanButton}>Log This Food</Text>
+                        <Text style={styles.rescanButtonText}>Log This Food</Text>
                       </TouchableOpacity>
 
-                      <TouchableOpacity onPress={() => Linking.openURL("https://www.fatsecret.com")}>
+                      <TouchableOpacity style={styles.rescanButton} onPress={resetScanner}>
+                        <Text style={styles.rescanButtonText}>Scan Another Item</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity color="#e0e0e0" onPress={() => Linking.openURL("https://www.fatsecret.com")}>
                         {/*<!-- Begin fatsecret Platform API HTML Attribution Snippet -->*/}
-                        <Text href="https://www.fatsecret.com">Powered by fatsecret</Text>
+                        <Text color="#e0e0e0" href="https://www.fatsecret.com">Powered by fatsecret</Text>
                         {/*<!-- End fatsecret Platform API HTML Attribution Snippet -->*/}
                       </TouchableOpacity>
                     </>
@@ -709,14 +808,14 @@ const styles = StyleSheet.create({
   logoutButton: { 
     position: 'absolute', 
     bottom: 30, 
-    backgroundColor: '#a83232', 
+    backgroundColor: '#1a1b1c', 
     paddingVertical: 12, 
     paddingHorizontal: 24, 
     borderRadius: 8, 
     alignItems: 'center' 
   },
   logoutButtonText: { 
-    color: '#fff', 
+    color: '#e0e0e0', 
     fontSize: 18 
   },
   message: { 
@@ -726,27 +825,25 @@ const styles = StyleSheet.create({
   },
   modalContainer: { 
     flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    backgroundColor: 'rgba(0, 0, 0, 0.5)' 
+    backgroundColor: "#1a1b1c",
   },
   modalContent: { 
-    width: '80%', 
-    backgroundColor: 'white', 
-    borderRadius: 15, 
+    flex: 1,
+    width: '100%', 
+    backgroundColor: '#1a1b1c', 
     padding: 20, 
-    alignItems: 'center', 
-    elevation: 5 },
+  },
   modalTitle: { 
     fontSize: 20, 
     fontWeight: 'bold', 
     marginBottom: 15, 
-    color: '#333' },
+    color: '#e0e0e0' 
+  },
   closeButton: { 
     position: 'absolute', 
     right: 15, 
     top: 15, 
-    backgroundColor: '#f0f0f0', 
+    backgroundColor: '#e0e0e0', 
     borderRadius: 15, 
     width: 30, 
     height: 30, 
@@ -756,13 +853,15 @@ const styles = StyleSheet.create({
   closeButtonText: { 
     fontSize: 16, 
     fontWeight: 'bold', 
-    color: '#333' },
+    color: '#1a1b1c' 
+  },
   foodName: { 
     fontSize: 18, 
     fontWeight: 'bold', 
     marginBottom: 15, 
     textAlign: 'center', 
-    color: '#444' },
+    color: '#e0e0e0' 
+  },
   nutritionList: { 
     width: '100%', 
     marginBottom: 20 
@@ -772,16 +871,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', 
     paddingVertical: 8, 
     borderBottomWidth: 1, 
-    borderBottomColor: '#eee' 
+    borderBottomColor: '#e0e0e0' 
   },
   nutritionLabel: { 
     fontSize: 16, 
-    color: '#666' 
+    color: '#e0e0e0' 
   },
   nutritionValue: { 
     fontSize: 16, 
     fontWeight: 'bold', 
-    color: '#333' 
+    color: '#e0e0e0' 
   },
   errorText: { 
     fontSize: 16, 
@@ -791,14 +890,14 @@ const styles = StyleSheet.create({
   },
   rescanButton: { 
     marginTop: 10, 
-    backgroundColor: '#4CAF50', 
+    backgroundColor: '#6b6b6bff', 
     paddingVertical: 12, 
     paddingHorizontal: 24, 
     borderRadius: 8, 
     alignItems: 'center' 
   },
   rescanButtonText: { 
-    color: '#fff', 
+    color: '#e0e0e0', 
     fontSize: 16 
   }
 });
