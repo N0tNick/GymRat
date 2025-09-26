@@ -5,8 +5,9 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../components/NavBar'
 import SettingsWheel from '../components/Profile/SettingsWheel'
 import TopTab from '../components/Profile/ProfileTopTab'
-import Colors from '../constants/Colors'
+import standards from '../components/ui/appStandards'
 
+console.log(standards)
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -15,7 +16,7 @@ export default function ProfileScreen() {
   
   return (
      <SafeAreaProvider>
-          <ScrollView style={{backgroundColor: '#1a1b1c'}}>
+          <ScrollView style={standards.background}>
             <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center' }}>
             <View style={settingsStyles.settingsWheelWrapper}>
               <SettingsWheel/>
@@ -74,9 +75,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   text: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: '',
   },
 
   inputFieldTest: {
@@ -125,7 +126,7 @@ const modalStyles = StyleSheet.create ({
     backgroundColor: '#2196F3',
   },
   textStyle: {
-    color: 'white',
+    color: 'e0e0e0e',
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -138,5 +139,5 @@ const modalStyles = StyleSheet.create ({
 const settingsStyles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   settingsWheelWrapper: { position: 'absolute', top: 65, right: 20 },
-  text: { color: '#fff', fontSize: 28, fontWeight: 'bold' },
+  text: { color: '#e0e0e0', fontSize: 28, fontWeight: 'bold' },
 });
