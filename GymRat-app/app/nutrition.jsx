@@ -22,6 +22,15 @@ const nutrientOptions = [
   { label: 'Total Fat (g)',      value: 'fat' },
   { label: 'Calcium (mg)',       value: 'calcium' },
   { label: 'Sodium (g)',         value: 'sodium' },
+  { label: 'Fiber (g)',          value: 'fiber' },
+  { label: 'Iron (mg)',          value: 'iron' },
+  { label: 'Potassium (mg)',     value: 'potassium' },
+  { label: 'Vitamin A (mcg)',     value: 'vitamin_A' },
+  { label: 'Vitamin B6 (mg)',   value: 'vitamin_B6' },
+  { label: 'Vitamin B12 (mcg)',  value: 'vitamin_B12' },
+  { label: 'Vitamin C (mg)',     value: 'vitamin_C' },
+  { label: 'Vitamin D (mcg)',     value: 'vitamin_D' },
+  { label: 'Vitamin E (mg)',     value: 'vitamin_E' },
 ];
 
 // Utility functions for pie chart
@@ -120,6 +129,16 @@ export default function Nutrition() {
   const carbsTotal   = dailyTotals?.totalCarbs   || 0;
   const fatTotal     = dailyTotals?.totalFat     || 0;
   const sugarTotal   = dailyTotals?.totalSugar   || 0;
+  const fiberTotal     = dailyTotals?.totalFiber     || 0;
+  const ironTotal      = dailyTotals?.totalIron      || 0;
+  const potassiumTotal = dailyTotals?.totalPotassium || 0;
+  const vitATotal      = dailyTotals?.totalVitA      || 0;
+  const vitB6Total     = dailyTotals?.totalVitB6     || 0;
+  const vitB12Total    = dailyTotals?.totalVitB12    || 0;
+  const vitCTotal      = dailyTotals?.totalVitC      || 0;
+  const vitDTotal      = dailyTotals?.totalVitD      || 0;
+  const vitETotal      = dailyTotals?.totalVitE      || 0;
+
 
   const proteinTarget = Math.round((cals * 0.25) / 4);
   const carbsTarget   = Math.round((cals * 0.45) / 4);
@@ -151,7 +170,16 @@ const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
           SUM(CAST(protein AS REAL)) AS totalProtein,
           SUM(CAST(total_Carbs AS REAL)) AS totalCarbs,
           SUM(CAST(total_Fat AS REAL)) AS totalFat,
-          SUM(CAST(sugar AS REAL)) AS totalSugar
+          SUM(CAST(sugar AS REAL)) AS totalSugar,
+          SUM(CAST(fiber AS REAL)) AS totalFiber,
+          SUM(CAST(iron AS REAL)) AS totalIron,
+          SUM(CAST(potassium AS REAL)) AS totalPotassium,
+          SUM(CAST(vitamin_A AS REAL)) AS totalVitA,
+          SUM(CAST(vitamin_B6 AS REAL)) AS totalVitB6,
+          SUM(CAST(vitamin_B12 AS REAL)) AS totalVitB12,
+          SUM(CAST(vitamin_C AS REAL)) AS totalVitC,
+          SUM(CAST(vitamin_D AS REAL)) AS totalVitD,
+          SUM(CAST(vitamin_E AS REAL)) AS totalVitE
         FROM dailyNutLog
         WHERE user_id = ? AND date = ?`,
         [userId, date]
@@ -165,6 +193,15 @@ const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
         totalCarbs: totals?.totalCarbs || 0,
         totalFat: totals?.totalFat || 0,
         totalSugar: totals?.totalSugar || 0,
+        totalFiber: totals?.totalFiber || 0,
+        totalIron: totals?.totalIron || 0,
+        totalPotassium: totals?.totalPotassium || 0,
+        totalVitA: totals?.totalVitA || 0,
+        totalVitB6: totals?.totalVitB6 || 0,
+        totalVitB12: totals?.totalVitB12 || 0,
+        totalVitC: totals?.totalVitC || 0,
+        totalVitD: totals?.totalVitD || 0,
+        totalVitE: totals?.totalVitE || 0,
       });
     } catch (error) {
       console.error('Error loading totals:', error);
@@ -339,6 +376,15 @@ const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
         fat: '0',
         calcium: '0',
         sodium: '0',
+        fiber: '0',
+        iron: '0',
+        potassium: '0',
+        vitamin_A: '0',
+        vitamin_B6: '0',
+        vitamin_B12: '0',
+        vitamin_C: '0',
+        vitamin_D: '0',
+        vitamin_E: '0',
       };
 
 
@@ -370,24 +416,24 @@ const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
           '0', // polyunsaturated_fat
           '0', // monounsaturated_fat
           '0', // total_Carbs
-          '0', // fiber
+          nutritionData.fiber, // fiber
           nutritionData.sugar,
-          '0', // vitamin_a
-          '0', // vitamin_c
-          '0', // vitamin_d
-          '0', // vitamin_e
+          nutritionData.vitamin_A, // vitamin_a
+          nutritionData.vitamin_C, // vitamin_c
+          nutritionData.vitamin_D, // vitamin_d
+          nutritionData.vitamin_E, // vitamin_e
           '0', // vitamin_k
           '0', // thiamin
           '0', // riboflavin
           '0', // niacin
           '0', // pantothenic_acid
-          '0', // vitamin_b6
+          nutritionData.vitamin_B6, // vitamin_b6
           '0', // biotin
           '0', // folate
-          '0', // vitamin_b12
-          '0', // iron
+          nutritionData.vitamin_B12, // vitamin_b12
+          nutritionData.iron, // iron
           nutritionData.calcium,
-          '0', // potassium
+          nutritionData.potassium, // potassium
         ]
       );
 
@@ -414,24 +460,25 @@ const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
           '0',
           '0',       
           '0',
-          '0',               
+          nutritionData.fiber,               
           nutritionData.sugar,
-          '0',
-          '0',
-          '0',
-          '0',
-          '0',   
-          '0',
-          '0',
+          nutritionData.vitamin_A,
+          nutritionData.vitamin_C,
+          nutritionData.vitamin_D,
+          nutritionData.vitamin_E,
           '0',
           '0',
           '0',
           '0',
           '0',
-          '0', 
-          '0',                  
+          '0',
+          nutritionData.vitamin_B6,
+          '0',
+          '0',
+          nutritionData.vitamin_B12, 
+          nutritionData.iron,              
           nutritionData.calcium,
-          '0'                    
+          nutritionData.potassium,                    
         ]
       );
 
@@ -606,6 +653,24 @@ const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
                       <Text style={styles.macroValue}>{sugarTotal}</Text>
                       <Text style={styles.macroLabel}>Sugar</Text>
                     </View>
+                  </View>
+                  <View style={styles.nutrientGrid}>
+                    {[
+                      ['Fiber',      fiberTotal],
+                      ['Iron',       ironTotal],
+                      ['Potassium',  potassiumTotal],
+                      ['Vitamin A',  vitATotal],
+                      ['Vitamin B6', vitB6Total],
+                      ['Vitamin B12',vitB12Total],
+                      ['Vitamin C',  vitCTotal],
+                      ['Vitamin D',  vitDTotal],
+                      ['Vitamin E',  vitETotal],
+                    ].map(([label, val]) => (
+                      <View key={label} style={styles.nutrientItem}>
+                        <Text style={styles.macroValue}>{Math.round(Number(val) || 0)}</Text>
+                        <Text style={styles.macroLabel}>{label}</Text>
+                      </View>
+                    ))}
                   </View>
                 </>
               )}
@@ -1177,4 +1242,17 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginHorizontal: 12,
   },
+  nutrientGrid: {
+    width: '92%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 6,
+  },
+  nutrientItem: {
+    width: '30%',
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+
 });
