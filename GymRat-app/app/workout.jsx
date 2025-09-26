@@ -386,16 +386,17 @@ export default function WorkoutScreen() {
             setVisibility={setExerciseCreation}
           />
 
-          <View style={{flexDirection: 'row', justifyContent: 'space-between', padding: 10}}>
+          {/*<View style={{flexDirection: 'row', justifyContent: 'space-between', padding: 10}}>
             <Text style={styles.text}>Workout Screen</Text>
             <TouchableOpacity style={styles.button} onPress ={() => setModalVisible(true)}><Text style={{color: '#fff'}}>Exercise List</Text></TouchableOpacity>
-          </View>
+          </View>*/}
 
           <View style={{flexDirection: 'row', justifyContent: 'space-between', padding: 10}}>
             <Text style={{color: '#fff', fontSize: 20, fontWeight: 'bold',}}>Templates</Text>
             <View style={{flexDirection: 'row', gap: 10}}>
               <TouchableOpacity style={styles.button} onPress ={() => setExerciseCreation(true)}><Text style={{color: '#fff'}}>+ Exercise</Text></TouchableOpacity>
               <TouchableOpacity style={styles.button} onPress ={() => router.push('/createTemplate')}><Text style={{color: '#fff'}}>+ Template</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress ={() => setModalVisible(true)}><Text style={{color: '#fff'}}>Exercise List</Text></TouchableOpacity>
             </View>
           </View>
 
