@@ -686,14 +686,14 @@ const modalStyles = StyleSheet.create ({
     borderColor:'#6a5acd'
   },
   textStyle: {
-    color: 'white',
+    color: '#e0e0e0',
     fontWeight: 'bold',
     textAlign: 'center',
   },
   modalHeaderText: {
     fontSize:18,
     fontWeight:'bold',
-    color:'white',
+    color:'#e0e0e0',
     position:'absolute',
     left:10,
     marginTop:8,
@@ -702,7 +702,7 @@ const modalStyles = StyleSheet.create ({
   inputHeaderText: {
     fontSize:18,
     fontWeight:'bold',
-    color:'white',
+    color:'#e0e0e0',
     position:'absolute',
     alignSelf:'center',
     marginTop:8,
@@ -711,7 +711,7 @@ const modalStyles = StyleSheet.create ({
   modalBodyText: {
     fontSize:14, 
     fontWeight:'bold',
-    color:'white',
+    color:'#e0e0e0',
     marginLeft:5,
     marginRight:5,
     marginTop:4,
@@ -722,7 +722,7 @@ const modalStyles = StyleSheet.create ({
   modalBodyTextSmall: {
     fontSize:12, 
     fontWeight:'bold',
-    color:'white',
+    color:'#e0e0e0',
     marginLeft:8,
     marginRight:8,
     marginTop:4,
@@ -732,7 +732,7 @@ const modalStyles = StyleSheet.create ({
   modalBodySources: {
     fontSize:10, 
     fontWeight:'bold',
-    color:'white',
+    color:'#e0e0e0',
     marginLeft:10,
     marginRight:8,
     marginTop:4,
@@ -742,7 +742,7 @@ const modalStyles = StyleSheet.create ({
   BMRText: {
     fontSize:13, 
     fontWeight:'bold',
-    color:'white',
+    color:'#e0e0e0',
     marginLeft:5,
     marginRight:0,
     marginTop:0,
@@ -753,7 +753,7 @@ const modalStyles = StyleSheet.create ({
   BMRTextSmall: {
     fontSize:12, 
     fontWeight:'bold',
-    color:'white',
+    color:'#e0e0e0',
     marginLeft:15,
     marginRight:1,
     marginBottom:10,
@@ -763,7 +763,7 @@ const modalStyles = StyleSheet.create ({
   modalInputText: {
     fontSize:16, 
     fontWeight:'bold',
-    color:'white',
+    color:'#e0e0e0',
     marginLeft:5,
     marginRight:5,
     letterSpacing:0.3,

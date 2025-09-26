@@ -54,11 +54,12 @@ const ProfileCalendar = () => {
             style={{width:screenWidth * 0.95, backgroundColor: 'transparent', borderRadius:10, borderWidth:3, borderColor:'#6a5acd'}}
             theme={{
                 calendarBackground: '#1a1b1c', 
-                dayTextColor:'white',
-                monthTextColor:'white',
+                dayTextColor:'#e0e0e0',
+                monthTextColor:'#e0e0e0',
                 textDayFontWeight:'bold',
                 textMonthFontWeight:'bold',
-                textMonthFontSize:17,
+                textMonthFontSize:18,
+                textDayFontSize:16,
                 todayTextColor:'#6a5acd', 
                 arrowColor:'#6a5acd'}}
         />

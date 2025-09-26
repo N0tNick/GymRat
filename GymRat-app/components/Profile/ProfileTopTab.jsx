@@ -5,6 +5,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import Calendar from './ProfileCalendar'
 import { QuestionModal1, QuestionModal2, QuestionModal3, WeightTouchable ,GoalWeightTouchable, BodyFatTouchable, BMRTouchable } from './bodyTabModals'
 import { useSQLiteContext } from 'expo-sqlite';
+import standards from '../ui/appStandards'
 
 
 const { height: screenHeight } = Dimensions.get('window');
@@ -40,6 +41,10 @@ const TopTab = () => {
   
   useEffect(() => {
     fetchUserStats()
+    const intervalId = setInterval(() => {
+      fetchUserStats()
+    }, 2000)
+    return () => clearInterval(intervalId)
   }, []);
   
   const fetchUserStats = async () => {
@@ -67,7 +72,7 @@ const TopTab = () => {
       style={{backgroundColor: '#1a1b1c', borderTopWidth:3, borderRadius:1, borderColor:'#6a5acd'}}
       >
         <Tab 
-          title={evaProps => <Text {...evaProps} style={styles.tabText}>Overview</Text>}
+          title={evaProps => <Text {...evaProps} style={standards.headerText}>Overview</Text>}
           style={styles.tabStyle}
         >         
           <Layout style={styles.tabContainer}>
@@ -75,7 +80,7 @@ const TopTab = () => {
               <TouchableOpacity style = {{margin: 20, width: screenWidth*0.95,height: 120, borderWidth:3, borderRadius: 10, borderColor: '#6a5acd'}}
               onPress={() => router.push('/ExerciseGoals')}
               >
-                <Text style = {{color:'white', position: 'absolute', fontWeight: 'bold', marginLeft:8,fontSize:16 }}>Exercise Goals</Text>
+                <Text style = {{color:'#e0e0e0', position: 'absolute', fontWeight: 'bold', marginLeft:8,fontSize:16 }}>Exercise Goals</Text>
                 <Image style={{width: 50, height: 50, position:'absolute', right:20, marginTop: 25, borderWidth: 2, borderRadius:25, borderColor:'gray', backgroundColor:'white'}} 
                   source={{
                     uri: 'https://www.freeiconspng.com/thumbs/plus-icon/plus-icon-black-2.png',
@@ -86,23 +91,23 @@ const TopTab = () => {
         </Tab>
         
         <Tab 
-          title={evaProps => <Text {...evaProps} style={styles.tabText}>Body</Text>}
+          title={evaProps => <Text {...evaProps} style={standards.headerText}>Body</Text>}
           style={styles.tabStyle}
         >         
           <Layout style={styles.tabContainer}>
 
-            <View style={{width:screenWidth*0.95, height:100, marginBottom:20,borderWidth:3, borderRadius:8, borderColor:'#6a5acd'}}>
-              <Text category='h6' style={textStyles.compText}>Progress</Text>
+            <View style={{width:screenWidth*0.95, height:screenHeight*0.12, padding:2 ,marginBottom:20,borderWidth:3, borderRadius:8, borderColor:'#6a5acd'}}>
+              <Text category='h6' style={standards.headerText}>Progress</Text>
               <View style = {{ flexDirection:'row', alignItems: 'center', justifyContent: 'flex-start' }}>
                 <View>
                   <View style={{flexDirection:'row', marginRight:180}}>
-                    <Text category='h6' style={textStyles.compTitlesText}>Weight</Text>
+                    <Text category='h6' style={standards.regularText}>Weight</Text>
                   </View>
                   <WeightTouchable isVisible={isWeightTouchableVisible} onClose={() => setWeightTouchableVisible(false)}/>
                   <TouchableOpacity 
                     style = {styles.bodyCompContainers}
                     onPress={() => setWeightTouchableVisible(true)}>
-                    <Text category='h7' style = {textStyles.compBodyText}>
+                    <Text category='h7' style = {standards.regularText}>
                       -{lastWeight ? `${lastWeight}` : '___'}
                     </Text>
                   </TouchableOpacity>
@@ -125,7 +130,7 @@ const TopTab = () => {
               </View>
             </View>
 
-            <View style={{width:screenWidth*0.95, height:100, borderWidth:3, borderRadius:8, borderColor:'#6a5acd', marginBottom:10}}>
+            <View style={{width:screenWidth*0.95, height:screenHeight*0.12, padding:2 , borderWidth:3, borderRadius:8, borderColor:'#6a5acd', marginBottom:10}}>
               <Text category='h6' style={textStyles.compText}>Composition</Text>
                 <View style = {{ flexDirection:'row', alignItems: 'center', justifyContent: 'flex-start' }}>
                       <View>
@@ -199,8 +204,8 @@ const styles = StyleSheet.create({
     margin:2
   },
   tabText: {
-    color: 'white',
-    fontSize: 16,
+    color: '#e0e0e0',
+    fontSize: 18,
     fontWeight: 'bold',
   },
   indicator: {
@@ -237,26 +242,26 @@ const styles = StyleSheet.create({
 const textStyles = StyleSheet.create({
   compText: {
     paddingLeft: 5, 
-    color:'white', 
+    color:'#e0e0e0', 
     position: 'absolute', 
     fontWeight: 'bold', 
-    fontSize: 16
+    fontSize: 18
   },
 
   compTitlesText: {
     marginTop:30,
     paddingLeft:10,
-    color:'white', 
-    fontWeight: 'bold', 
+    color:'#e0e0e0', 
+    fontWeight:'600', 
     fontSize: 16
   },
   compBodyText: {
     marginTop:10, 
     paddingLeft:15,
-    color:'white', 
+    color:'#e0e0e0', 
     position:'absolute', 
-    fontWeight:'bold',
-    fontSize:15, 
+    fontWeight:'normal',
+    fontSize:16, 
   }
 })
 
