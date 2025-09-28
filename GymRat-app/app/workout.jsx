@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useState } from 'react';
@@ -9,6 +10,7 @@ import NavBar from '../components/NavBar';
 import WorkoutModal from '../components/WorkoutModal';
 import ExerciseCreationModal from '../components/exerciseCreationModal';
 import { usePersistedBoolean, usePersistedWorkout } from './ongoingWorkout';
+
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -46,26 +48,28 @@ export default function WorkoutScreen() {
           setExerciseItem(item)
           setExerciseInfoModal(true)
           }}>
-          <Text style={styles.title}>{item.name}</Text>
-          <Text style={styles.subtitle}>Equipment: {item.equipment}</Text>
-          <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscles}</Text>
+          <Text style={standards.regularText}>{item.name}</Text>
+          <Text style={standards.smallText}>Equipment: {item.equipment}</Text>
+          <Text style={standards.smallText}>Primary Muscle: {item.primaryMuscles}</Text>
         </TouchableOpacity>
       )
     } else {
       return (
-        <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
           <TouchableOpacity 
           style={styles.card}
           onPress={() => {
             setExerciseItem(item)
             setExerciseInfoModal(true)
             }}>
-            <Text style={styles.title}>{item.name}</Text>
-            <Text style={styles.subtitle}>Equipment: {item.equipment}</Text>
-            <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscle}</Text>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={standards.regularText}>{item.name}</Text>
+              <TouchableOpacity onPress={() => deleteExercise(item.id)}>
+                <Image style={{width: 20, height: 20}} source={require('../assets/images/white-trash-can.png')}/>
+              </TouchableOpacity>
+            </View>
+            <Text style={standards.smallText}>Equipment: {item.equipment}</Text>
+            <Text style={standards.smallText}>Primary Muscle: {item.primaryMuscle}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{backgroundColor: '#999', alignItems: 'center', justifyContent: 'center',borderRadius: 10, padding: 10, height: 40}} onPress={() => deleteExercise(item.id)}><Text>Delete</Text></TouchableOpacity>
-        </View>
       )
     }
     
@@ -157,13 +161,13 @@ export default function WorkoutScreen() {
 
     return (
       <TouchableOpacity onPress = {() => {if (!isOngoingWorkout) manageTemplate(item.id, item.name)}} style={styles.templateBox}>
-        <View style={{flexDirection: 'row'}}>
-          <Text style={styles.text}>{item.name}</Text>
-          <TouchableOpacity onPress = {() => {deleteTemplate(item.id)}}><Text>Delete</Text></TouchableOpacity>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <Text style={standards.headerText}>{item.name}</Text>
+          <TouchableOpacity onPress = {() => {deleteTemplate(item.id)}}>{/*<Text style={standards.regularText}>Delete</Text>*/}<Image style={{width: 25, height: 25}} source={require('../assets/images/white-trash-can.png')}/></TouchableOpacity>
         </View>
 
         {template.exercises.map((exercise, idx) => (
-          <Text key={exercise.id || idx} style={[styles.subtitle, {color: '#fff'}]}>
+          <Text key={exercise.id || idx} style={standards.smallText}>
             {exercise.name} ({exercise.sets.length} sets)
           </Text>
         ))}
@@ -242,16 +246,17 @@ export default function WorkoutScreen() {
           }}>
             <View style={[styles.centeredView]}>
               <View style={styles.modalView}>
-                <TouchableOpacity style={{backgroundColor: '#999', width: 25, alignItems: 'center', borderRadius: 5}} onPress={() => setModalVisible(false)}>
-                  <Text style={styles.xButton}>X</Text>
+                <TouchableOpacity style={{padding: 5}} onPress={() => setModalVisible(false)}>
+                  <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
                 </TouchableOpacity>
 
-                <Text style={{color: '#000', fontSize: 40, fontWeight: 'bold'}}>Exercises</Text>
+                <Text style={[standards.headerText, {paddingBottom: 5}]}>Exercises</Text>
                 <TextInput
                 style={styles.searchBar}
                 onChangeText={setSearchText}
                 value={searchText}
                 placeholder='Search'
+                placeholderTextColor={'#000'}
                 />
 
                 <View style={{flexDirection: 'row', justifyContent: 'space-evenly', padding: 10}}>
@@ -270,7 +275,7 @@ export default function WorkoutScreen() {
                   keyExtractor={(item) => item.id}
                   renderItem={renderItem}
                   renderSectionHeader={({section: {title}}) => (
-                    <Text style={styles.title}>{title}</Text>
+                    <Text style={standards.headerText}>{title}</Text>
                   )}
                   />
                 ) : (
@@ -392,11 +397,11 @@ export default function WorkoutScreen() {
           </View>*/}
 
           <View style={{flexDirection: 'row', justifyContent: 'space-between', padding: 10}}>
-            <Text style={{color: '#fff', fontSize: 20, fontWeight: 'bold',}}>Templates</Text>
+            <Text style={standards.headerText}>Templates</Text>
             <View style={{flexDirection: 'row', gap: 10}}>
-              <TouchableOpacity style={styles.button} onPress ={() => setExerciseCreation(true)}><Text style={{color: '#fff'}}>+ Exercise</Text></TouchableOpacity>
-              <TouchableOpacity style={styles.button} onPress ={() => router.push('/createTemplate')}><Text style={{color: '#fff'}}>+ Template</Text></TouchableOpacity>
-              <TouchableOpacity style={styles.button} onPress ={() => setModalVisible(true)}><Text style={{color: '#fff'}}>Exercise List</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress ={() => setExerciseCreation(true)}><Text style={standards.smallText}>+ Exercise</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress ={() => router.push('/createTemplate')}><Text style={standards.smallText}>+ Template</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress ={() => setModalVisible(true)}><Text style={standards.smallText}>Exercise List</Text></TouchableOpacity>
             </View>
           </View>
 
@@ -431,16 +436,10 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  text: {
-    flex: 1,
-    color: '#fff',
-    fontSize: 40,
-    fontWeight: 'bold',
-  },
   modalView: {
     height: '85%',
     width: '85%',
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1b1c',
     overflow: 'scroll',
     borderRadius: 15,
     padding: 10,
@@ -465,7 +464,7 @@ export const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#0e5499',
     padding: 16,
     marginVertical: 8,
     borderRadius: 12,
@@ -483,34 +482,37 @@ export const styles = StyleSheet.create({
     marginTop: 4,
   },
   searchBar: {
-    backgroundColor: '#999',
+    backgroundColor: '#e0e0e0',
     height: 35,
     borderRadius: 10,
     padding: 10,
-    fontWeight: 'bold',
-    fontSize: 15,
+    color: '#000',
+    fontSize:16,
+    fontWeight:'600',
+    letterSpacing:0.3
   },
   filterButton: {
-    backgroundColor: '#999',
+    backgroundColor: '#0e5499',
     padding: 10,
     borderRadius: 10,
     justifyContent: 'center',
-    fontSize: 20
   },
   filterView: {
     flex: 1,
-    backgroundColor: '#999',
+    backgroundColor: '#0e5499',
     borderRadius: 10,
     justifyContent: 'center',
     maxHeight: '70%'
   },
   filterButtonText: {
     flex: 1,
-    fontSize: 15,
-    fontWeight: 'bold',
+    fontSize:16,
+    fontWeight:'600',
+    color:'#e0e0e0',
+    letterSpacing:0.3
   },
   button: {
-    backgroundColor: '#1478db',
+    backgroundColor: '#0e5499',
     borderRadius: 10,
     padding: 10,
     justifyContent: 'center',
@@ -518,8 +520,41 @@ export const styles = StyleSheet.create({
   },
   templateBox: {
     padding: 10,
-    backgroundColor: '#666',
+    backgroundColor: '#0e5499',
     borderWidth: 1,
     borderRadius: 10,
-  }
+    gap: 5
+  },
+  
 });
+
+const standards = StyleSheet.create({
+  background: {
+    backgroundColor: '#1a1b1c',
+    width: screenWidth,
+    height: screenHeight
+  },
+  headerText: {
+    fontSize:18,
+    fontWeight:'800',
+    color:'#e0e0e0',
+    letterSpacing:0.3
+  },
+  regularText: {
+    fontSize:16,
+    fontWeight:'600',
+    color:'#e0e0e0',
+    letterSpacing:0.3
+  },
+  smallText: {
+    fontSize:16,
+    fontWeight:'normal',
+    color:'#e0e0e0'
+  },
+  regularTextBlue : {
+    color: '#00eaff',
+    fontSize:16,
+    fontWeight:'600',
+    letterSpacing:0.3
+  }
+})

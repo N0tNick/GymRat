@@ -1,12 +1,13 @@
+import { Image } from 'expo-image';
 import { usePathname, useRouter } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 const tabs = [
-  { name: 'Home',       route: '/home' },
-  { name: 'Workout',    route: '/workout' },
-  { name: 'Scan',       route: '/barcodeScanner' },
-  { name: 'Nutrition',  route: '/nutrition' },
-  { name: 'Profile',    route: 'profile' },
+  { name: 'Home',       route: '/home', image: require('../assets/images/home3.png') },
+  { name: 'Workout',    route: '/workout', image: require('../assets/images/arm2.png') },
+  { name: 'Scan',       route: '/barcodeScanner', image: require('../assets/images/barcode-scan2.png') },
+  { name: 'Nutrition',  route: '/nutrition', image: require('../assets/images/apple2.png') },
+  { name: 'Profile',    route: 'profile', image: require('../assets/images/user2.png') },
 ];
 
 export default function NavBar() {
@@ -22,9 +23,10 @@ export default function NavBar() {
           style={styles.tab}
           onPress={() => router.replace(tab.route)}
         >
-          <Text style={[styles.label, path === tab.route && styles.active]}>
+          {/*<Text style={[styles.label, path === tab.route && styles.active]}>
             {tab.name}
-          </Text>
+          </Text>*/}
+          <Image style={[{width: 25, height: 25}, path === tab.route]} source={tab.image}/>
         </TouchableOpacity>
       ))}
     </View>
@@ -38,7 +40,7 @@ const styles = StyleSheet.create({
     padding: 8,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#1a1b1c',
-    backgroundColor: '#232f30',
+    backgroundColor: '#2c2c2e',
   },
   tab: {
     flex: 1,
