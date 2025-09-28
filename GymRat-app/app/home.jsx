@@ -7,10 +7,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dimensions, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import JimRat from '../components/jimRat';
 import NavBar from '../components/NavBar';
+import { updateStreakOnAppOpen } from '../components/streak';
 import { useUser } from '../UserContext';
 import { cals } from './goal';
-import JimRat from '../components/jimRat';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -31,6 +32,7 @@ export default function HomeScreen() {
   const [events, setEvents] = useState([]);
   const db = useSQLiteContext();
   const { userId } = useUser();
+  const [streak, setStreak] = useState(0);
   const [dailyTotals, setDailyTotals] = useState(null);
   // add a task
   const [modalVisible, setModalVisible] = useState(false);
@@ -111,6 +113,32 @@ export default function HomeScreen() {
     };
 
     loadWeekData();
+  }, [db, userId]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        await updateStreakOnAppOpen(db, userId);
+      } catch (e) {
+        console.warn('streak updated failed', e);
+      }
+    })();
+  }, [db, userId]);
+
+    useEffect(() => {
+    (async () => {
+      try {
+        const res = await db.getAllAsync(
+          'SELECT current_streak FROM userStreaks WHERE user_id = ?',
+          [userId]
+        );
+        if (res && res[0]) {
+          setStreak(res[0].current_streak);
+        }
+      } catch (err) {
+        console.warn('streak read failed', err);
+      }
+    })();
   }, [db, userId]);
 
   // first get calendar permissions
@@ -531,6 +559,11 @@ const allModules = useMemo(() => {
         <View style={styles.container}>
           <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center', justifyContent: 'center' }}>
           <Text style={styles.text}>GymRat</Text>
+
+          {/* uncomment to see current gym streak for user. just a bandaid view till jim art is done or streak module done */}
+          {/* {streak > 0 && (
+            <Text style={styles.streakText}> {streak} day streak</Text>
+          )} */}
 
           {dailyTotals && (
             <JimRat
@@ -1280,5 +1313,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  streakText: {
+    color: '#ffcc00',
+    fontSize: 14,
+    marginTop: 4,
+    fontStyle: 'italic',
   },
 });
