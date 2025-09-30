@@ -1,3 +1,4 @@
+import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -55,21 +56,21 @@ export default function WorkoutScreen() {
       )
     } else {
       return (
-          <TouchableOpacity 
-          style={styles.card}
-          onPress={() => {
-            setExerciseItem(item)
-            setExerciseInfoModal(true)
-            }}>
-            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={standards.regularText}>{item.name}</Text>
-              <TouchableOpacity onPress={() => deleteExercise(item.id)}>
-                <Image style={{width: 20, height: 20}} source={require('../assets/images/white-trash-can.png')}/>
-              </TouchableOpacity>
-            </View>
-            <Text style={standards.smallText}>Equipment: {item.equipment}</Text>
-            <Text style={standards.smallText}>Primary Muscle: {item.primaryMuscle}</Text>
-          </TouchableOpacity>
+        <TouchableOpacity 
+        style={styles.card}
+        onPress={() => {
+          setExerciseItem(item)
+          setExerciseInfoModal(true)
+          }}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={standards.regularText}>{item.name}</Text>
+            <TouchableOpacity onPress={() => deleteExercise(item.id)}>
+              <Image style={{width: 20, height: 20}} source={require('../assets/images/white-trash-can.png')}/>
+            </TouchableOpacity>
+          </View>
+          <Text style={standards.smallText}>Equipment: {item.equipment}</Text>
+          <Text style={standards.smallText}>Primary Muscle: {item.primaryMuscle}</Text>
+        </TouchableOpacity>
       )
     }
     
@@ -136,7 +137,7 @@ export default function WorkoutScreen() {
           }
         }}
       >
-        <Text style={styles.filterButtonText}>{displayLabel}</Text>
+        <Text style={standards.regularText}>{displayLabel}</Text>
       </TouchableOpacity>
     );
   };
@@ -244,7 +245,7 @@ export default function WorkoutScreen() {
           onRequestClose={() => {
             setModalVisible(!modalVisible)
           }}>
-            <View style={[styles.centeredView]}>
+            <BlurView intensity={25} style={[styles.centeredView]}>
               <View style={styles.modalView}>
                 <TouchableOpacity style={{padding: 5}} onPress={() => setModalVisible(false)}>
                   <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
@@ -261,10 +262,10 @@ export default function WorkoutScreen() {
 
                 <View style={{flexDirection: 'row', justifyContent: 'space-evenly', padding: 10}}>
                   <TouchableOpacity style={styles.filterButton} onPress={() => {setMuscleFilterModal(true)}}>
-                    <Text style={styles.filterButtonText}>{mFilterButtonVal}</Text>
+                    <Text style={standards.regularText}>{mFilterButtonVal}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.filterButton} onPress={() => {setEquipmentFilterModal(true)}}>
-                    <Text style={styles.filterButtonText}>{eFilterButtonVal}</Text>
+                    <Text style={standards.regularText}>{eFilterButtonVal}</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -331,24 +332,23 @@ export default function WorkoutScreen() {
                 transparent={true}
 
                 onRequestClose={() => { setExerciseInfoModal(!exerciseInfoModal) }}>
-                  <View style={[styles.centeredView, {backgroundColor: 'rgba(0,0,0,0)'}]}>
-                    <View style={styles.modalView}>
-
-                      <TouchableOpacity style={{backgroundColor: '#999', width: 25, alignItems: 'center', borderRadius: 5}} onPress={() => setExerciseInfoModal(false)}>
-                        <Text style={styles.xButton}>X</Text>
+                  <BlurView intensity={25} style={[styles.centeredView, {backgroundColor: 'rgba(0,0,0,0)'}]}>
+                    <View style={[styles.modalView, {gap: 20, height: 'auto'}]}>
+                      <TouchableOpacity onPress={() => setExerciseInfoModal(false)}>
+                        <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
                       </TouchableOpacity>
-                      <Text style={{color: '#000', fontSize: 40, fontWeight: 'bold'}}>{exerciseItem.name}</Text>
-                      <Text style={styles.title}>Instructions</Text>
+                      <Text style={standards.headerText}>{exerciseItem.name}</Text>
+                      <Text style={standards.regularText}>Instructions</Text>
                       <ScrollView style={{scrollEnabled: true}}>
-                        <Text style={{fontSize: 18, color: '#000', paddingTop: 20}}>{displayInstructions(exerciseItem.instructions)}</Text>
+                        <Text style={standards.regularText}>{displayInstructions(exerciseItem.instructions)}</Text>
                       </ScrollView>
 
                     </View>
-                  </View>
+                  </BlurView>
                 </Modal>
 
               </View>
-            </View>
+            </BlurView>
           </Modal>
 
           {/* Template Clicked Modal */}
@@ -391,18 +391,11 @@ export default function WorkoutScreen() {
             setVisibility={setExerciseCreation}
           />
 
-          {/*<View style={{flexDirection: 'row', justifyContent: 'space-between', padding: 10}}>
-            <Text style={styles.text}>Workout Screen</Text>
-            <TouchableOpacity style={styles.button} onPress ={() => setModalVisible(true)}><Text style={{color: '#fff'}}>Exercise List</Text></TouchableOpacity>
-          </View>*/}
-
-          <View style={{flexDirection: 'row', justifyContent: 'space-between', padding: 10}}>
-            <Text style={standards.headerText}>Templates</Text>
-            <View style={{flexDirection: 'row', gap: 10}}>
-              <TouchableOpacity style={styles.button} onPress ={() => setExerciseCreation(true)}><Text style={standards.smallText}>+ Exercise</Text></TouchableOpacity>
-              <TouchableOpacity style={styles.button} onPress ={() => router.push('/createTemplate')}><Text style={standards.smallText}>+ Template</Text></TouchableOpacity>
-              <TouchableOpacity style={styles.button} onPress ={() => setModalVisible(true)}><Text style={standards.smallText}>Exercise List</Text></TouchableOpacity>
-            </View>
+          <Text style={[standards.headerText, {padding: 10}]}>Templates</Text>
+          <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+            <TouchableOpacity style={styles.button} onPress ={() => setExerciseCreation(true)}><Text style={standards.smallText}>+ Exercise</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress ={() => router.push('/createTemplate')}><Text style={standards.smallText}>+ Template</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress ={() => setModalVisible(true)}><Text style={standards.smallText}>Exercise List</Text></TouchableOpacity>
           </View>
 
           {/* View Ongoing Workout Button */}
@@ -464,7 +457,7 @@ export const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: '#0e5499',
+    backgroundColor: '#375573',
     padding: 16,
     marginVertical: 8,
     borderRadius: 12,
@@ -483,7 +476,6 @@ export const styles = StyleSheet.create({
   },
   searchBar: {
     backgroundColor: '#e0e0e0',
-    height: 35,
     borderRadius: 10,
     padding: 10,
     color: '#000',
@@ -492,14 +484,14 @@ export const styles = StyleSheet.create({
     letterSpacing:0.3
   },
   filterButton: {
-    backgroundColor: '#0e5499',
+    backgroundColor: '#375573',
     padding: 10,
     borderRadius: 10,
     justifyContent: 'center',
   },
   filterView: {
     flex: 1,
-    backgroundColor: '#0e5499',
+    backgroundColor: '#375573',
     borderRadius: 10,
     justifyContent: 'center',
     maxHeight: '70%'
@@ -512,7 +504,7 @@ export const styles = StyleSheet.create({
     letterSpacing:0.3
   },
   button: {
-    backgroundColor: '#0e5499',
+    backgroundColor: '#375573',
     borderRadius: 10,
     padding: 10,
     justifyContent: 'center',
@@ -520,15 +512,14 @@ export const styles = StyleSheet.create({
   },
   templateBox: {
     padding: 10,
-    backgroundColor: '#0e5499',
-    borderWidth: 1,
+    backgroundColor: '#375573',
     borderRadius: 10,
     gap: 5
   },
   
 });
 
-const standards = StyleSheet.create({
+export const standards = StyleSheet.create({
   background: {
     backgroundColor: '#1a1b1c',
     width: screenWidth,

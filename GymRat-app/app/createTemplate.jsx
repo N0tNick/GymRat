@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
@@ -66,11 +67,13 @@ export default function CreateTemplateScreen() {
         return { ...prev, [itemId]: sets };
       });
     };
+
+    let numString = '' + (index + 1)
   
     return (
-      <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10}}>
-        <Text style={styles.whiteText}>{'  ' + (index + 1) + ' '}</Text>
-        <Text style={styles.whiteText}>          -          </Text>
+      <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 5}}>
+        <Text style={standards.regularText}>{numString.padEnd(3, ' ')}</Text>
+        <Text style={[standards.regularText, {paddingLeft: 65, paddingRight: 40}]}>-</Text>
         <TextInput
         style={styles.templateInput}
         onChangeText={(val) => temp = val}
@@ -78,6 +81,7 @@ export default function CreateTemplateScreen() {
         defaultValue={setData.weight}
         placeholder='-'
         keyboardType='numeric'
+        placeholderTextColor={'#000'}
         />
         <TextInput
         style={styles.templateInput}
@@ -86,6 +90,7 @@ export default function CreateTemplateScreen() {
         defaultValue={setData.reps}
         placeholder='-'
         keyboardType='numeric'
+        placeholderTextColor={'#000'}
         />
       </View>
     )}
@@ -102,13 +107,13 @@ export default function CreateTemplateScreen() {
 
   const renderItem = ({ item }) => (
     <View>
-      <Text style={[styles.whiteText, {paddingVertical: 10}]}>{item.name}</Text>
+      <Text style={standards.regularText}>{item.name}</Text>
 
-      <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10}}>
-        <Text style={styles.whiteText}>Set</Text>
-        <Text style={styles.whiteText}>Previous</Text>
-        <Text style={styles.whiteText}>lbs</Text>
-        <Text style={styles.whiteText}>Reps</Text>
+      <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 5}}>
+        <Text style={standards.regularText}>Set</Text>
+        <Text style={standards.regularText}>Previous</Text>
+        <Text style={standards.regularText}>lbs</Text>
+        <Text style={standards.regularText}>Reps</Text>
       </View>
 
       {(numOfSets[item.id] || []).map((_, index) => (
@@ -116,10 +121,10 @@ export default function CreateTemplateScreen() {
       ))}
 
       <TouchableOpacity 
-      style={{backgroundColor: '#1478db', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
+      style={{backgroundColor: '#375573', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
       onPress={() => handleAddSets(item.id)}
       >
-        <Text style={{color: '#fff', fontWeight: 'bold'}}>Add Set</Text>
+        <Text style={standards.regularText}>Add Set</Text>
       </TouchableOpacity>
     </View>
   );
@@ -128,21 +133,21 @@ export default function CreateTemplateScreen() {
       <SafeAreaProvider>
           <View style={[styles.container, {backgroundColor: '#1a1b1c'}]}
           >
-            <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, padding: 10}}>
+            <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, padding: 10, gap: 10}}>
               <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-                <TouchableOpacity style={{backgroundColor: '#1478db', paddingHorizontal: 10, justifyContent: 'center', borderRadius: 5}}
-                onPress={router.back}><Text style={[styles.xButton, {color: '#fff'}]}>X</Text></TouchableOpacity>
+                <TouchableOpacity onPress={router.back}>
+                  <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
+                </TouchableOpacity>
 
-                <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 20}}>New Template</Text>
+                <Text style={standards.headerText}>New Template</Text>
 
-                <TouchableOpacity style={{backgroundColor: '#1478db', paddingHorizontal: 10, justifyContent: 'center', borderRadius: 5}}
-                onPress={handleSave}>
-                  <Text style={[styles.xButton, {color: '#fff'}]}>Save</Text>
+                <TouchableOpacity onPress={handleSave}>
+                  <Image style={{width: '25', height: '25'}} source={require('../assets/images/check-mark.png')}/>
                 </TouchableOpacity>
               </View>
 
               <TextInput
-              style={{color: '#fff', fontSize: 30, fontWeight: 'bold', padding: 20}}
+              style={[standards.headerText, {padding: 10}]}
               onChangeText={setTemplateName}
               value={templateName}
               />
@@ -154,10 +159,10 @@ export default function CreateTemplateScreen() {
               />
 
               <TouchableOpacity 
-              style={{backgroundColor: '#1478db', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
+              style={{backgroundColor: '#375573', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
               onPress={() => setModalVisible(true)}
               >
-                <Text style={{color: '#fff', fontWeight: 'bold'}}>Add Exercises</Text>
+                <Text style={standards.regularText}>Add Exercises</Text>
               </TouchableOpacity>
 
               <ExerciseListModal
@@ -265,10 +270,45 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   templateInput: {
-    backgroundColor: '#999',
-    width: 40,
+    backgroundColor: '#e0e0e0',
+    color: '#000',
+    width: 50,
+    paddingVertical: 5,
     borderRadius: 5,
-    fontWeight: 'bold',
-    textAlign: 'center'
+    textAlign: 'center',
+    fontSize:16,
+    fontWeight:'600',
+    letterSpacing:0.3
   }
 });
+
+const standards = StyleSheet.create({
+  background: {
+    backgroundColor: '#1a1b1c',
+    width: screenWidth,
+    height: screenHeight
+  },
+  headerText: {
+    fontSize:18,
+    fontWeight:'800',
+    color:'#e0e0e0',
+    letterSpacing:0.3
+  },
+  regularText: {
+    fontSize:16,
+    fontWeight:'600',
+    color:'#e0e0e0',
+    letterSpacing:0.3
+  },
+  smallText: {
+    fontSize:16,
+    fontWeight:'normal',
+    color:'#e0e0e0'
+  },
+  regularTextBlue : {
+    color: '#00eaff',
+    fontSize:16,
+    fontWeight:'600',
+    letterSpacing:0.3
+  }
+})

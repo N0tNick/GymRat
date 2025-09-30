@@ -1,7 +1,12 @@
+import { BlurView } from 'expo-blur';
+import { Image } from 'expo-image';
 import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useState } from 'react';
-import { FlatList, Modal, ScrollView, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Modal, ScrollView, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+const { height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function ExerciseListModal({
   visible,
@@ -24,26 +29,28 @@ export default function ExerciseListModal({
           setExerciseItem(item)
           setExerciseInfoModal(true)
           }}>
-          <Text style={styles.title}>{item.name}</Text>
-          <Text style={styles.subtitle}>Equipment: {item.equipment}</Text>
-          <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscles}</Text>
+          <Text style={standards.regularText}>{item.name}</Text>
+          <Text style={standards.smallText}>Equipment: {item.equipment}</Text>
+          <Text style={standards.smallText}>Primary Muscle: {item.primaryMuscles}</Text>
         </TouchableOpacity>
       )
     } else {
       return (
-        <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-          <TouchableOpacity 
-          style={styles.card}
-          onPress={() => {
-            setExerciseItem(item)
-            setExerciseInfoModal(true)
-            }}>
-            <Text style={styles.title}>{item.name}</Text>
-            <Text style={styles.subtitle}>Equipment: {item.equipment}</Text>
-            <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscle}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={{backgroundColor: '#999', alignItems: 'center', justifyContent: 'center',borderRadius: 10, padding: 10, height: 40}} onPress={() => deleteExercise(item.id)}><Text>Delete</Text></TouchableOpacity>
-        </View>
+        <TouchableOpacity 
+        style={styles.card}
+        onPress={() => {
+          setExerciseItem(item)
+          setExerciseInfoModal(true)
+          }}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={standards.regularText}>{item.name}</Text>
+            <TouchableOpacity onPress={() => deleteExercise(item.id)}>
+              <Image style={{width: 20, height: 20}} source={require('../assets/images/white-trash-can.png')}/>
+            </TouchableOpacity>
+          </View>
+          <Text style={standards.smallText}>Equipment: {item.equipment}</Text>
+          <Text style={standards.smallText}>Primary Muscle: {item.primaryMuscle}</Text>
+        </TouchableOpacity>
       )
     }
     
@@ -85,7 +92,7 @@ export default function ExerciseListModal({
           }
         }}
       >
-        <Text style={styles.filterButtonText}>{displayLabel}</Text>
+        <Text style={standards.regularText}>{displayLabel}</Text>
       </TouchableOpacity>
     );
   };
@@ -133,34 +140,38 @@ export default function ExerciseListModal({
 
   return (
     <Modal visible={visible} transparent={true} onRequestClose={() => onClose}>
-        <View style={[styles.centeredView]}>
+        <BlurView intensity={25} style={[styles.centeredView]}>
         <View style={styles.modalView}>
           <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
-            <TouchableOpacity style={{backgroundColor: '#1478db', paddingHorizontal: 10, justifyContent: 'center', borderRadius: 5}} onPress={() => {
+            <TouchableOpacity style={{padding: 5}} onPress={() => {
               onSelect() //clear selected exercises
               onClose()
-              }}><Text style={[styles.xButton, {color: '#fff'}]}>X</Text></TouchableOpacity>
-            <TouchableOpacity style={{backgroundColor: '#1478db', paddingHorizontal: 10, height: 35, justifyContent: 'center', borderRadius: 5}}
-            onPress={() => {
+              }}>
+                <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
+              </TouchableOpacity>
+            <TouchableOpacity style={{padding: 5}} onPress={() => {
               onClose()
-            }}><Text style={[styles.xButton, {color: '#fff'}]}>Save</Text></TouchableOpacity>
+            }}>
+              <Image style={{width: '25', height: '25'}} source={require('../assets/images/check-mark.png')}/>
+            </TouchableOpacity>
           </View>
         
 
-        <Text style={{color: '#000', fontSize: 40, fontWeight: 'bold'}}>Exercises</Text>
+        <Text style={[standards.headerText, {paddingBottom: 5}]}>Exercises</Text>
         <TextInput
         style={styles.searchBar}
         onChangeText={setSearchText}
         value={searchText}
         placeholder='Search'
+        placeholderTextColor={'#000'}
         />
 
         <View style={{flexDirection: 'row', justifyContent: 'space-evenly', padding: 10}}>
             <TouchableOpacity style={styles.filterButton} onPress={() => {setMuscleFilterModal(true)}}>
-            <Text style={styles.filterButtonText}>{mFilterButtonVal}</Text>
+            <Text style={standards.regularText}>{mFilterButtonVal}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.filterButton} onPress={() => {setEquipmentFilterModal(true)}}>
-            <Text style={styles.filterButtonText}>{eFilterButtonVal}</Text>
+            <Text style={standards.regularText}>{eFilterButtonVal}</Text>
             </TouchableOpacity>
         </View>
 
@@ -170,7 +181,7 @@ export default function ExerciseListModal({
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           renderSectionHeader={({section: {title}}) => (
-            <Text style={styles.title}>{title}</Text>
+            <Text style={standards.headerText}>{title}</Text>
           )}
           />
         ) : (
@@ -187,7 +198,7 @@ export default function ExerciseListModal({
 
         onRequestClose={() => { setMuscleFilterModal(!muscleFilterModal) }}>
             <View style={[styles.centeredView]}>
-            <View style={[styles.filterView, {maxHeight: 595}]}>
+            <View style={[styles.filterView]}>
                 
                 <FlatList
                 scrollEnabled={true}
@@ -207,7 +218,7 @@ export default function ExerciseListModal({
 
         onRequestClose={() => { setEquipmentFilterModal(!equipmentFilterModal) }}>
             <View style={[styles.centeredView]}>
-            <View style={[styles.filterView, {maxHeight: 490}]}>
+            <View style={[styles.filterView]}>
                 
                 <FlatList
                 scrollEnabled={true}
@@ -226,34 +237,34 @@ export default function ExerciseListModal({
         transparent={true}
 
         onRequestClose={() => { setExerciseInfoModal(!exerciseInfoModal) }}>
-            <View style={[styles.centeredView, {backgroundColor: 'rgba(0,0,0,0)'}]}>
-            <View style={styles.modalView}>
+            <BlurView intensity={25} style={[styles.centeredView, {backgroundColor: 'rgba(0,0,0,0)'}]}>
+            <View style={[styles.modalView, {gap: 20, height: 'auto', maxHeight: '85%'}]}>
 
-                <TouchableOpacity style={{backgroundColor: '#999', width: 25, alignItems: 'center', borderRadius: 5}} onPress={() => setExerciseInfoModal(false)}>
-                <Text style={styles.xButton}>X</Text>
+                <TouchableOpacity onPress={() => setExerciseInfoModal(false)}>
+                  <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
                 </TouchableOpacity>
-                <Text style={{color: '#000', fontSize: 40, fontWeight: 'bold'}}>{exerciseItem.name}</Text>
-                <Text style={styles.title}>Instructions</Text>
+                <Text style={standards.headerText}>{exerciseItem.name}</Text>
+                <Text style={standards.regularText}>Instructions</Text>
                 <ScrollView style={{scrollEnabled: true}}>
-                <Text style={{fontSize: 18, color: '#000', paddingTop: 20}}>{displayInstructions(exerciseItem.instructions)}</Text>
+                <Text style={standards.regularText}>{displayInstructions(exerciseItem.instructions)}</Text>
                 </ScrollView>
-                <TouchableOpacity style={{backgroundColor: '#1478db', borderRadius: 10, alignItems: 'center'}}
+                <TouchableOpacity style={{backgroundColor: '#375573', borderRadius: 10, alignItems: 'center', padding: 10}}
                 onPress={() => {
                   if (!selectedExercises.some(ex => ex.id === exerciseItem.id)) {
                     onSelect([...selectedExercises, exerciseItem])
                   }
                   setExerciseInfoModal(false)}}>
-                  <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 20, padding: 10}}>
+                  <Text style={standards.regularText}>
                     Add Exercise
                   </Text>
                 </TouchableOpacity>
 
             </View>
-            </View>
+          </BlurView>
         </Modal>
 
         </View>
-    </View>
+    </BlurView>
 
     </Modal>
     
@@ -275,7 +286,7 @@ const styles = StyleSheet.create({
   modalView: {
     height: '85%',
     width: '85%',
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1b1c',
     overflow: 'scroll',
     borderRadius: 15,
     padding: 10,
@@ -292,7 +303,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#375573',
     padding: 16,
     marginVertical: 8,
     borderRadius: 12,
@@ -309,37 +320,70 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   searchBar: {
-    backgroundColor: '#999',
-    height: 35,
+    backgroundColor: '#e0e0e0',
     borderRadius: 10,
     padding: 10,
-    fontWeight: 'bold',
-    fontSize: 15,
+    color: '#000',
+    fontSize:16,
+    fontWeight:'600',
+    letterSpacing:0.3
   },
   filterButton: {
-    backgroundColor: '#999',
+    backgroundColor: '#375573',
     padding: 10,
     borderRadius: 10,
     justifyContent: 'center',
-    fontSize: 20
   },
   filterView: {
     flex: 1,
-    backgroundColor: '#999',
+    backgroundColor: '#375573',
     borderRadius: 10,
     justifyContent: 'center',
     maxHeight: '70%'
   },
   filterButtonText: {
     flex: 1,
-    fontSize: 15,
-    fontWeight: 'bold',
+    fontSize:16,
+    fontWeight:'600',
+    color:'#e0e0e0',
+    letterSpacing:0.3
   },
   button: {
-    backgroundColor: '#1478db',
+    backgroundColor: '#375573',
     borderRadius: 10,
     padding: 10,
     justifyContent: 'center',
     fontSize: 20,
-  }
+  },
 });
+
+const standards = StyleSheet.create({
+  background: {
+    backgroundColor: '#1a1b1c',
+    width: screenWidth,
+    height: screenHeight
+  },
+  headerText: {
+    fontSize:18,
+    fontWeight:'800',
+    color:'#e0e0e0',
+    letterSpacing:0.3
+  },
+  regularText: {
+    fontSize:16,
+    fontWeight:'600',
+    color:'#e0e0e0',
+    letterSpacing:0.3
+  },
+  smallText: {
+    fontSize:16,
+    fontWeight:'normal',
+    color:'#e0e0e0'
+  },
+  regularTextBlue : {
+    color: '#00eaff',
+    fontSize:16,
+    fontWeight:'600',
+    letterSpacing:0.3
+  }
+})
