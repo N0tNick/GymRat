@@ -1,3 +1,5 @@
+import { BlurView } from "expo-blur";
+import { Image } from "expo-image";
 import { useSQLiteContext } from "expo-sqlite";
 import { useState } from "react";
 import { Dimensions, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -38,59 +40,77 @@ export default function ExerciseCreationModal({visibility, setVisibility}) {
     transparent={true}
     onRequestClose={() => setVisibility(false)}
     >
-      <View style={styles.centeredView}>
-        <View style={[styles.modalView, {alignContent: 'space-between'}]}>
+      <BlurView intensity={25} style={styles.centeredView}>
+        <View style={[styles.modalView]}>
 
-          <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10}}>
-            <TouchableOpacity style={styles.button} onPress={() => setVisibility(false)}>
-              <Text style={styles.whiteText}>Close</Text>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <TouchableOpacity onPress={() => setVisibility(false)}>
+              <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
             </TouchableOpacity>
-            <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 20}}>Create Exercise</Text>
+            <Text style={standards.headerText}>Create Exercise</Text>
             {isComplete ? (
-              <TouchableOpacity style={styles.button} onPress={saveExercise}>
-                <Text style={styles.whiteText}>Save</Text>
+              <TouchableOpacity onPress={saveExercise}>
+                <Image style={{width: '25', height: '25'}} source={require('../assets/images/check-mark.png')}/>
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity style={[styles.button, {backgroundColor: '#666'}]}>
-                <Text style={styles.whiteText}>Save</Text>
+              <TouchableOpacity>
+                <Image style={{width: '25', height: '25'}} source={require('../assets/images/check-mark-grey.png')}/>
               </TouchableOpacity>
             )}
           </View>
 
-          <View style={{flexDirection: 'row', paddingVertical: 10}}>
-            <Text style={[styles.whiteText, {fontSize: 20, fontWeight: 'bold'}]}>Name: </Text>
+          {/*<View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
+            {/* fields */}{/*
+            <View style={{gap: 10}}>
+              <Text style={standards.regularText}>Name: </Text>
+              <Text style={standards.regularText}>Equipment: </Text>
+              <Text style={standards.regularText}>Primary Muscle: </Text>
+              <Text style={standards.regularText}>Instructions: </Text>
+            </View>
+
+            {/* inputs */}{/*
+            <View style={{gap: 10}}>
+              <TextInput style={styles.smallInput} onChangeText={setExerciseName}/>
+              <TextInput style={styles.smallInput} onChangeText={setExerciseEquipment}/>
+              <TextInput style={styles.smallInput} onChangeText={setPrimaryMuscle}/>
+              <TextInput style={styles.smallInput} onChangeText={setExerciseInstructions}/>}
+            </View>*/}{/*
+          </View>*/}
+
+          <View style={{flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-evenly'}}>
+            <Text style={standards.regularText}>Name: </Text>
             <TextInput 
-            style={{flex: 1, backgroundColor: '#999', borderRadius: 5, fontSize: 20, paddingHorizontal: 5}}
+            style={styles.smallInput}
             onChangeText={setExerciseName}
             />
           </View>
 
-          <View style={{flexDirection: 'row', paddingVertical: 10}}>
-            <Text style={[styles.whiteText, {fontSize: 20, fontWeight: 'bold'}]}>Equipment: </Text>
-            <TextInput 
-            style={{flex: 1, backgroundColor: '#999', borderRadius: 5, fontSize: 20, paddingHorizontal: 5}}
+          <View style={{flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-evenly'}}>
+            <Text style={standards.regularText}>Equipment: </Text>
+            <TextInput
+            style={styles.smallInput}
             onChangeText={setExerciseEquipment}
             />
           </View>
 
-          <View style={{flexDirection: 'row', paddingVertical: 10}}>
-            <Text style={[styles.whiteText, {fontSize: 20, fontWeight: 'bold'}]}>Primary Muscle: </Text>
+          <View style={{flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-evenly'}}>
+            <Text style={standards.regularText}>Primary Muscle: </Text>
             <TextInput 
-            style={{flex: 1, backgroundColor: '#999', borderRadius: 5, fontSize: 20, paddingHorizontal: 5}}
+            style={styles.smallInput}
             onChangeText={setPrimaryMuscle}
             />
           </View>
 
-          <View style={{flex: 1, flexDirection: 'row', paddingVertical: 10}}>
-            <Text style={[styles.whiteText, {fontSize: 20, fontWeight: 'bold'}]}>Instructions: </Text>
+          <View style={{flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-evenly'}}>
+            <Text style={standards.regularText}>Instructions: </Text>
             <TextInput 
-            style={{flex: 1, backgroundColor: '#999', borderRadius: 5, fontSize: 20, paddingHorizontal: 5}}
+            style={styles.largeInput}
             onChangeText={setExerciseInstructions}
             multiline={true}
             />
           </View>
         </View>
-      </View>
+      </BlurView>
     </Modal>
   )
 }
@@ -101,6 +121,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  smallInput: {
+    flex: 1, 
+    backgroundColor: '#fff', 
+    borderRadius: 5, 
+    paddingHorizontal: 5,
+    textAlignVertical: 'top',
+    fontSize:16,
+    maxWidth: '60%'
+  },
+  largeInput: {
+    flex: 1, 
+    backgroundColor: '#fff', 
+    borderRadius: 5, 
+    paddingHorizontal: 5,
+    textAlignVertical: 'top',
+    fontSize: 16,
+    maxWidth: '60%',
+    minHeight: '15%'
+  },
   text: {
     flex: 1,
     color: '#fff',
@@ -108,10 +147,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   modalView: {
-    height: '50%',
     width: '85%',
     backgroundColor: '#1a1b1c',
-    overflow: 'scroll',
     borderRadius: 15,
     padding: 10,
   },
@@ -202,5 +239,36 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     fontWeight: 'bold',
     textAlign: 'center'
+  }
+})
+
+const standards = StyleSheet.create({
+  background: {
+    backgroundColor: '#1a1b1c',
+    width: screenWidth,
+    height: screenHeight
+  },
+  headerText: {
+    fontSize:18,
+    fontWeight:'800',
+    color:'#e0e0e0',
+    letterSpacing:0.3
+  },
+  regularText: {
+    fontSize:16,
+    fontWeight:'600',
+    color:'#e0e0e0',
+    letterSpacing:0.3
+  },
+  smallText: {
+    fontSize:16,
+    fontWeight:'normal',
+    color:'#e0e0e0'
+  },
+  regularTextBlue : {
+    color: '#00eaff',
+    fontSize:16,
+    fontWeight:'600',
+    letterSpacing:0.3
   }
 })

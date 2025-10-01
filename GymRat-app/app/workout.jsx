@@ -519,7 +519,7 @@ export const styles = StyleSheet.create({
   
 });
 
-export const standards = StyleSheet.create({
+const standards = StyleSheet.create({
   background: {
     backgroundColor: '#1a1b1c',
     width: screenWidth,
