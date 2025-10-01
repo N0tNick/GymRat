@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { deleteUser, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig.js';
 import { useUser } from '../UserContext.js';
 import { Platform } from 'react-native';

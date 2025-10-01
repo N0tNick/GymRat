@@ -15,10 +15,10 @@ const SettingsWheel = () => {
     const db = useSQLiteContext();
 
     //delete account & userData
-    const resetAccountData = async (userId) => {
-        await db.getFirstAsync('DELETE FROM users WHERE id = ?;', [userId]);
-        await db.getAllAsync('DELETE FROM workoutTemplates WHERE id = ?;', [userId])
-        console.log(`Account data for user ID ${userId} reset.`);
+    const resetAccountData = async () => {
+        await db.getAllAsync('DROP TABLE IF EXISTS users;');
+        await db.getAllAsync('DROP TABLE IF EXISTS workoutTemplates;')
+        console.log(`Account data reset.`);
     };
 
     const more = true
