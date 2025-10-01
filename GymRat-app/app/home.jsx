@@ -61,16 +61,16 @@ export default function HomeScreen() {
 
 
    useEffect(() => {
-      const intervalId = setInterval(() => {
-        handleOnboarding()
-      }, 4000)
-      return () => clearInterval(intervalId)
-    }, []);
+    handleOnboarding()
+    })
   
   const handleOnboarding = async async => {
     try {
       const result = await db.getFirstAsync('SELECT * FROM users')
-      console.log(result)
+      if (result['hasOnboarded'] == 0) {
+        await db.runAsync('UPDATE users SET hasOnboarded = ?', [1])
+        router.push('/nutsplash')
+      }
     } catch (error) {
       console.error('Error getting hasOnboarded:', error)
     }
