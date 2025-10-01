@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { usePathname, useRouter } from 'expo-router';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Animated, Touchable } from 'react-native';
+import { useState, useRef } from 'react';
 
 const tabs = [
   { name: 'Home',       route: '/home', 
@@ -24,10 +25,115 @@ export default function NavBar() {
   const router = useRouter();
   const path = usePathname();
 
+  const [scanExpanded, setScanExpanded] = useState(false);
+  const anim = useRef(new Animated.Value(0)).current;
+
+  const toggleScan = () => {
+    setScanExpanded(!scanExpanded);
+    Animated.spring(anim, {
+      toValue: scanExpanded ? 0 : 1,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const leftTranslate = anim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -60],
+  });
+  const rightTranslate = anim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 60],
+  });
+  const upTranslate = anim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -80],
+  });
+
   return (
     <View style={styles.nav}>
       {tabs.map((tab) => {
         const isActive = path === tab.route || (tab.route === 'profile' && path === '/profile');
+        if (tab.name === 'Scan') {
+          return (
+            <View key="scan" style={styles.scanWrapper}>
+              <TouchableOpacity
+                style={[styles.tab, scanExpanded && styles.closeButton]}
+                onPress={toggleScan}
+              >
+                <Image
+                  style={{
+                    width: 25,
+                    height: 25,
+                    tintColor: '#fff',
+                  }}
+                  source={
+                    scanExpanded
+                      ? require('../assets/images/close.png')
+                      : tab.image
+                  }
+                />
+              </TouchableOpacity>
+
+              {/* Left option: Barcode */}
+              {scanExpanded && (
+                <Animated.View
+                  style={[
+                    styles.option,
+                    {
+                      transform: [
+                        { translateX: leftTranslate },
+                        { translateY: upTranslate },
+                      ],
+                    },
+                  ]}
+                >
+                  <TouchableOpacity
+                    style={styles.optionBtn}
+                    onPress={() => {
+                      toggleScan();
+                      router.replace('/barcodeScanner');
+                    }}
+                  >
+                    <Image
+                      style={{ width: 25, height: 25, tintColor: '#fff' }}
+                      source={require('../assets/images/barcode-scan2.png')}
+                    />
+                  </TouchableOpacity>
+                </Animated.View>
+              )}
+
+              {/* Right option: Add Food */}
+              {scanExpanded && (
+                <Animated.View
+                  style={[
+                    styles.option,
+                    {
+                      transform: [
+                        { translateX: rightTranslate },
+                        { translateY: upTranslate },
+                      ],
+                    },
+                  ]}
+                >
+                  <TouchableOpacity
+                    style={styles.optionBtn}
+                    onPress={() => {
+                      toggleScan();
+                      router.replace('/nutrition?openModal=true');
+                    }}
+                  >
+                    <Image
+                      style={{ width: 25, height: 25, tintColor: '#fff' }}
+                      source={require('../assets/images/apple2.png')}
+                    />
+                  </TouchableOpacity>
+                </Animated.View>
+              )}
+            </View>
+          );
+        }
+
+        // Normal tab
         return (
           <TouchableOpacity
             key={tab.route}
@@ -62,6 +168,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  scanWrapper: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   label: {
     color: '#fff',
     fontSize: 15,
@@ -69,5 +180,27 @@ const styles = StyleSheet.create({
   active: {
     color: '#32a852',
     fontWeight: 'bold',
+  },
+    scanContainer: {
+    position: 'absolute',
+    bottom: 15,
+    alignSelf: 'center',
+    alignItems: 'center',
+  },
+  scanButton: {
+    backgroundColor: '#32a852',
+    borderRadius: 35,
+    padding: 14,
+  },
+  closeButton: {
+    backgroundColor: '',
+  },
+  option: {
+    position: 'absolute',
+  },
+  optionBtn: {
+    backgroundColor: '#444',
+    padding: 18,
+    borderRadius: 35,
   },
 });
