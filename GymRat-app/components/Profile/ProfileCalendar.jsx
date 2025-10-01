@@ -3,6 +3,8 @@ import { StyleSheet, View, Dimensions, useMemo, useState, useCallback } from 're
 import {Calendar, CalendarUtils} from 'react-native-calendars';
 
 const { width: screenWidth } = Dimensions.get('window');
+const { height: screenHeight } = Dimensions.get('window');
+
 const INITIAL_DATE = '2024-11-06';
 
 
@@ -51,9 +53,9 @@ const ProfileCalendar = () => {
             onPressArrowRight={addMonth => addMonth()}
             enableSwipeMonths={false}
             markedDates={marked}
-            style={{width:screenWidth * 0.95, backgroundColor: 'transparent', borderRadius:10, borderWidth:3, borderColor:'#6a5acd'}}
+            style={{width:screenWidth * 0.95, backgroundColor: '#2c2c2e',borderRadius:10}}
             theme={{
-                calendarBackground: '#1a1b1c', 
+                calendarBackground: '#2c2c2e',
                 dayTextColor:'#e0e0e0',
                 monthTextColor:'#e0e0e0',
                 textDayFontWeight:'600',

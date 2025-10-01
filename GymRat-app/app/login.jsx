@@ -61,17 +61,18 @@ export default function LoginScreen() {
             const username = email.split('@')[0]; // take from email
             const defaultIcon = 'default_icon'; // placeholder
             const dob = '2000-01-01'; // placeholder
+            const hasOnboarded = 0
             
             const insertResult = await db.runAsync(
-              'INSERT INTO users (username, email, dob, profile_icon) VALUES (?, ?, ?, ?)',
-              [username, email, dob, defaultIcon]
+              'INSERT INTO users (username, email, dob, profile_icon, hasOnboarded) VALUES (?, ?, ?, ?, ?)',
+              [username, email, dob, defaultIcon, hasOnboarded]
             );
             
             userId = insertResult.lastInsertRowId;
             console.log('Created new user with ID:', userId);
           }
 
-          setUserId(userId);
+          setUserId(userId)
           router.replace('/home');
         } catch (error) {
           console.error(error);

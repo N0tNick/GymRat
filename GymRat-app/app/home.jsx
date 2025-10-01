@@ -59,6 +59,23 @@ export default function HomeScreen() {
   const [hasEntries, setHasEntries] = useState(false);
   const [hasWorkout, setHasWorkout] = useState(false);
 
+
+   useEffect(() => {
+      const intervalId = setInterval(() => {
+        handleOnboarding()
+      }, 4000)
+      return () => clearInterval(intervalId)
+    }, []);
+  
+  const handleOnboarding = async async => {
+    try {
+      const result = await db.getFirstAsync('SELECT * FROM users')
+      console.log(result)
+    } catch (error) {
+      console.error('Error getting hasOnboarded:', error)
+    }
+  }
+
   // function to add daily event
   const handleAddEvent = () => {
     const newEvent = {

@@ -30,7 +30,7 @@ export const QuestionModal1 = ({ isVisible, onClose }) => {
                                 Body Fat percentage is the ratio of fat in the body relative to overall body weight. 
                             </Text>
                             <Lightbox 
-                            style = {{alignSelf:'center',width:screenWidth*0.85, height:screenHeight*0.255,borderWidth:5,borderRadius:8,borderColor:'#6a5acd'}}>
+                            style = {{alignSelf:'center',width:screenWidth*0.85, height:screenHeight*0.255,overflow:'hidden',borderWidth:2,borderRadius:10,borderColor:'#6a5acd'}}>
                                 <Image style={styles.logo} resizeMode='contain' source={{uri:'https://cdn.shopify.com/s/files/1/0045/7398/6889/files/BodyFatChart.jpg?v=1588081088'}}/>
                             </Lightbox>
                             <Text style={modalStyles.modalBodyText}>
@@ -39,7 +39,7 @@ export const QuestionModal1 = ({ isVisible, onClose }) => {
                             <Text style={modalStyles.modalBodyText}>
                                 The forumlas used to get body fat percentage are shown below.
                             </Text>
-                            <View style={{marginLeft:12, width:screenWidth*0.83, height:screenHeight*0.15, borderWidth:3, borderRadius:8, borderColor:'#6a5acd'}}>
+                            <View style={{marginLeft:12, width:screenWidth*0.83, height:screenHeight*0.15, borderWidth:2, borderRadius:10, borderColor:'#6a5acd'}}>
                                 <Text style={modalStyles.modalBodyText}>
                                     For Men: %BF = 495 / (1.0324 − 0.19077 × log10(waist − neck) + 0.15456 × log10(height)) − 450
                                 </Text>
@@ -77,7 +77,7 @@ export const QuestionModal2 = ({ isVisible, onClose }) => {
                             <Text style={modalStyles.modalBodyText}>
                                 BMI is a health measure gotten by comparing a person's weight relative to their height. This value automatically changes with fluctuations in height and weight and doesn't need to be logged   
                             </Text>
-                                <Lightbox style={{marginLeft:24,marginTop:8,width:screenWidth*0.8, height:screenHeight*0.168, borderWidth:4,borderRadius:8,borderColor:'#6a5acd',overflow:'hidden'}}>
+                                <Lightbox style={{marginLeft:24,marginTop:8,width:screenWidth*0.8, height:screenHeight*0.168, borderWidth:2,overflow:'hidden',borderRadius:10,borderColor:'#6a5acd',overflow:'hidden'}}>
                                     <Image style={styles.logo} resizeMode='contain' source={{uri:'https://www.ifafitness.com/book/images/BMI-chart.jpg'}}/>
                                 </Lightbox>  
                                 <Text style={modalStyles.modalBodyTextSmall}>
@@ -149,7 +149,7 @@ export const QuestionModal3 = ({ isVisible, onClose }) => {
                             <Text style={modalStyles.modalBodyText}>
                                 BMR is largely determined by your total lean mass, especially muscle mass, with more mass increasing your BMR and less decreasing it. Your activity level is also considered when determining BMR.
                             </Text>
-                            <View style={{width:screenWidth*0.85, height:screenHeight*0.54, borderWidth:3, borderRadius:10, borderColor:'#6a5acd', alignSelf:'center'}}>
+                            <View style={{width:screenWidth*0.85, height:screenHeight*0.54, borderWidth:2, borderRadius:10, borderColor:'#6a5acd', alignSelf:'center'}}>
                                 <Text style={modalStyles.modalBodyText}>
                                     Factors that affect BMR
                                 </Text>
@@ -636,8 +636,8 @@ const modalStyles = StyleSheet.create ({
     alignItems: 'center',
   },
   modalView: {
-    backgroundColor:'#1a1b1c',
-    borderWidth:3,
+    backgroundColor:'#2c2c2e',
+    borderWidth:2,
     borderRadius: 10,
     borderColor:'#6a5acd',
     width: screenWidth*0.98,
@@ -655,7 +655,6 @@ const modalStyles = StyleSheet.create ({
     marginTop:40, 
     marginBottom:20,
     width:screenWidth*0.93,
-    borderWidth:2, 
     borderRadius:8, 
     borderColor:'#6a5acd',
     justifyContent: 'flex-start',
@@ -681,7 +680,7 @@ const modalStyles = StyleSheet.create ({
     marginTop:10,
     width:screenWidth*0.7,
     height:screenHeight*0.25,
-    borderWidth:3,
+    borderWidth:2,
     borderRadius:10,
     borderColor:'#6a5acd'
   },

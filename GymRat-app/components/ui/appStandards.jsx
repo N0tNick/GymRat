@@ -32,7 +32,13 @@ const standards = {
     fontSize:16,
     fontWeight:'600',
     letterSpacing:0.3
-  }
+  },
+  regularTextPurple: {
+    fontSize:16,
+    fontWeight:'600',
+    color:'#e0e0e0',
+    letterSpacing:0.3
+  },
 }
 
 export default standards

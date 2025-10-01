@@ -7,7 +7,6 @@ import SettingsWheel from '../components/Profile/SettingsWheel'
 import TopTab from '../components/Profile/ProfileTopTab'
 import standards from '../components/ui/appStandards'
 
-console.log(standards)
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 

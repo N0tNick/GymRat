@@ -69,18 +69,18 @@ const TopTab = () => {
       selectedIndex={selectedIndex} 
       onSelect={index => setSelectedIndex(index)} 
       indicatorStyle={styles.indicator}
-      style={{backgroundColor: '#1a1b1c', borderTopWidth:3, borderRadius:1, borderColor:'#6a5acd'}}
+      style={{backgroundColor: '#2c2c2e', borderTopWidth:2,borderColor:'#6a5acd'}}
       >
         <Tab 
           title={evaProps => <Text {...evaProps} style={standards.headerText}>Overview</Text>}
           style={styles.tabStyle}
         >         
           <Layout style={styles.tabContainer}>
-              <Calendar />
-              <TouchableOpacity style = {{margin:20, width: screenWidth*0.95,height:120,borderWidth:3,borderRadius: 10, borderColor: '#6a5acd'}}
+              <Calendar/>
+              <TouchableOpacity style = {{margin:20, width: screenWidth*0.95,height:120,backgroundColor:'#2c2c2e',borderRadius:10,padding:10}}
               onPress={() => router.push('/ExerciseGoals')}
               >
-                <Text style = {standards.regularText}>Exercise Goals</Text>
+                <Text style = {standards.regularTextPurple}>Exercise Goals</Text>
                 <Image style={{width:50, height:50, position:'absolute',right:20,marginTop: 25,borderWidth:2,borderRadius:25, borderColor:'gray', backgroundColor:'white'}} 
                   source={{
                     uri: 'https://www.freeiconspng.com/thumbs/plus-icon/plus-icon-black-2.png',
@@ -95,83 +95,87 @@ const TopTab = () => {
           style={styles.tabStyle}
         >         
           <Layout style={styles.tabContainer}>
-
-            <View style={{width:screenWidth*0.95,height:screenHeight*0.11, paddingTop:5, paddingLeft:5, marginBottom:20,borderWidth:3, borderRadius:8, borderColor:'#6a5acd'}}>
-              <Text category='h6' style={standards.headerText}>Progress</Text>
-              <View style = {{ flexDirection:'row',padding:5,justifyContent:'space-between'}}>
-                <View style={{flexDirection:'column'}}>
-                  <View>
-                    <Text category='h6' style={standards.regularText}>Weight</Text>
-                  </View>
+            <View style={{width:screenWidth*0.95,height:screenHeight*0.11, padding:5, marginBottom:20,borderRadius:10,backgroundColor:'#2c2c2e'}}>
+              <Text style={[standards.headerText, { paddingLeft:8,paddingTop:3,paddingBottom:5}]}>Progress</Text>
+              <View style = {{ flexDirection:'row',justifyContent:'space-between',padding:5,paddingRight:10}}>
+                
+                <View style={{paddingLeft:10}}>
                   <WeightTouchable isVisible={isWeightTouchableVisible} onClose={() => setWeightTouchableVisible(false)}/>
-                  <TouchableOpacity 
-                    style = {styles.bodyCompContainers}
-                    onPress={() => setWeightTouchableVisible(true)}>
-                    <Text category='h7' style = {standards.regularText}>
-                      - {lastWeight ? `${lastWeight}` : '___'}
-                    </Text>
-                  </TouchableOpacity>
+                  <View style={{paddingBottom:3}}>
+                    <Text style={standards.regularText}>Weight</Text>
+                  </View>
+                  <Pressable 
+                    style = {({ pressed }) => [styles.bodyCompContainers]}
+                    onPress={() => setWeightTouchableVisible(true)}> 
+                    {({ pressed }) => (
+                    <Text style = {[standards.smallText,{color: pressed ? '#6a5acd' : '#e0e0e0'}]}>
+                      {lastWeight ? `${lastWeight}` : '__'} lbs
+                    </Text> )}
+                  </Pressable>
                 </View>  
 
-                <View style={{flexDirection:'column'}}>
-                  <View style={{flexDirection:'row'}}>
+                <View>
+                  <GoalWeightTouchable isVisible={isGoalWeightTouchableVisible} onClose={() => setGoalWeightTouchableVisible(false)}/>
+                  <View style={{paddingBottom:3}}>
                     <Text category='h6' style={standards.regularText}>Goal Weight</Text>
                   </View>
-                  <GoalWeightTouchable isVisible={isGoalWeightTouchableVisible} onClose={() => setGoalWeightTouchableVisible(false)}/>
-                  <TouchableOpacity 
-                    style = {styles.bodyCompContainers}
-                    onPress={() => setGoalWeightTouchableVisible(true)}>
-                    <Text category='h7' style = {standards.regularText}>
-                      - {lastGoalWeight ? `${lastGoalWeight}` : '___'} 
-                    </Text>
-                  </TouchableOpacity>
+                  <Pressable 
+                    style = {({ pressed }) => [styles.bodyCompContainers]}
+                    onPress={() => setWeightTouchableVisible(true)}> 
+                    {({ pressed }) => (
+                    <Text style = {[standards.smallText,{color: pressed ? '#6a5acd' : '#e0e0e0'}]}>
+                      {lastGoalWeight ? `${lastGoalWeight}` : '__'} lbs
+                    </Text> )}
+                  </Pressable>
                 </View>  
 
               </View>
             </View>
 
-            <View style={{width:screenWidth*0.95,height:screenHeight*0.11, paddingTop:5, paddingLeft:5, marginBottom:20,borderWidth:3, borderRadius:8, borderColor:'#6a5acd'}}>
-              <Text category='h6' style={standards.headerText}>Composition</Text>
-              <View style = {{ flexDirection:'row',padding:5,justifyContent:'space-between'}}>
-                      <View>
-                        <View style={{flexDirection:'row'}}>
-                          <Text category='h6' style={standards.regularText}>Body Fat %</Text>
-                            <QuestionModal1 isVisible={isQuestionModal1Visible} onClose={() => setQuestionModal1Visible(false)}/>
-                            <TouchableOpacity 
-                              style ={styles.logoContainer}
-                              onPress={() => setQuestionModal1Visible(true)} >
-                              <Image style={styles.logo} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
-                            </TouchableOpacity>
-                        </View>
-                        <BodyFatTouchable isVisible={isBodyFatTouchableVisible} onClose={() => setBodyFatTouchableVisible(false)}/>
-                        <TouchableOpacity 
-                          style = {styles.bodyCompContainers}
-                          onPress={() => setBodyFatTouchableVisible(true)}>
-                          <Text category='h7' style = {standards.regularText}>
-                            - {lastBodyFat ? `${lastBodyFat}%` : '___'} </Text>
-                        </TouchableOpacity>
-                      </View>
+            <View style={{width:screenWidth*0.95,height:screenHeight*0.11, padding:5, marginBottom:20,borderRadius:10,backgroundColor:'#2c2c2e'}}>
+              <Text style={[standards.headerText, {paddingLeft:8,paddingTop:3}]}>Composition</Text>
+              <View style = {{ flexDirection:'row',justifyContent:'space-between',padding:10}}>   
+                <View style={{flexDirection:'row'}}>
+                <View style={{flexDirection:'column',paddingRight:5}}>
+                  <QuestionModal1 isVisible={isQuestionModal1Visible} onClose={() => setQuestionModal1Visible(false)}/>
+                  <Text style={standards.regularText}>Body Fat %</Text>
+                  <BodyFatTouchable isVisible={isBodyFatTouchableVisible} onClose={() => setBodyFatTouchableVisible(false)}/>
+                  <Pressable 
+                    style = {({ pressed }) => [styles.bodyCompContainers]}
+                    onPress={() => setWeightTouchableVisible(true)}> 
+                    {({ pressed }) => (
+                    <Text style = {[standards.smallText,{textAlign:'center'},{color: pressed ? '#6a5acd' : '#e0e0e0'}]}>
+                      {lastBodyFat ? `${lastBodyFat}` : '__'}%
+                    </Text> )}
+                  </Pressable>
+               </View>
+                <TouchableOpacity 
+                  style ={styles.logoContainer}
+                  onPress={() => setQuestionModal1Visible(true)} >
+                  <Image style={styles.logo} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
+                </TouchableOpacity>
+              </View> 
+
+              <View style ={{flexDirection:'row'}}>
+              <View style={{alignItems:'column'}}>
+                <Text style={standards.regularText}>BMI</Text>
+                  <QuestionModal2 isVisible={isQuestionModal2Visible} onClose={() => setQuestionModal2Visible(false)}/>
+                <View style = {styles.bodyCompContainers}>
+                  <Text style = {[standards.smallText,{textAlign:'center'}]}>
+                    {lastBMI ? `${lastBMI}` : '__'}
+                  </Text>
+                </View>
+              </View>
+              <TouchableOpacity 
+                style ={styles.logoContainer}
+                onPress={() => setQuestionModal2Visible(true)}>
+                <Image style={styles.logo} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
+              </TouchableOpacity>
+              </View>
  
-                      <View>
+                      <View style={{}}>
                         <View style={{flexDirection:'row'}}>
-                          <Text category='h6' style={standards.regularText}>BMI</Text>
-                          <QuestionModal2 isVisible={isQuestionModal2Visible} onClose={() => setQuestionModal2Visible(false)}/>
-                          <TouchableOpacity 
-                          style ={styles.logoContainer}
-                          onPress={() => setQuestionModal2Visible(true)}>
-                            <Image style={styles.logoContainer} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
-                          </TouchableOpacity>
-                        </View>
-                        <View 
-                          style = {styles.bodyCompContainers}>
-                          <Text category='h7' style = {standards.regularText}>
-                            - {lastBMI ? `${lastBMI}` : '___'}</Text>
-                        </View>
-                      </View>
- 
-                      <View>
-                        <View style={{flexDirection:'row'}}>
-                          <Text category='h6' style={standards.regularText}>BMR</Text>
+                          <Text style={standards.regularText}>BMR</Text>
                           <QuestionModal3 isVisible={isQuestionModal3Visible} onClose={() => setQuestionModal3Visible(false)}/>
                           <TouchableOpacity 
                           style ={styles.logoContainer}
@@ -179,13 +183,15 @@ const TopTab = () => {
                             <Image style={styles.logo} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
                           </TouchableOpacity>
                         </View>
-                        <BMRTouchable isVisible={isBMRTouchableVisible} onClose={() => setBMRTouchableVisible(false)}/>
-                        <TouchableOpacity 
-                          style = {styles.bodyCompContainers}
-                          onPress={() => setBMRTouchableVisible(true)}>
-                          <Text category='h7' style = {standards.regularText}>
-                            - {lastBMR ? `${lastBMR}` : '___'}</Text>
-                        </TouchableOpacity>
+                <BMRTouchable isVisible={isBMRTouchableVisible} onClose={() => setBMRTouchableVisible(false)}/>
+                  <Pressable 
+                    style = {({ pressed }) => [styles.bodyCompContainers]}
+                    onPress={() => setWeightTouchableVisible(true)}> 
+                    {({ pressed }) => (
+                    <Text style = {[standards.smallText,{textAlign:'left'},{color: pressed ? '#6a5acd' : '#e0e0e0'}]}>
+                      {lastBMR ? `${lastBMR}` : '__'}
+                    </Text> )}
+                  </Pressable>
                       </View>
                 </View>
             </View>
@@ -199,8 +205,8 @@ export default TopTab
 
 const styles = StyleSheet.create({
   tabStyle: {
-    backgroundColor: '#1a1b1c',
-    margin:2
+    backgroundColor: '#2c2c2e',
+    margin:3,
   },
   tabText: {
     color: '#e0e0e0',
@@ -209,28 +215,26 @@ const styles = StyleSheet.create({
   },
   indicator: {
     backgroundColor: '#6a5acd',
-    height: 3,
+    height:2,
   },
   tabContainer: {
     height: screenHeight,
     width: screenWidth,
+    alignSelf:'center',
     justifyContent:'flex-start',
     flexDirection:'column',
     alignItems: 'center',
     backgroundColor: '#1a1b1c',
-    padding:10
+    padding:15
   },
   bodyCompContainers: {
     alignSelf:'center',
-    justifyContent:'center',
-    width: screenWidth*0.15, 
-    height: screenHeight*0.02
+    width: screenWidth*0.15,
+    height: screenHeight*0.03,
   },
   logoContainer: {
     width: screenWidth*0.05,
     height: screenHeight*0.025,
-    marginLeft:3,
-    marginRight:10,
   },
   logo: {
     width:'100%',
