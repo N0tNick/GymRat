@@ -64,11 +64,11 @@ export default function HomeScreen() {
     handleOnboarding()
     })
   
-  const handleOnboarding = async async => {
+  const handleOnboarding = async () => {
     try {
       const result = await db.getFirstAsync('SELECT * FROM users')
+      console.log(result)
       if (result['hasOnboarded'] == 0) {
-        await db.runAsync('UPDATE users SET hasOnboarded = ?', [1])
         router.push('/nutsplash')
       }
     } catch (error) {

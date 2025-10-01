@@ -7,10 +7,20 @@ import { auth } from '../../firebaseConfig';
 import UserSettingsTab from './SettingsTabs/UserSettingsTab'
 import UserStatsTab from './SettingsTabs/UserStatsTab'
 import UserGoalsTab from './SettingsTabs/UserGoalsTab'
+import { useSQLiteContext } from 'expo-sqlite';
 const { width: screenWidth } = Dimensions.get('window');
 const SIDEBAR_WIDTH = screenWidth * 0.30; //Exactly half the screen
 
 const SettingsWheel = () => {
+    const db = useSQLiteContext();
+
+    //delete account & userData
+    const resetAccountData = async (userId) => {
+        await db.getFirstAsync('DELETE FROM users WHERE id = ?;', [userId]);
+        await db.getAllAsync('DELETE FROM workoutTemplates WHERE id = ?;', [userId])
+        console.log(`Account data for user ID ${userId} reset.`);
+    };
+
     const more = true
     const router = useRouter();
     const [isSidebarVisible, setIsSidebarVisible] = useState(false);
@@ -100,6 +110,10 @@ const SettingsWheel = () => {
                             <UserGoalsTab/>
                         </View>
 
+                        <TouchableOpacity style={styles.deleteAccountButton} onPress={() => { resetAccountData(1); handleSignOut(); }}>
+                            <Text style={styles.logoutButtonText}>Delete Account</Text>
+                        </TouchableOpacity>
+
                         <TouchableOpacity style={styles.onboardingButton} onPress={() => {router.push('/nutsplash') }}>
                             <Text style={styles.logoutButtonText}>Re-do Onboarding</Text>
                         </TouchableOpacity>
@@ -187,6 +201,16 @@ const styles = StyleSheet.create ({
         color: '#fff', 
         fontSize: 18, 
         textAlign:'center'
+    },
+    deleteAccountButton: { 
+        position: 'absolute', 
+        justifyContent:'center',
+        bottom: 120, 
+        backgroundColor: '#0000ffff',
+        paddingVertical: 8, 
+        width:100,
+        borderRadius: 8, 
+        alignItems: 'center' 
     },
 });
 
