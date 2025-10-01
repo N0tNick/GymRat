@@ -80,7 +80,7 @@ const UserGoalsTab = () => {
                         left: 0,
                         top: 0,
                         height: '100%',
-                        backgroundColor:'white',
+                        backgroundColor:'#2c2c2e',
                         shadowColor: '#000',
                         shadowOffset: { width: -2, height: 0 },
                         shadowOpacity: 0.3,
@@ -179,7 +179,7 @@ const styles = StyleSheet.create ({
     },
 
     btn: {
-        backgroundColor: 'black',
+        backgroundColor: '#2c2c2e',
         padding: 25,
         borderRadius: 10
     },

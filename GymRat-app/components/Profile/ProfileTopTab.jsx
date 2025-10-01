@@ -134,7 +134,8 @@ const TopTab = () => {
 
             <View style={{width:screenWidth*0.95,height:screenHeight*0.11, padding:5, marginBottom:20,borderRadius:10,backgroundColor:'#2c2c2e'}}>
               <Text style={[standards.headerText, {paddingLeft:8,paddingTop:3}]}>Composition</Text>
-              <View style = {{ flexDirection:'row',justifyContent:'space-between',padding:10}}>   
+              <View style = {{ flexDirection:'row',justifyContent:'space-between',padding:10}}>
+                   
                 <View style={{flexDirection:'row'}}>
                 <View style={{flexDirection:'column',paddingRight:5}}>
                   <QuestionModal1 isVisible={isQuestionModal1Visible} onClose={() => setQuestionModal1Visible(false)}/>
@@ -157,9 +158,9 @@ const TopTab = () => {
               </View> 
 
               <View style ={{flexDirection:'row'}}>
-              <View style={{alignItems:'column'}}>
+              <View style={{alignItems:'column',paddingRight:5}}>
+                <QuestionModal2 isVisible={isQuestionModal2Visible} onClose={() => setQuestionModal2Visible(false)}/>
                 <Text style={standards.regularText}>BMI</Text>
-                  <QuestionModal2 isVisible={isQuestionModal2Visible} onClose={() => setQuestionModal2Visible(false)}/>
                 <View style = {styles.bodyCompContainers}>
                   <Text style = {[standards.smallText,{textAlign:'center'}]}>
                     {lastBMI ? `${lastBMI}` : '__'}
@@ -173,16 +174,10 @@ const TopTab = () => {
               </TouchableOpacity>
               </View>
  
-                      <View style={{}}>
-                        <View style={{flexDirection:'row'}}>
-                          <Text style={standards.regularText}>BMR</Text>
-                          <QuestionModal3 isVisible={isQuestionModal3Visible} onClose={() => setQuestionModal3Visible(false)}/>
-                          <TouchableOpacity 
-                          style ={styles.logoContainer}
-                          onPress={() => setQuestionModal3Visible(true)}>
-                            <Image style={styles.logo} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
-                          </TouchableOpacity>
-                        </View>
+              <View style={{flexDirection:'row'}}>
+                <View style={{alignItems:'column', paddingRight:5}}>
+                  <QuestionModal3 isVisible={isQuestionModal3Visible} onClose={() => setQuestionModal3Visible(false)}/>
+                  <Text style={standards.regularText}>BMR</Text>
                 <BMRTouchable isVisible={isBMRTouchableVisible} onClose={() => setBMRTouchableVisible(false)}/>
                   <Pressable 
                     style = {({ pressed }) => [styles.bodyCompContainers]}
@@ -192,8 +187,14 @@ const TopTab = () => {
                       {lastBMR ? `${lastBMR}` : '__'}
                     </Text> )}
                   </Pressable>
-                      </View>
-                </View>
+                  </View>
+                  <TouchableOpacity 
+                      style ={styles.logoContainer}
+                      onPress={() => setQuestionModal3Visible(true)}>
+                    <Image style={styles.logo} source={{uri:'https://upload.wikimedia.org/wikipedia/commons/2/28/Question_mark_white.png'}}/>
+                  </TouchableOpacity>
+              </View>
+            </View>
             </View>
           </Layout>
         </Tab>
@@ -229,7 +230,6 @@ const styles = StyleSheet.create({
   },
   bodyCompContainers: {
     alignSelf:'center',
-    width: screenWidth*0.15,
     height: screenHeight*0.03,
   },
   logoContainer: {
