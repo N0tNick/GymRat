@@ -471,9 +471,9 @@ const allModules = useMemo(() => {
                 <Text style={styles.moduleTitle}>Nutrition Rundown</Text>
 
                 <View style={styles.nutrientRow}>
-                  <Text style={styles.nutrientLabel}>Energy - {Math.round(dailyTotals?.totalCalories ?? 0)} / {cals} kcal</Text>
+                  <Text style={styles.nutrientLabel}>Calories - {Math.round(dailyTotals?.totalCalories ?? 0)} / {cals} kcal</Text>
                   <View style={styles.barContainer}>
-                    <View style={[styles.barFill, { backgroundColor: '#00eaff', width: `${Math.min(((dailyTotals?.totalCalories ?? 0) / cals) * 100, 100)}%` }]} />
+                    <View style={[styles.barFill, { backgroundColor: '#f5a623', width: `${Math.min(((dailyTotals?.totalCalories ?? 0) / cals) * 100, 100)}%` }]} />
                   </View>
                 </View>
 
@@ -963,6 +963,8 @@ const styles = StyleSheet.create({
   homeModule: {
     backgroundColor: '#2c2c2e',
     borderRadius: 12,
+    // borderColor: '#fff',
+    // borderWidth: 1,
     padding: 4,
     paddingTop: 10,
     marginTop: 20,
@@ -1066,7 +1068,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addEventButton: {
-    backgroundColor: '#32a852',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderColor: '#32a852',
+    borderWidth: 1,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
@@ -1199,7 +1203,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   addFoodButton: {
-    backgroundColor: '#32a852',
+    backgroundColor: '#rgba(255,255,255,0.08)',
+    borderColor: '#32a852',
+    borderWidth: 1,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
