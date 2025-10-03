@@ -505,7 +505,7 @@ const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.content}>
-              <Text style={styles.text}>Nutrition Screen</Text>
+              {/* <Text style={styles.text}>Nutrition Screen</Text> */}
               <Text style={[styles.text, { fontSize: 18 }]}>
                 Today's Calorie Goal: {cals}
               </Text>
@@ -742,6 +742,7 @@ const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
                   <TextInput
                     style={styles.textInput}
                     placeholder="Enter food name"
+                    placeholderTextColor="#fff"
                     value={foodName}
                     onChangeText={setFoodName}
                   />
@@ -916,6 +917,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    borderWidth: 1,
+    borderColor: '#32a852',
   },
   plusSign: { 
     fontSize: 30, 
@@ -967,16 +970,18 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 8,
     padding: 10,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#rgba(255,255,255,0.08)',
   },
   
   addValueButton: {
-    backgroundColor: '#32a852',
+    backgroundColor: '#rgba(255,255,255,0.08)',
     paddingVertical: 10,
     paddingHorizontal: 25,
     borderRadius: 8,
     marginBottom: 15,
     alignSelf: 'center',
+    borderWidth: 1,
+    borderColor: '#32a852',
   },
   addValueText: { 
     color: '#fff', 
@@ -1019,13 +1024,15 @@ const styles = StyleSheet.create({
     borderColor: '#eee',
   },
   saveButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 8,
     marginBottom: 12,
     width: '100%',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#32a852',
   },
   saveButtonText: { 
     color: '#fff', 
@@ -1034,12 +1041,14 @@ const styles = StyleSheet.create({
   },
 
   closeButton: {
-    backgroundColor: '#32a852',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 8,
     width: '100%',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#32a852',
   },
   closeButtonText: { 
     color: '#fff', 
@@ -1140,7 +1149,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
+    borderColor: '#32a852',
     backgroundColor: 'rgba(255,255,255,0.08)',
   },
   toggleBtnActive: {
@@ -1169,6 +1178,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    borderWidth: 1,
+    borderColor: '#32a852',
   },
   historyIcon: {
     fontSize: 26,
