@@ -59,24 +59,6 @@ export default function ExerciseCreationModal({visibility, setVisibility}) {
             )}
           </View>
 
-          {/*<View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
-            {/* fields */}{/*
-            <View style={{gap: 10}}>
-              <Text style={standards.regularText}>Name: </Text>
-              <Text style={standards.regularText}>Equipment: </Text>
-              <Text style={standards.regularText}>Primary Muscle: </Text>
-              <Text style={standards.regularText}>Instructions: </Text>
-            </View>
-
-            {/* inputs */}{/*
-            <View style={{gap: 10}}>
-              <TextInput style={styles.smallInput} onChangeText={setExerciseName}/>
-              <TextInput style={styles.smallInput} onChangeText={setExerciseEquipment}/>
-              <TextInput style={styles.smallInput} onChangeText={setPrimaryMuscle}/>
-              <TextInput style={styles.smallInput} onChangeText={setExerciseInstructions}/>}
-            </View>*/}{/*
-          </View>*/}
-
           <View style={{flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-evenly'}}>
             <Text style={standards.regularText}>Name: </Text>
             <TextInput 

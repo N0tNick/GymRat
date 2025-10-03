@@ -1,0 +1,577 @@
+[
+    {
+        "id": 0,
+        "name": "Push",
+        "data": {
+            "exercises": [
+                {
+                    "name": "Barbell Bench Press - Medium Grip",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Standing Military Press",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Machine Chest Fly",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Triceps Pushdown",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "id": 1,
+        "name": "Pull",
+        "data": {
+            "exercises": [
+                {
+                    "name": "Wide-Grip Rear Pull-Up",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Full Range-Of-Motion Lat Pulldown",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Seated Cable Rows",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Dumbbell Bicep Curl",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "id": 2,
+        "name": "Legs",
+        "data": {
+            "exercises": [
+                {
+                    "name": "Barbell Full Squat",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Leg Extensions",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Seated Leg Curl",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Standing Calf Raises",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "id": 3,
+        "name": "Upper",
+        "data": {
+            "exercises": [
+                {
+                    "name": "Barbell Bench Press - Medium Grip",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Full Range-Of-Motion Lat Pulldown",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Standing Military Press",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Seated Cable Rows",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Incline Dumbbell Press",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "EZ-Bar Skullcrusher",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Dumbbell Bicep Curl",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "id": 4,
+        "name": "Lower",
+        "data": {
+            "exercises": [
+                {
+                    "name": "Barbell Full Squat",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Stiff-Legged Barbell Deadlift",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Dumbbell Lunges",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Lying Leg Curls",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Standing Calf Raises",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Cable Crunch",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "id": 5,
+        "name": "Arms",
+        "data": {
+            "exercises": [
+                {
+                    "name": "Barbell Curl",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Hammer Curls",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Close-Grip Barbell Bench Press",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Triceps Pushdown - Rope Attachment",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Lying Triceps Press",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Dips - Triceps Version",
+                    "sets": [
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        },
+                        {
+                            "weight": "",
+                            "reps": ""
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+]

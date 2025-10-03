@@ -1,7 +1,11 @@
+import { Image } from 'expo-image';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useRef, useState } from 'react';
-import { FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useStatePersist } from 'use-state-persist';
+
+const { height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function WorkoutModal({workoutModal, setWorkoutModal, template, finishWorkout}) {
     const db = useSQLiteContext()
@@ -114,31 +118,31 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, template, f
 
     const renderItem = ({ item, index: exerciseIdx }) => (
       <View>
-        <Text style={[styles.whiteText, {paddingVertical: 10}]}>{item.name}</Text>
+        <Text style={[standards.regularText, {paddingVertical: 10}]}>{item.name}</Text>
 
-        <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10}}>
-          <Text style={styles.whiteText}>Set</Text>
-          <Text style={styles.whiteText}>Previous</Text>
-          <Text style={styles.whiteText}>lbs</Text>
-          <Text style={styles.whiteText}>Reps</Text>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 5}}>
+          <Text style={standards.regularText}>Set</Text>
+          <Text style={standards.regularText}>Previous</Text>
+          <Text style={standards.regularText}>lbs</Text>
+          <Text style={standards.regularText}>Reps</Text>
         </View>
 
         {(item.sets || []).map((set, setIdx) => (
           <View key={setIdx} style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5}}>
-            <Text style={styles.whiteText}>{'  ' + (setIdx + 1) + ' '}</Text>
-            <Text style={styles.whiteText}>{set.weight ? (set.weight + 'x' + set.reps).padStart(10,' ') : '         -     '}</Text>
+            <Text style={standards.regularText}>{'  ' + (setIdx + 1) + ' '}</Text>
+            <Text style={standards.regularText}>{set.weight ? (set.weight + 'x' + set.reps).padStart(15,' ') : '                 -          '}</Text>
             <TextInput
               style={styles.templateInput}
               value={updatedExercises[exerciseIdx]?.sets[setIdx]?.weight?.toString() || ''}
               onChangeText={val => handleSetChange(exerciseIdx, setIdx, 'weight', val)}
-              placeholder=''
+              placeholder='-'
               keyboardType='numeric'
             />
             <TextInput
               style={styles.templateInput}
               value={updatedExercises[exerciseIdx]?.sets[setIdx]?.reps?.toString() || ''}
               onChangeText={val => handleSetChange(exerciseIdx, setIdx, 'reps', val)}
-              placeholder=''
+              placeholder='-'
               keyboardType='numeric'
             />
           </View>
@@ -183,12 +187,11 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, template, f
             <View style={styles.centeredView}>
                 <View style={{backgroundColor: '#1a1b1c', height: '90%', width: '100%', borderRadius: 10, padding: 10}}>
                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <TouchableOpacity style={styles.button} onPress={() => setWorkoutModal(false)}>
-                    <Text style={{color: '#fff'}}>Close</Text>
+                    <TouchableOpacity onPress={() => setWorkoutModal(false)}>
+                      <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
                     </TouchableOpacity>
-                    <Text style={{color: '#fff', fontWeight: 'normal', fontSize: 20}}>{timeHours}:{timeMinutes}:{timeSeconds}</Text>
+                    <Text style={standards.headerText}>{timeHours}:{timeMinutes}:{timeSeconds}</Text>
                     <TouchableOpacity
-                      style={[styles.button, {backgroundColor: '#10bb21ff'}]}
                       onPress={async () => {
                         await saveUpdatedWorkout();
                         setWorkoutModal(false);
@@ -196,11 +199,11 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, template, f
                         resetStopwatch();
                       }}
                     >
-                      <Text style={{color: '#fff'}}>Finish</Text>
+                      <Image style={{width: '25', height: '25'}} source={require('../assets/images/check-mark.png')}/>
                     </TouchableOpacity>
                 </View>
 
-                <Text style={{color: '#fff', fontSize: 30, fontWeight: 'bold', padding: 20}}>{workoutData ? workoutData.name : 'No Workout found'}</Text>
+                <Text style={[standards.headerText, {padding: 20}]}>{workoutData ? workoutData.name : 'No Workout found'}</Text>
 
                 <FlatList
                 data={exercises}
@@ -315,10 +318,45 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   templateInput: {
-    backgroundColor: '#999',
-    width: 40,
+    backgroundColor: '#e0e0e0',
+    color: '#000',
+    width: 50,
+    paddingVertical: 5,
     borderRadius: 5,
-    fontWeight: 'bold',
-    textAlign: 'center'
+    textAlign: 'center',
+    fontSize:16,
+    fontWeight:'600',
+    letterSpacing:0.3
+  }
+})
+
+const standards = StyleSheet.create({
+  background: {
+    backgroundColor: '#1a1b1c',
+    width: screenWidth,
+    height: screenHeight
+  },
+  headerText: {
+    fontSize:18,
+    fontWeight:'800',
+    color:'#e0e0e0',
+    letterSpacing:0.3
+  },
+  regularText: {
+    fontSize:16,
+    fontWeight:'600',
+    color:'#e0e0e0',
+    letterSpacing:0.3
+  },
+  smallText: {
+    fontSize:16,
+    fontWeight:'normal',
+    color:'#e0e0e0'
+  },
+  regularTextBlue : {
+    color: '#00eaff',
+    fontSize:16,
+    fontWeight:'600',
+    letterSpacing:0.3
   }
 })

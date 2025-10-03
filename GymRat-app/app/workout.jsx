@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, Dimensions, FlatList, Modal, ScrollView, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import exercises from '../assets/exercises.json';
+import exampleTemplates from '../assets/presetWorkoutTemplates.json';
 import schema from '../assets/schema.json';
 import NavBar from '../components/NavBar';
 import WorkoutModal from '../components/WorkoutModal';
@@ -158,21 +159,30 @@ export default function WorkoutScreen() {
   }
 
   const renderTemplate = ({ item }) => {
-    const template = JSON.parse(item.data)
+    let template = {}
+    try {
+      template = JSON.parse(item.data)
+    }
+    catch (e) {
+      template = item.data
+    }
 
     return (
-      <TouchableOpacity onPress = {() => {if (!isOngoingWorkout) manageTemplate(item.id, item.name)}} style={styles.templateBox}>
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <Text style={standards.headerText}>{item.name}</Text>
-          <TouchableOpacity onPress = {() => {deleteTemplate(item.id)}}>{/*<Text style={standards.regularText}>Delete</Text>*/}<Image style={{width: 25, height: 25}} source={require('../assets/images/white-trash-can.png')}/></TouchableOpacity>
-        </View>
+      <View>
+        <TouchableOpacity onPress = {() => {if (!isOngoingWorkout) manageTemplate(item.id, item.name)}} style={styles.templateBox}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={standards.headerText}>{item.name}</Text>
+            <TouchableOpacity onPress = {() => {deleteTemplate(item.id)}}>{/*<Text style={standards.regularText}>Delete</Text>*/}<Image style={{width: 25, height: 25}} source={require('../assets/images/white-trash-can.png')}/></TouchableOpacity>
+          </View>
 
-        {template.exercises.map((exercise, idx) => (
-          <Text key={exercise.id || idx} style={standards.smallText}>
-            {exercise.name} ({exercise.sets.length} sets)
-          </Text>
-        ))}
-      </TouchableOpacity>
+          {template.exercises.map((exercise, idx) => (
+            <Text key={exercise.id || idx} style={standards.smallText}>
+              {exercise.name} ({exercise.sets.length} sets)
+            </Text>
+          ))}
+        </TouchableOpacity>
+        <View style={{padding: 5}}/>
+      </View>
     )
   }
 
@@ -333,7 +343,7 @@ export default function WorkoutScreen() {
 
                 onRequestClose={() => { setExerciseInfoModal(!exerciseInfoModal) }}>
                   <BlurView intensity={25} style={[styles.centeredView, {backgroundColor: 'rgba(0,0,0,0)'}]}>
-                    <View style={[styles.modalView, {gap: 20, height: 'auto'}]}>
+                    <View style={[styles.modalView, {gap: 20, height: 'auto', maxHeight: '85%'}]}>
                       <TouchableOpacity onPress={() => setExerciseInfoModal(false)}>
                         <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
                       </TouchableOpacity>
@@ -357,9 +367,9 @@ export default function WorkoutScreen() {
             transparent={true}
             onRequestClose={() => setManageTemplateModal(false)}
           >
-            <View style={styles.centeredView}>
+            <BlurView intensity={25} style={styles.centeredView}>
               <View style={styles.alertView}>
-                <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 25, textAlign: 'center', paddingBottom: 50}}>
+                <Text style={standards.regularText}>
                   {selectedTemplate ? `Do you want to start your ${selectedTemplate.name} workout?` : ''}
                 </Text>
                 <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
@@ -367,14 +377,14 @@ export default function WorkoutScreen() {
                     setWorkoutModal(true)
                     setManageTemplateModal(false)
                     setIsOngoingWorkout(true)}}>
-                    <Text style={{color: '#fff', fontSize: 20, fontWeight: 'bold'}}>Start</Text>
+                    <Text style={standards.smallText}>Start</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.button} onPress={() => setManageTemplateModal(false)}>
-                    <Text style={{color: '#fff', fontSize: 20, fontWeight: 'bold'}}>Cancel</Text>
+                    <Text style={standards.smallText}>Cancel</Text>
                   </TouchableOpacity>
                 </View>
               </View>
-            </View>
+            </BlurView>
           </Modal>
 
           {/* Workout Modal */}
@@ -392,7 +402,7 @@ export default function WorkoutScreen() {
           />
 
           <Text style={[standards.headerText, {padding: 10}]}>Templates</Text>
-          <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 10}}>
             <TouchableOpacity style={styles.button} onPress ={() => setExerciseCreation(true)}><Text style={standards.smallText}>+ Exercise</Text></TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress ={() => router.push('/createTemplate')}><Text style={standards.smallText}>+ Template</Text></TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress ={() => setModalVisible(true)}><Text style={standards.smallText}>Exercise List</Text></TouchableOpacity>
@@ -400,22 +410,47 @@ export default function WorkoutScreen() {
 
           {/* View Ongoing Workout Button */}
           {isOngoingWorkout ? (
-            <TouchableOpacity 
-            style={{backgroundColor: '#1478db', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
-            onPress={() => setWorkoutModal(true)}
-            >
-              <Text style={{color: '#fff', fontWeight: 'bold'}}>View Ongoing Workout</Text>
-            </TouchableOpacity>
+            <View>
+              <TouchableOpacity 
+              style={{backgroundColor: '#375573', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
+              onPress={() => setWorkoutModal(true)}
+              >
+                <Text style={standards.smallText}>View Ongoing Workout</Text>
+              </TouchableOpacity>
+            </View>
           ) : null}
           
+          {/* Display Custom Templates if exists */}
+          {(userTemplates.length > 0) ? (
+            <SectionList
+            sections={[{title: 'Custom Templates', data: userTemplates}, {title: 'Example Templates', data: exampleTemplates}]}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderTemplate}
+            style={{padding: 10}}
+            renderSectionHeader={({section: {title}}) => (
+              <View>
+                <Text style={standards.headerText}>{title}</Text>
+                <View style={{padding: 5}}/>
+              </View>
+            )}
+            />
+          ) : (
+            <FlatList
+            data={userTemplates}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderTemplate}
+            style={{padding: 10}}
+            />
+          )}
 
-          <FlatList
+          {/*<FlatList
           data={userTemplates}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderTemplate}
           style={{padding: 10}}
           ItemSeparatorComponent={<View style={{padding: 5}}/>}
-          />
+          />*/}
+
         </SafeAreaView>
         </View>
         <NavBar />
@@ -449,6 +484,7 @@ export const styles = StyleSheet.create({
     padding: 10,
     alignSelf: 'center',
     maxWidth: '80%',
+    gap: 20
   },
   xButton: {
     flex: 1,
