@@ -1,8 +1,9 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import React from 'react';
+import { React, useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { useSQLiteContext } from 'expo-sqlite';
 
 export const data = [
     { id: 'weight', title: 'Current Weight', val: 0.0 },
@@ -13,9 +14,21 @@ export const data = [
 ];
 
 const nutsplash = () => {
+    const db = useSQLiteContext()
+
+    useEffect(() => {
+        handleOnboarded()
+    })
+
+    const handleOnboarded = async () => {
+        try {
+            await db.runAsync('UPDATE users SET hasOnboarded = ?', [1])
+        } catch (error) {
+      console.error(error) }
+    }
     // For Weight
-    const [showWeight, setShowWeight] = React.useState(false)
-    const [weightVal, setWeightVal] = React.useState('')
+    const [showWeight, setShowWeight] = useState(false)
+    const [weightVal, setWeightVal] = useState('')
 
     const handleWeightPress = () => {
         const weightItem = data.find(item => item.id === 'weight')
@@ -26,8 +39,8 @@ const nutsplash = () => {
     }
 
     // For Height
-    const [showHeight, setShowHeight] = React.useState(false)
-    const [heightVal, setHeightVal] = React.useState(['', ''])
+    const [showHeight, setShowHeight] = useState(false)
+    const [heightVal, setHeightVal] = useState(['', ''])
 
     const handleHeightPress = () => {
         const heightItem = data.find(item => item.id === 'height')
@@ -38,8 +51,8 @@ const nutsplash = () => {
     }
 
     // For DOB
-    const [showDob, setShowDob] = React.useState(false)
-    const [dobVal, setDobVal] = React.useState(['','',''])
+    const [showDob, setShowDob] = useState(false)
+    const [dobVal, setDobVal] = useState(['','',''])
 
     const handleDobPress = () => {
         const dobItem = data.find(item => item.id === 'dob')
@@ -50,8 +63,8 @@ const nutsplash = () => {
     }
 
     // For Gender
-    const [showGender, setShowGender] = React.useState(false)
-    const [genderVal, setGenderVal] = React.useState('')
+    const [showGender, setShowGender] = useState(false)
+    const [genderVal, setGenderVal] = useState('')
 
     const handleGenderPress = () => {
         const genderItem = data.find(item => item.id === 'gender')
@@ -62,8 +75,8 @@ const nutsplash = () => {
     }
 
     // For Activity Level
-    const [showActLevel, setShowActLevel] = React.useState(false)
-    const [actLevelVal, setActLevelVal] = React.useState('')
+    const [showActLevel, setShowActLevel] = useState(false)
+    const [actLevelVal, setActLevelVal] = useState('')
 
     const handleActLevelPress = () => {
         const actLevelItem = data.find(item => item.id === 'activityLevel')
@@ -101,7 +114,7 @@ const nutsplash = () => {
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
-                <LinearGradient style={styles.container} colors={["#32a852","#1a1b1c"]}>
+                <View style={styles.container}>
                     {!(showWeight || showHeight || showDob || showGender || showActLevel) ? (
                         <>
                             <FlatList 
@@ -119,14 +132,14 @@ const nutsplash = () => {
                     {showDob && <DOB dob={dobVal} />}
                     {showGender && <Gender gender={genderVal} />}
                     {showActLevel && <ActivityLevel actLevel={actLevelVal} />}
-                </LinearGradient>
+                </View>
             </SafeAreaView>
         </SafeAreaProvider>
     )
 }
 
 const CurrentWeight = ({ weight }) => {
-    const [tempWeight, setTempWeight] = React.useState('')
+    const [tempWeight, setTempWeight] = useState('')
     const Increase = () => setTempWeight(prevWeight => Number(prevWeight) + 1);
     const Decrease = () => setTempWeight(prevWeight => {
         if (prevWeight <= 0) {
@@ -172,7 +185,7 @@ const CurrentWeight = ({ weight }) => {
 }
 
 const Height = ({ height }) => {
-    const [tempHeight, setTempHeight] = React.useState(['',''])
+    const [tempHeight, setTempHeight] = useState(['',''])
     const Increase = () => setTempHeight(prevHeight => {
         if (prevHeight[1] > 10) {
             return [Number(prevHeight[0]) + 1, 0]
@@ -251,7 +264,7 @@ const Height = ({ height }) => {
 }
 
 const DOB = ({ dob }) => {
-    const [tempDob, setTempDob] = React.useState(['','',''])
+    const [tempDob, setTempDob] = useState(['','',''])
 
     return(
         <View style={{color: 'transparent', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
@@ -322,8 +335,8 @@ const DOB = ({ dob }) => {
 }
 
 const Gender = ({ gender }) => {
-    const [isMalePressed, setIsMalePressed] = React.useState(false);
-    const [isFemalePressed, setIsFemalePressed] = React.useState(false);
+    const [isMalePressed, setIsMalePressed] = useState(false);
+    const [isFemalePressed, setIsFemalePressed] = useState(false);
 
     const handlePressed = (tempGender) => {
         if (tempGender === 'male') {
@@ -368,10 +381,10 @@ const Gender = ({ gender }) => {
 }
 
 const ActivityLevel = ({ actLevel }) => {
-    const [isLow, setIsLow] = React.useState(false);
-    const [isModerate, setIsModerate] = React.useState(false);
-    const [isHigh, setIsHigh] = React.useState(false);
-    const [isVeryHigh, setIsVeryHigh] = React.useState(false);
+    const [isLow, setIsLow] = useState(false);
+    const [isModerate, setIsModerate] = useState(false);
+    const [isHigh, setIsHigh] = useState(false);
+    const [isVeryHigh, setIsVeryHigh] = useState(false);
 
     const handlePress = (tempActLevel) => {
         if (tempActLevel === 'Low') {
@@ -454,7 +467,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     button: {
-        backgroundColor: '#232f30',
+        backgroundColor: '#2c2c2e',
         paddingVertical: 10,
         borderBottomColor: '#1a1b1c',
         borderBottomWidth: 2,

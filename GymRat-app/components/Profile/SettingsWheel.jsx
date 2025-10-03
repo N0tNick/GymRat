@@ -7,10 +7,20 @@ import { auth } from '../../firebaseConfig';
 import UserSettingsTab from './SettingsTabs/UserSettingsTab'
 import UserStatsTab from './SettingsTabs/UserStatsTab'
 import UserGoalsTab from './SettingsTabs/UserGoalsTab'
+import { useSQLiteContext } from 'expo-sqlite';
 const { width: screenWidth } = Dimensions.get('window');
 const SIDEBAR_WIDTH = screenWidth * 0.30; //Exactly half the screen
 
 const SettingsWheel = () => {
+    const db = useSQLiteContext();
+
+    //delete account & userData
+    const resetAccountData = async () => {
+        await db.getAllAsync('DROP TABLE IF EXISTS users;');
+        await db.getAllAsync('DROP TABLE IF EXISTS workoutTemplates;')
+        console.log(`Account data reset.`);
+    };
+
     const more = true
     const router = useRouter();
     const [isSidebarVisible, setIsSidebarVisible] = useState(false);
@@ -65,7 +75,7 @@ const SettingsWheel = () => {
                     right: 0,
                     top: 0,
                     height: '100%',
-                    backgroundColor:'white',
+                    backgroundColor:'#1a1b1c',
                     shadowColor: '#000',
                     shadowOffset: { width: -2, height: 0 },
                     shadowOpacity: 0.3,
@@ -99,6 +109,10 @@ const SettingsWheel = () => {
                             <UserStatsTab/>
                             <UserGoalsTab/>
                         </View>
+
+                        <TouchableOpacity style={styles.deleteAccountButton} onPress={() => { resetAccountData(1); handleSignOut(); }}>
+                            <Text style={styles.logoutButtonText}>Delete Account</Text>
+                        </TouchableOpacity>
 
                         <TouchableOpacity style={styles.onboardingButton} onPress={() => {router.push('/nutsplash') }}>
                             <Text style={styles.logoutButtonText}>Re-do Onboarding</Text>
@@ -135,7 +149,7 @@ const styles = StyleSheet.create ({
         right: 0,
         top: 0,
         height: '100%',
-        backgroundColor: 'white',
+        backgroundColor: '#2c2c2e',
         shadowColor: '#000',
         shadowOffset: { width: -2, height: 0 },
         shadowOpacity: 0.3,
@@ -168,7 +182,7 @@ const styles = StyleSheet.create ({
         position: 'absolute', 
         justifyContent:'center',
         bottom: 50, 
-        backgroundColor: '#2c2c2e',
+        backgroundColor: '#a83232',
         paddingVertical: 8, 
         width:100,
         borderRadius: 8, 
@@ -187,6 +201,16 @@ const styles = StyleSheet.create ({
         color: '#fff', 
         fontSize: 18, 
         textAlign:'center'
+    },
+    deleteAccountButton: { 
+        position: 'absolute', 
+        justifyContent:'center',
+        bottom: 120, 
+        backgroundColor: '#a83232',
+        paddingVertical: 8, 
+        width:100,
+        borderRadius: 8, 
+        alignItems: 'center' 
     },
 });
 

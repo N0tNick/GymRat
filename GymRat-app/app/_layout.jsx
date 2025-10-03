@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { syncStorage } from 'use-state-persist';
+import standards from '../components/ui/appStandards'
 
 // required for userId's
 import { SQLiteProvider } from 'expo-sqlite';
@@ -169,7 +170,6 @@ export default function App() {
         await db.execAsync('PRAGMA journal_mode=WAL');
         try {
            await db.execAsync(`ALTER TABLE users ADD COLUMN hasOnboarded INTEGER NOT NULL DEFAULT 0;`);
-           console.log('Added hasOnboarded column to existing table');
          } catch (error) {
            // Column already exists or other error, which is fine
            console.log('hasOnboarded column migration skipped:', error.message);
@@ -192,10 +192,11 @@ export default function App() {
           <Stack.Screen
             name="nutsplash"
             options={{
-              title: 'Personal Details',
+              title: 'Body Stats',
               headerShown: true,
-              headerTintColor: '#1a1b1c',
-              headerStyle: { backgroundColor: '#32a852' },
+              headerTitleStyle:  {fontSize:24,fontWeight:'800',color:'#e0e0e0',letterSpacing:0.3},
+              headerTintColor: 'e0e0e0',
+              headerStyle: { backgroundColor: '#1a1b1c' },
               headerLeft: () => (
                 <TouchableOpacity onPress={() => router.back()}>
                   <Text style={{ color: "#1a1b1c", paddingHorizontal: 10, fontSize: 15 }}>Back</Text>
@@ -212,8 +213,9 @@ export default function App() {
             options={{
               title: 'Goal',
               headerShown: true,
-              headerTintColor: '#1a1b1c',
-              headerStyle: { backgroundColor: '#32a852' },
+              headerTitleStyle:  {fontSize:24,fontWeight:'800',color:'#e0e0e0',letterSpacing:0.3},
+              headerTintColor: '#e0e0e0',
+              headerStyle: { backgroundColor: '#1a1b1c' },
               headerLeft: () => (
                 <TouchableOpacity onPress={() => router.back()}>
                   <Text style={{ color: "#1a1b1c", paddingHorizontal: 10, fontSize: 15 }}>Back</Text>

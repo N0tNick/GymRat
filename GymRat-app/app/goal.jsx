@@ -181,8 +181,7 @@ const Goal = () => {
     return (
             <SafeAreaProvider>
                 <SafeAreaView style={{flex: 1, flexDirection: 'column', backgroundColor: '#1a1b1c', justifyContent: 'center'}}>
-                    <LinearGradient style={styles.container} colors={["#32a852","#1a1b1c"]}>
-                        
+                    <View style={styles.container}>
                         {showGoalWeight ? (
                             <SetGoalWeight currentWeight={150} goal={lose ? 'lose' : gain ? 'gain' : 'maintain'} />
                         ) : (
@@ -203,7 +202,7 @@ const Goal = () => {
                             </View>
                         )}
 
-                    </LinearGradient>
+                    </View>
                 </SafeAreaView>
             </SafeAreaProvider>
         )
@@ -239,7 +238,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     inputContainer: {
-        backgroundColor: '#232f30',
+        backgroundColor: '#2c2c2e',
         width: '75%',
         height: '25%',
         borderRadius: 10,

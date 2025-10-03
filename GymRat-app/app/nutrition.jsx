@@ -498,15 +498,15 @@ const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
 
   return (
     <SafeAreaProvider>
-      <LinearGradient style={styles.gradient} colors={['#32a852', '#1a1b1c']}>
+      <LinearGradient style={styles.gradient} colors={['#32a852', '#1a1b1c']} locations={[0,0.15,1]}>
         <SafeAreaView style={styles.container}>
           <ScrollView 
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.content}>
-              <Text style={styles.text}>Nutrition Screen</Text>
-              <Text style={[styles.text, { fontSize: 20 }]}>
+              {/* <Text style={styles.text}>Nutrition Screen</Text> */}
+              <Text style={[styles.text, { fontSize: 18 }]}>
                 Today's Calorie Goal: {cals}
               </Text>
 
@@ -696,14 +696,14 @@ const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
             </View>
           </ScrollView>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.loginButton}
             onPress={() => router.push('/login')}
           >
             <Text style={styles.loginButtonText}>
               Go to Login
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity
             style={styles.historyButton}
@@ -742,6 +742,7 @@ const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
                   <TextInput
                     style={styles.textInput}
                     placeholder="Enter food name"
+                    placeholderTextColor="#fff"
                     value={foodName}
                     onChangeText={setFoodName}
                   />
@@ -897,25 +898,27 @@ const styles = StyleSheet.create({
   },
   text: { 
     color: '#fff', 
-    fontSize: 28, 
+    fontSize: 18, 
     fontWeight: 'bold' 
   },
 
   addButton: {
     position: 'absolute',
-    bottom: 100,
+    bottom: 50,
     right: 20,
     width: 60,
     height: 60,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,
+    //elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    borderWidth: 1,
+    borderColor: '#32a852',
   },
   plusSign: { 
     fontSize: 30, 
@@ -930,7 +933,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContentWrapper: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1b1c',
     borderRadius: 20,
     width: '90%',
     maxHeight: screenHeight * 0.7,
@@ -945,8 +948,9 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   modalTitle: { 
-    fontSize: 24, 
-    fontWeight: 'bold', 
+    fontSize: 18,
+    color: '#fff', 
+    fontWeight: '600', 
     marginBottom: 15,
     textAlign: 'center',
   },
@@ -957,7 +961,8 @@ const styles = StyleSheet.create({
   },
   inputLabel: { 
     fontSize: 16, 
-    fontWeight: '600', 
+    color: '#fff',
+    fontWeight: 'normal', 
     marginBottom: 5 
   },
   textInput: {
@@ -965,16 +970,18 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 8,
     padding: 10,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#rgba(255,255,255,0.08)',
   },
   
   addValueButton: {
-    backgroundColor: '#32a852',
+    backgroundColor: '#rgba(255,255,255,0.08)',
     paddingVertical: 10,
     paddingHorizontal: 25,
     borderRadius: 8,
     marginBottom: 15,
     alignSelf: 'center',
+    borderWidth: 1,
+    borderColor: '#32a852',
   },
   addValueText: { 
     color: '#fff', 
@@ -1017,13 +1024,15 @@ const styles = StyleSheet.create({
     borderColor: '#eee',
   },
   saveButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 8,
     marginBottom: 12,
     width: '100%',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#32a852',
   },
   saveButtonText: { 
     color: '#fff', 
@@ -1032,12 +1041,14 @@ const styles = StyleSheet.create({
   },
 
   closeButton: {
-    backgroundColor: '#32a852',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 8,
     width: '100%',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#32a852',
   },
   closeButtonText: { 
     color: '#fff', 
@@ -1069,7 +1080,7 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: 18,
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: 'normal',
   },
 
   loginButton: {
@@ -1096,8 +1107,8 @@ const styles = StyleSheet.create({
   },
   macroValue: {
     color: '#fff',
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: 'normal',
   },
   macroLabel: {
     color: '#fff',
@@ -1111,7 +1122,7 @@ const styles = StyleSheet.create({
   progressTitle: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: 'normal',
   },
   progressHeader: {
     width: '100%',
@@ -1123,7 +1134,7 @@ const styles = StyleSheet.create({
   progressTopValue:{
     color: '#fff',
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: 'normal',
   },
   toggleRow: {
   flexDirection: 'row',
@@ -1138,7 +1149,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
+    borderColor: '#32a852',
     backgroundColor: 'rgba(255,255,255,0.08)',
   },
   toggleBtnActive: {
@@ -1154,19 +1165,21 @@ const styles = StyleSheet.create({
   },
   historyButton: {
     position: 'absolute',
-    bottom: 100,
+    bottom: 50,
     left: 20,
     width: 60,
     height: 60,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,
+    //elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    borderWidth: 1,
+    borderColor: '#32a852',
   },
   historyIcon: {
     fontSize: 26,
@@ -1182,7 +1195,7 @@ const styles = StyleSheet.create({
   historyModal: {
     width: '100%',
     height: screenHeight * 0.7,
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1b1c',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: 16,
@@ -1195,12 +1208,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
-  historyTitle: { fontSize: 18, fontWeight: '700', color: '#111' },
+  historyTitle: { fontSize: 18, fontWeight: '700', color: '#fff' },
   historyClose: { fontSize: 16, fontWeight: '700', color: '#32a852' },
 
   historyScrollContent: { paddingBottom: 24 },
   historySection: { marginBottom: 18 },
-  historyDate: { marginLeft: 6, marginBottom: 6, color: '#444', fontWeight: '700' },
+  historyDate: { marginLeft: 6, marginBottom: 6, color: '#fff', fontWeight: '700' },
   historyEmpty: { color: '#666', textAlign: 'center', marginTop: 16 },
 
   historyCard: {
@@ -1209,14 +1222,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     padding: 14,
     borderWidth: 2,
-    borderColor: '#111',
+    borderColor: '#32a852',
     borderRadius: 8,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(50,168,82,0.05)',
     marginBottom: 12,
   },
-  cardName: { fontSize: 26, fontWeight: '800', maxWidth: '55%', color: '#111' },
+  cardName: { fontSize: 18, fontWeight: '800', maxWidth: '55%', color: '#e0e0e0' },
   cardRight: { alignItems: 'flex-end' },
-  cardLine: { fontSize: 16, color: '#222', marginBottom: 6 },
+  cardLine: { fontSize: 16, color: '#e0e0e0', marginBottom: 6 },
   cardUnderline: { borderBottomWidth: 2, borderColor: '#111', paddingBottom: 2 },
   cardValue: { fontWeight: '700' },
 
@@ -1235,6 +1248,7 @@ const styles = StyleSheet.create({
   },
   pieCaption: {
     fontSize: 12,
+    fontWeight: 'normal',
     fontStyle: 'italic',
     color: '#fff',
     opacity: 0.85,

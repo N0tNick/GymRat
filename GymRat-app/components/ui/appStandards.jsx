@@ -10,6 +10,9 @@ const standards = {
     width: screenWidth,
     height: screenHeight
   },
+  buttonBackground:{
+    backgroundColor:'#2c2c2e'
+  },
   headerText: {
     fontSize:18,
     fontWeight:'800',

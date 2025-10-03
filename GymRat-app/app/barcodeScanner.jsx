@@ -756,11 +756,11 @@ export default function BarcodeScannerScreen() {
               <Text style={styles.modalTitle}>Today's Totals</Text>
               {dailyTotals ? (
                 <>
-                  <Text>Calories: {dailyTotals.totalCalories}</Text>
-                  <Text>Protein: {dailyTotals.totalProtein}g</Text>
-                  <Text>Carbs: {dailyTotals.totalCarbs}g</Text>
-                  <Text>Fat: {dailyTotals.totalFat}g</Text>
-                  <Text>{dailyTotals.day}</Text>
+                  <Text style={styles.nutritionLabel}>Calories: {dailyTotals.totalCalories}</Text>
+                  <Text style={styles.nutritionLabel}>Protein: {dailyTotals.totalProtein}g</Text>
+                  <Text style={styles.nutritionLabel}>Carbs: {dailyTotals.totalCarbs}g</Text>
+                  <Text style={styles.nutritionLabel}>Fat: {dailyTotals.totalFat}g</Text>
+                  <Text style={styles.nutritionLabel}>{dailyTotals.day}</Text>
                 </>
               ) : (
                 <Text>Loading totals...</Text>
