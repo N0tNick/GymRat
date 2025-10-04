@@ -121,23 +121,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 6,
-    color: "#fff"
+    color: "#e0e0e0"
   },
   message: {
     fontSize: 16,
     marginBottom: 10,
-    color: "#fff"
+    color: "#e0e0e0"
   },
   actionButton: {
-    backgroundColor: "#424049ff",
+    backgroundColor: "#888",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
     marginTop: 10,
   },
   actionButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: "#e0e0e0",
+    fontWeight: 600,
     fontSize: 16,
+    alignSelf: "center"
   },
 });

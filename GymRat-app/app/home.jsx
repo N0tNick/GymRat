@@ -739,14 +739,6 @@ const allModules = useMemo(() => {
               </View>
             </View>
           </Modal>
-
-          {/* route to nutrition splashpage */}
-          <TouchableOpacity
-            style={styles.nutsplashButton}
-            onPress={() => router.push('/nutsplash')}
-          >
-            <Text style={styles.buttonText}>Go to Nutrition Splash Page</Text>
-          </TouchableOpacity>
           </SafeAreaView>
         </View>
 

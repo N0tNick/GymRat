@@ -3,17 +3,16 @@ import { encode as btoa } from 'base-64';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { signOut } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Button, Linking, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../components/NavBar';
 import { auth } from '../firebaseConfig';
-
 import { Picker } from '@react-native-picker/picker';
-
 import { useSQLiteContext } from 'expo-sqlite';
 import { useUser } from '../UserContext';
+import FoodModal from '../components/FoodModal';
+import { color } from '@rneui/base';
 
 // configuration needed for fatsecret api 
 const FATSECRET_CONFIG = {
@@ -66,7 +65,6 @@ export default function BarcodeScannerScreen() {
   // nutrition modal
   const [showNutritionModal, setShowNutritionModal] = useState(false);
   // manual food search modal
-  const [manualQuery, setManualQuery] = useState('');
   const [manualModalVisible, setManualModalVisible] = useState(false);
   const [manualResults, setManualResults] = useState([]);
   // logging test modal
@@ -468,7 +466,13 @@ export default function BarcodeScannerScreen() {
     <SafeAreaProvider>
         <LinearGradient colors={['#1a1b1c', '#1a1b1c']} style={styles.container}>
           <SafeAreaView style={{ flex: 1 }}>
-          <View style={styles.overlay}>
+            <View style={styles.overlay}>
+            <View style={styles.header}>
+              <TouchableOpacity onPress={() => router.replace("/")} style={{ padding: 5 }}>
+                <Text style={{fontSize: 18,fontWeight: "bold", color: "#e0e0e0"}}>X</Text>
+              </TouchableOpacity>
+              <Text style={{ fontSize: 18, fontWeight: "bold", color: "#e0e0e0" }}>Scan a barcode</Text>
+            </View>
             <CameraView
               style={styles.camera}
               facing={type}
@@ -480,15 +484,13 @@ export default function BarcodeScannerScreen() {
             >
               <View style={styles.scanFrame} />
               <Text style={styles.scanText}>Align barcode within the frame</Text>  
-            </CameraView>
 
-            <TouchableOpacity color="#e0e0e0" onPress={() => Linking.openURL("https://www.fatsecret.com")}>
+              <TouchableOpacity color="#e0e0e0" onPress={() => Linking.openURL("https://www.fatsecret.com")}>
               {/*<!-- Begin fatsecret Platform API HTML Attribution Snippet -->*/}
-              <Text color="#e0e0e0" href="https://www.fatsecret.com">Powered by fatsecret</Text>
+              <Text style={styles.linkText} href="https://www.fatsecret.com">Powered by fatsecret</Text>
               {/*<!-- End fatsecret Platform API HTML Attribution Snippet -->*/}
             </TouchableOpacity>
-            
-            
+            </CameraView>
           </View>
           </SafeAreaView>
         </LinearGradient>
@@ -504,8 +506,11 @@ export default function BarcodeScannerScreen() {
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <TouchableOpacity style={styles.closeButton} onPress={() => { setShowNutritionModal(false); resetScanner(); }}>
-                <Text style={styles.closeButtonText}>X</Text>
+              <TouchableOpacity
+                style={{ alignSelf: 'flex-start', marginBottom: 10 }}
+                onPress={() => { setShowNutritionModal(false); resetScanner() }} // close modal
+              >
+                <Text style={{ color: '#e0e0e0', fontSize: 18, fontWeight: "bold" }}>X</Text>
               </TouchableOpacity>
 
               {loading ? (
@@ -619,26 +624,25 @@ export default function BarcodeScannerScreen() {
               ) : (
                 <>
                   {/* if no nutrition info shows option to manually search */}
-                  <Text style={styles.errorText}>{error || 'No product information available'}</Text>
+                  <Text style={styles.errorText}>No product information available</Text>
                   <TouchableOpacity
                     style={styles.rescanButton}
                     onPress={() => {
-                      setManualModalVisible(true);
                       setShowNutritionModal(false);
+                      setManualModalVisible("search"); // open FoodModal in search mode
                     }}
                   >
                     <Text style={styles.rescanButtonText}>Search Manually</Text>
                   </TouchableOpacity>
+                  
                   <TouchableOpacity
                     style={styles.rescanButton}
                     onPress={() => {
-                      router.replace('/nutrition?openModal=true');
+                      setShowNutritionModal(false);
+                      setManualModalVisible("manual"); // open FoodModal in manual-entry mode
                     }}
                   >
                     <Text style={styles.rescanButtonText}>Manual Entry</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.rescanButton, { backgroundColor: '#888' }]} onPress={resetScanner}>
-                    <Text style={styles.rescanButtonText}>Try Again</Text>
                   </TouchableOpacity>
                 </>
               )}
@@ -647,96 +651,11 @@ export default function BarcodeScannerScreen() {
         </Modal>
 
         {/* MANUAL SEARCH MODAL: search the name of food through api */}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={manualModalVisible}
-          onRequestClose={() => setManualModalVisible(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <TouchableOpacity style={styles.closeButton} onPress={() => setManualModalVisible(false)}>
-                <Text style={styles.closeButtonText}>X</Text>
-              </TouchableOpacity>
-
-              <Text style={styles.modalTitle}>Manual Food Search</Text>
-
-              <TextInput
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  borderRadius: 8,
-                  width: '100%',
-                  padding: 10,
-                  marginBottom: 10,
-                }}
-                placeholder="Enter food name"
-                value={manualQuery}
-                onChangeText={setManualQuery}
-              />
-
-              <TouchableOpacity
-                style={styles.rescanButton}
-                onPress={async () => {
-                  try {
-                    setLoading(true);
-                    setError(null);
-                    await searchFatSecretByName(manualQuery);
-                  } catch (err) {
-                    setError('Manual search failed.');
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
-              >
-                <Text style={styles.rescanButtonText}>Search</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => Linking.openURL("https://www.fatsecret.com")}>
-                {/*<!-- Begin fatsecret Platform API HTML Attribution Snippet -->*/}
-                <Text href="https://www.fatsecret.com">Powered by fatsecret</Text>
-                {/*<!-- End fatsecret Platform API HTML Attribution Snippet -->*/}
-              </TouchableOpacity>
-              {loading && <ActivityIndicator size="small" color="#0000ff" style={{ marginTop: 10 }} />}
-              
-              {error && <Text style={styles.errorText}>{error}</Text>}
-              
-              {manualResults.length > 0 && (
-                <View style={{ width: '100%', marginTop: 15 }}>
-                  <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>Select a result:</Text>
-                  {manualResults.map((item) => (
-                    <TouchableOpacity
-                      key={item.food_id}
-                      onPress={async () => {
-                        try {
-                          setLoading(true);
-                          const food = await getFoodDetails(item.food_id, await getAccessToken());
-                          setProductInfo(food);
-                          setManualModalVisible(false); 
-                          setShowNutritionModal(true); // show nutrition modal with new details
-                          setManualResults([]); // clear search
-                          setManualQuery(''); // clear field
-                        } catch (e) {
-                          setError('Failed to load food details');
-                        } finally {
-                          setLoading(false);
-                        }
-                      }}
-                      style={{
-                        paddingVertical: 10,
-                        borderBottomColor: '#ccc',
-                        borderBottomWidth: 1,
-                      }}
-                    >
-                      <Text style={{ fontSize: 16 }}>{item.food_name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-          </View>
-        </Modal>
-
+        <FoodModal
+          visible={!!manualModalVisible}
+          mode={manualModalVisible} // "search" or "manual"
+          onClose={() => { setManualModalVisible(false); resetScanner() }}
+        />
 
         {/* TODAYS TOTALS MODAL */}
         <Modal
@@ -751,7 +670,7 @@ export default function BarcodeScannerScreen() {
                 onPress={() => setShowLogModal(false)}
                 style={styles.closeButton}
               >
-                <Text style={styles.closeButtonText}>X</Text>
+                <Text style={{ color: '#e0e0e0', fontSize: 18, fontWeight: "bold" }}>X</Text>
               </TouchableOpacity>
               <Text style={styles.modalTitle}>Today's Totals</Text>
               {dailyTotals ? (
@@ -797,29 +716,23 @@ const styles = StyleSheet.create({
     borderRadius: 10 
   },
   scanText: { 
-    color: 'white', 
-    fontSize: 16, 
+    color: '#e0e0e0', 
+    fontSize: 16,
+    fontWeight: 600,
     marginTop: 20, 
     textAlign: 'center', 
     backgroundColor: 'rgba(0,0,0,0.5)', 
     padding: 8, 
     borderRadius: 5 
   },
-  logoutButton: { 
-    position: 'absolute', 
-    bottom: 30, 
-    backgroundColor: '#1a1b1c', 
-    paddingVertical: 12, 
-    paddingHorizontal: 24, 
-    borderRadius: 8, 
-    alignItems: 'center' 
-  },
-  logoutButtonText: { 
-    color: '#e0e0e0', 
-    fontSize: 18 
+  linkText: { 
+    color: '#888', 
+    fontSize: 12,
+    paddingTop: 6
   },
   message: { 
-    fontSize: 18, 
+    fontSize: 16,
+    fontWeight: 600, 
     textAlign: 'center', 
     marginBottom: 20 
   },
@@ -834,7 +747,7 @@ const styles = StyleSheet.create({
     padding: 20, 
   },
   modalTitle: { 
-    fontSize: 20, 
+    fontSize: 18, 
     fontWeight: 'bold', 
     marginBottom: 15, 
     color: '#e0e0e0' 
@@ -844,16 +757,16 @@ const styles = StyleSheet.create({
     right: 15, 
     top: 15, 
     backgroundColor: '#e0e0e0', 
-    borderRadius: 15, 
+    borderRadius: 25, 
     width: 30, 
     height: 30, 
     justifyContent: 'center', 
     alignItems: 'center' 
   },
   closeButtonText: { 
-    fontSize: 16, 
+    fontSize: 18, 
     fontWeight: 'bold', 
-    color: '#1a1b1c' 
+    color: '#e0e0e0' 
   },
   foodName: { 
     fontSize: 18, 
@@ -875,22 +788,24 @@ const styles = StyleSheet.create({
   },
   nutritionLabel: { 
     fontSize: 16, 
-    color: '#e0e0e0' 
+    color: '#e0e0e0',
+    fontWeight: 600
   },
   nutritionValue: { 
     fontSize: 16, 
-    fontWeight: 'bold', 
+    fontWeight: 600, 
     color: '#e0e0e0' 
   },
   errorText: { 
     fontSize: 16, 
+    fontWeight: 600,
     color: 'red', 
     textAlign: 'center',
     marginVertical: 15 
   },
   rescanButton: { 
     marginTop: 10, 
-    backgroundColor: '#6b6b6bff', 
+    backgroundColor: 'rgba(255,255,255,0.08)', 
     paddingVertical: 12, 
     paddingHorizontal: 24, 
     borderRadius: 8, 
@@ -898,6 +813,19 @@ const styles = StyleSheet.create({
   },
   rescanButtonText: { 
     color: '#e0e0e0', 
-    fontSize: 16 
-  }
+    fontSize: 16,
+    fontWeight: 600
+  },
+  header: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    backgroundColor: "#1a1b1c",
+    position: "absolute",
+    top: 0,
+    zIndex: 10,
+  },
 });

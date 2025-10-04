@@ -3,6 +3,8 @@ import { usePathname, useRouter } from 'expo-router';
 import { StyleSheet, TouchableOpacity, View, Animated, Touchable } from 'react-native';
 import { useState, useRef } from 'react';
 
+import FoodModal from './FoodModal';
+
 const tabs = [
   { name: 'Home',       route: '/home', 
     image: require('../assets/images/home3.png'), 
@@ -28,6 +30,8 @@ export default function NavBar() {
   const [scanExpanded, setScanExpanded] = useState(false);
   const anim = useRef(new Animated.Value(0)).current;
 
+  const [foodModalVisible, setFoodModalVisible] = useState(false);
+
   const toggleScan = () => {
     setScanExpanded(!scanExpanded);
     Animated.spring(anim, {
@@ -50,6 +54,7 @@ export default function NavBar() {
   });
 
   return (
+    <>
     <View style={styles.nav}>
       {tabs.map((tab) => {
         const isActive = path === tab.route || (tab.route === 'profile' && path === '/profile');
@@ -119,7 +124,7 @@ export default function NavBar() {
                     style={styles.optionBtn}
                     onPress={() => {
                       toggleScan();
-                      router.replace('/nutrition?openModal=true');
+                      setFoodModalVisible(true);
                     }}
                   >
                     <Image
@@ -151,6 +156,12 @@ export default function NavBar() {
         );
       })}
     </View>
+
+    <FoodModal
+      visible={foodModalVisible}
+      onClose={() => setFoodModalVisible(false)}
+    />
+    </>
   );
 }
 
