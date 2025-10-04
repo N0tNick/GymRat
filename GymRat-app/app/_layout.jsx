@@ -5,7 +5,6 @@ import React, { useEffect } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { syncStorage } from 'use-state-persist';
-import standards from '../components/ui/appStandards'
 
 // required for userId's
 import { SQLiteProvider } from 'expo-sqlite';
@@ -101,39 +100,39 @@ export default function App() {
         );
 
         await db.execAsync(
-          `CREATE TABLE IF NOT EXISTS storedNutLog (
-          user_id INTEGER NOT NULL, 
-          date TEXT NOT NULL PRIMARY KEY, 
-          name TEXT NOT NULL, 
-          calories TEXT NOT NULL, 
-          protein TEXT NOT NULL, 
-          cholesterol TEXT NOT NULL, 
-          sodium TEXT NOT NULL, 
-          total_Fat TEXT NOT NULL, 
-          saturated_Fat TEXT NOT NULL, 
-          trans_Fat TEXT NOT NULL, 
-          polyunsaturated_Fat TEXT NOT NULL, 
-          monosaturated_Fat TEXT NOT NULL, 
-          total_Carbs TEXT NOT NULL, 
-          fiber TEXT NOT NULL, 
-          sugar TEXT NOT NULL, 
-          vitamin_A TEXT NOT NULL, 
-          vitamin_C TEXT NOT NULL, 
-          vitamin_D TEXT NOT NULL, 
-          vitamin_E TEXT NOT NULL, 
-          vitamin_K TEXT NOT NULL, 
-          vitamin_B1 TEXT NOT NULL,
-          vitamin_B2 TEXT NOT NULL, 
-          vitamin_B3 TEXT NOT NULL, 
-          vitamin_B5 TEXT NOT NULL, 
-          vitamin_B6 TEXT NOT NULL, 
-          vitamin_B7 TEXT NOT NULL, 
-          vitamin_B9 TEXT NOT NULL, 
-          vitamin_B12 TEXT NOT NULL, 
-          iron TEXT NOT NULL, 
-          calcium TEXT NOT NULL, 
-          potassium TEXT NOT NULL, 
-          FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE);`
+          `CREATE TABLE IF NOT EXISTS historyLog (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER NOT NULL,
+          date TEXT NOT NULL,
+          name TEXT,
+          calories TEXT, 
+          protein TEXT,
+          cholesterol TEXT, 
+          sodium TEXT,
+          total_Fat TEXT, 
+          saturated_Fat TEXT, 
+          trans_Fat TEXT,
+          polyunsaturated_Fat TEXT, 
+          monosaturated_Fat TEXT,
+          total_Carbs TEXT, 
+          fiber TEXT, 
+          sugar TEXT,
+          vitamin_A TEXT, 
+          vitamin_C TEXT, 
+          vitamin_D TEXT, 
+          vitamin_E TEXT, 
+          vitamin_K TEXT,
+          vitamin_B1 TEXT, 
+          vitamin_B2 TEXT, 
+          vitamin_B3 TEXT, 
+          vitamin_B5 TEXT, 
+          vitamin_B6 TEXT,
+          vitamin_B7 TEXT, 
+          vitamin_B9 TEXT, 
+          vitamin_B12 TEXT,
+          iron TEXT, 
+          calcium TEXT, 
+          potassium TEXT);`
         );
 
         await db.execAsync(
@@ -170,6 +169,7 @@ export default function App() {
         await db.execAsync('PRAGMA journal_mode=WAL');
         try {
            await db.execAsync(`ALTER TABLE users ADD COLUMN hasOnboarded INTEGER NOT NULL DEFAULT 0;`);
+           console.log('Added hasOnboarded column to existing table');
          } catch (error) {
            // Column already exists or other error, which is fine
            console.log('hasOnboarded column migration skipped:', error.message);
@@ -192,11 +192,10 @@ export default function App() {
           <Stack.Screen
             name="nutsplash"
             options={{
-              title: 'Body Stats',
+              title: 'Personal Details',
               headerShown: true,
-              headerTitleStyle:  {fontSize:24,fontWeight:'800',color:'#e0e0e0',letterSpacing:0.3},
-              headerTintColor: 'e0e0e0',
-              headerStyle: { backgroundColor: '#1a1b1c' },
+              headerTintColor: '#1a1b1c',
+              headerStyle: { backgroundColor: '#32a852' },
               headerLeft: () => (
                 <TouchableOpacity onPress={() => router.back()}>
                   <Text style={{ color: "#1a1b1c", paddingHorizontal: 10, fontSize: 15 }}>Back</Text>
@@ -213,9 +212,8 @@ export default function App() {
             options={{
               title: 'Goal',
               headerShown: true,
-              headerTitleStyle:  {fontSize:24,fontWeight:'800',color:'#e0e0e0',letterSpacing:0.3},
-              headerTintColor: '#e0e0e0',
-              headerStyle: { backgroundColor: '#1a1b1c' },
+              headerTintColor: '#1a1b1c',
+              headerStyle: { backgroundColor: '#32a852' },
               headerLeft: () => (
                 <TouchableOpacity onPress={() => router.back()}>
                   <Text style={{ color: "#1a1b1c", paddingHorizontal: 10, fontSize: 15 }}>Back</Text>

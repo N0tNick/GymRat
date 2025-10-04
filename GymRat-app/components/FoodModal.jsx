@@ -1,6 +1,6 @@
 import { Modal, View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator, Linking } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { useUser } from "../UserContext";
 import axios from "axios";
@@ -27,7 +27,6 @@ const getAccessToken = async () => {
   return response.data.access_token;
 };
 
-// search fatsecret by name using the foods.search
 // search fatsecret by name using the foods.search
 const searchFatSecretByName = async (query) => {
   const accessToken = await getAccessToken();
@@ -165,6 +164,31 @@ export default function FoodModal({ visible, onClose }) {
 
   const [selectedFood, setSelectedFood] = useState(null);
   const [selectedNutrition, setSelectedNutrition] = useState(null);
+
+  const [recentFoods, setRecentFoods] = useState([]);
+
+  // Load recent foods when modal opens
+  useEffect(() => {
+    if (visible) {
+      loadRecentFoods();
+    }
+  }, [visible]);
+
+  const loadRecentFoods = async () => {
+    try {
+      const rows = await db.getAllAsync(
+        `SELECT id, name, calories, protein, total_Carbs, total_Fat 
+         FROM historyLog 
+         WHERE user_id = ? 
+         ORDER BY id DESC 
+         LIMIT 10`,
+        [userId]
+      );
+      setRecentFoods(rows);
+    } catch (err) {
+      console.error("Error loading recent foods:", err);
+    }
+  };
 
   // ---------------- Search Food ----------------
   const handleSearch = async () => {
@@ -382,9 +406,38 @@ export default function FoodModal({ visible, onClose }) {
 
             {loading && <ActivityIndicator size="small" color="#32a852" style={{ marginTop: 10 }} />}
             {error && <Text style={styles.errorText}>{error}</Text>}
-
-            {/* Scrollable results */}
-            {manualResults.length > 0 && (
+            
+            {manualQuery.trim() === "" && manualResults.length === 0 ? (
+              <View style={styles.resultsContainer}>
+                <Text style={styles.resultsHeader}>Recent Foods</Text>
+                <ScrollView style={{ maxHeight: 200 }} contentContainerStyle={{ paddingBottom: 10 }}>
+                  {recentFoods.map((item) => (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={[
+                        styles.resultItem,
+                        selectedFood?.id === item.id && { backgroundColor: "#2a2a2a" }
+                      ]}
+                      onPress={() => {
+                        setSelectedFood({ id: item.id, name: item.name });
+                        setSelectedNutrition({
+                          calories: item.calories,
+                          protein: item.protein,
+                          total_Carbs: item.total_Carbs,
+                          total_Fat: item.total_Fat,
+                        });
+                      }}
+                    >
+                      <Text style={{ fontSize: 16, color: "#e0e0e0" }}>{item.name}</Text>
+                      <Text style={{ fontSize: 12, color: "#aaa" }}>
+                        {item.calories} kcal • {item.protein}g protein • {item.total_Carbs}g carbs • {item.total_Fat}g fat
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            ) : (
+             manualResults.length > 0 && (
                 <View style={styles.resultsContainer}>
                     <Text style={styles.resultsHeader}>Select a result:</Text>
                     <ScrollView style={{ maxHeight: 200 }} contentContainerStyle={{ paddingBottom: 10}} showsHorizontalScrollIndicator={true}>
@@ -418,7 +471,9 @@ export default function FoodModal({ visible, onClose }) {
                         ))}
                     </ScrollView>
                 </View>
+                )
             )}
+
             {selectedNutrition && (
                 <View style={styles.previewBox}>
                     <Text style={styles.previewTitle}>Preview Nutrition</Text>
