@@ -1,3 +1,4 @@
+
 const TABLE_SQL = `
 CREATE TABLE IF NOT EXISTS userStreaks (
   user_id TEXT PRIMARY KEY,
@@ -76,5 +77,14 @@ export async function getStreak(db, userId){
     if (!rows || rows.length === 0) {
         return {current_streak: 0, best_streak: 0, last_open_date: getLocalDateStr()};
     }
-    return rows[0];
+    const { current_streak, best_streak, last_open_date } = rows[0];
+    const today = getLocalDateStr();
+    if (last_open_date === today){
+        return {current_streak, best_streak, last_open_date};
+    }
+    const gap = diffInDays(last_open_date, today);
+    if (gap === 1){
+        return {current_streak, best_streak, last_open_date};
+    }
+    return { current_streak: 0, best_streak, last_open_date};
 }
