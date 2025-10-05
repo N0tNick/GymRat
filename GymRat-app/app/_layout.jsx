@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { syncStorage } from 'use-state-persist';
+import exampleTemplates from '../assets/presetWorkoutTemplates.json';
 
 // required for userId's
 import { SQLiteProvider } from 'expo-sqlite';
@@ -28,6 +29,14 @@ export default function App() {
     }
     setUpTimer()
   }, []);
+
+  const loadExampleTemplates = (db) => {
+    exampleTemplates.forEach(async t => {
+      await db.execAsync("UPSERT INTO workoutTemplates (id, user_id, name, data) VALUES (?, ?, ?, ?)",
+        [t.id, 1, t.name, t.data]
+      )
+    })
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -143,6 +152,41 @@ export default function App() {
           data TEXT
           );`
         );
+
+        //db.execAsync(`DROP TABLE IF EXISTS exampleWorkoutTemplates;`);
+        await db.execAsync(
+          `CREATE TABLE IF NOT EXISTS exampleWorkoutTemplates (
+          id INTEGER PRIMARY KEY NOT NULL,
+          user_id INTEGER NOT NULL,
+          name TEXT NOT NULL,
+          data TEXT
+          );`
+        );
+
+        /*console.log('exampleTemplates count:', exampleTemplates?.length);
+        console.log('exampleTemplates ids:', exampleTemplates?.map(t => t.id));
+        console.log('exampleTemplates sample:', exampleTemplates?.[0]);*/
+
+        for (const t of exampleTemplates) {
+          try {
+            console.log('Inserting id=', t.id, 'name=', t.name);
+            const res = await db.runAsync(
+              "INSERT OR IGNORE INTO exampleWorkoutTemplates (id, user_id, name, data) VALUES (?, ?, ?, ?)",
+              [t.id, 1, t.name, JSON.stringify(t.data)]
+            );
+            console.log('Insert returned:', res);
+          } catch (err) {
+            console.error('Insert error for id', t.id, err);
+          }
+        }
+
+        // Debug: Log the contents of exampleWorkoutTemplates after insertion
+        /*try {
+          const rows = await db.getAllAsync("SELECT * FROM exampleWorkoutTemplates");
+          console.log('Example Workout Templates:', rows);
+        } catch (err) {
+          console.error('Error reading exampleWorkoutTemplates:', err.message);
+        }*/
 
         await db.execAsync(
           `CREATE TABLE IF NOT EXISTS customExercises (

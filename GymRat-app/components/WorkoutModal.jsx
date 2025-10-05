@@ -7,7 +7,7 @@ import { useStatePersist } from 'use-state-persist';
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
-export default function WorkoutModal({workoutModal, setWorkoutModal, template, finishWorkout}) {
+export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplates,template, finishWorkout}) {
     const db = useSQLiteContext()
     const [workoutData, setWorkoutData] = useState(null)
   const [exercises, setExercises] = useState([])
@@ -22,36 +22,71 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, template, f
       return;
     }
     const fetchWorkout = async () => {
-      try {
-        const rows = await db.getAllAsync(
-          `SELECT * FROM workoutTemplates WHERE id = ?`,
-          [template.id]
-        );
-        if (rows && rows.length > 0) {
-          const workout = rows[0]
-          setWorkoutData(workout)
-          console.log('Found row:', rows[0]);
-          if (workout.data) {
-            const parsed = JSON.parse(workout.data);
-            setExercises(parsed.exercises || []);
-            // Deep copy for user editing
-            setUpdatedExercises(JSON.parse(JSON.stringify(parsed.exercises || [])));
+      if (userTemplates.includes(template)) {
+        try {
+          const rows = await db.getAllAsync(
+            `SELECT * FROM workoutTemplates WHERE id = ?`,
+            [template.id]
+          );
+          if (rows && rows.length > 0) {
+            const workout = rows[0]
+            setWorkoutData(workout)
+            console.log('Found row:', rows[0]);
+            if (workout.data) {
+              const parsed = JSON.parse(workout.data);
+              setExercises(parsed.exercises || []);
+              // Deep copy for user editing
+              setUpdatedExercises(JSON.parse(JSON.stringify(parsed.exercises || [])));
+            }
+            else { 
+              setExercises([])
+              setUpdatedExercises([])
+            }
+          } else {
+            setWorkoutData(null);
+            setExercises([]);
+            setUpdatedExercises([]);
+            console.log(`No row found with id = ${template.id}`);
           }
-          else { 
-            setExercises([])
-            setUpdatedExercises([])
-          }
-        } else {
+        } catch (err) {
+          console.error(err.message);
           setWorkoutData(null);
           setExercises([]);
           setUpdatedExercises([]);
-          console.log(`No row found with id = ${template.id}`);
         }
-      } catch (err) {
-        console.error(err.message);
-        setWorkoutData(null);
-        setExercises([]);
-        setUpdatedExercises([]);
+      }
+      else {
+        try {
+          const rows = await db.getAllAsync(
+            `SELECT * FROM exampleWorkoutTemplates WHERE id = ?`,
+            [template.id]
+          );
+          if (rows && rows.length > 0) {
+            const workout = rows[0]
+            setWorkoutData(workout)
+            console.log('Found row:', rows[0]);
+            if (workout.data) {
+              const parsed = JSON.parse(workout.data);
+              setExercises(parsed.exercises || []);
+              // Deep copy for user editing
+              setUpdatedExercises(JSON.parse(JSON.stringify(parsed.exercises || [])));
+            }
+            else { 
+              setExercises([])
+              setUpdatedExercises([])
+            }
+          } else {
+            setWorkoutData(null);
+            setExercises([]);
+            setUpdatedExercises([]);
+            console.log(`No row found with id = ${template.id}`);
+          }
+        } catch (err) {
+          console.error(err.message);
+          setWorkoutData(null);
+          setExercises([]);
+          setUpdatedExercises([]);
+        }
       }
     };
     fetchWorkout();
@@ -153,27 +188,52 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, template, f
     
     // Save updated workout to DB
     const saveUpdatedWorkout = async () => {
-      if (!workoutData) return;
-      try {
-        const updatedData = JSON.stringify({ exercises: updatedExercises });
-        const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
-        await db.runAsync(
-          `UPDATE workoutTemplates SET data = ? WHERE id = ?`,
-          [updatedData, workoutData.id]
-        );
-        await db.runAsync(
-          `INSERT INTO workoutLog (user_id, workout_name, date) VALUES (?, ?, ?)`,
-          [workoutData.user_id, workoutData.name, today]
-        );
+      if (!workoutData) return
+      else if (userTemplates.includes(template)) {
+        try {
+          const updatedData = JSON.stringify({ exercises: updatedExercises });
+          const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
+          await db.runAsync(
+            `UPDATE workoutTemplates SET data = ? WHERE id = ?`,
+            [updatedData, workoutData.id]
+          );
+          await db.runAsync(
+            `INSERT INTO workoutLog (user_id, workout_name, date) VALUES (?, ?, ?)`,
+            [workoutData.user_id, workoutData.name, today]
+          );
 
-        const workRows = await db.getAllAsync(
-          `SELECT * FROM workoutLog WHERE id = ?`,
-          [template.id]
-        );
-        console.log(workRows[0])
-        console.log('Workout updated!');
-      } catch (err) {
-        console.error('Failed to update workout:', err.message);
+          const workRows = await db.getAllAsync(
+            `SELECT * FROM workoutLog WHERE id = ?`,
+            [template.id]
+          );
+          console.log(workRows[0])
+          console.log('Workout updated!');
+        } catch (err) {
+          console.error('Failed to update workout:', err.message);
+        }
+      }
+      else {
+        try {
+          const updatedData = JSON.stringify({ exercises: updatedExercises });
+          const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
+          await db.runAsync(
+            `UPDATE exampleWorkoutTemplates SET data = ? WHERE id = ?`,
+            [updatedData, workoutData.id]
+          );
+          await db.runAsync(
+            `INSERT INTO workoutLog (user_id, workout_name, date) VALUES (?, ?, ?)`,
+            [workoutData.user_id, workoutData.name, today]
+          );
+
+          const workRows = await db.getAllAsync(
+            `SELECT * FROM workoutLog WHERE id = ?`,
+            [template.id]
+          );
+          console.log(workRows[0])
+          console.log('Workout updated!');
+        } catch (err) {
+          console.error('Failed to update workout:', err.message);
+        }
       }
     };
 

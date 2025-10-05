@@ -6,7 +6,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, Dimensions, FlatList, Modal, ScrollView, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import exercises from '../assets/exercises.json';
-import exampleTemplates from '../assets/presetWorkoutTemplates.json';
 import schema from '../assets/schema.json';
 import NavBar from '../components/NavBar';
 import WorkoutModal from '../components/WorkoutModal';
@@ -20,6 +19,7 @@ const { width: screenWidth } = Dimensions.get('window');
 export default function WorkoutScreen() {
   const db = useSQLiteContext()
   const [userTemplates, setUserTemplates] = useState([])
+  const [presetTemplates, setPresetTemplates] = useState([])
   const router = useRouter();
   const [isOngoingWorkout, setIsOngoingWorkout] = usePersistedBoolean('isOngoingWorkout', false);
   const [selectedTemplate, setSelectedTemplate] = usePersistedWorkout('selectedTemplate', null)
@@ -29,6 +29,8 @@ export default function WorkoutScreen() {
     setUserTemplates(result)
     const result2 = await db.getAllAsync("SELECT * FROM customExercises;")
     setCustomExercises(result2)
+    const result3 = await db.getAllAsync("SELECT * FROM exampleWorkoutTemplates")
+    setPresetTemplates(result3)
   }
 
   function finishWorkout(bool) {
@@ -167,23 +169,44 @@ export default function WorkoutScreen() {
       template = item.data
     }
 
-    return (
-      <View>
-        <TouchableOpacity onPress = {() => {if (!isOngoingWorkout) manageTemplate(item.id, item.name)}} style={styles.templateBox}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={standards.headerText}>{item.name}</Text>
-            <TouchableOpacity onPress = {() => {deleteTemplate(item.id)}}>{/*<Text style={standards.regularText}>Delete</Text>*/}<Image style={{width: 25, height: 25}} source={require('../assets/images/white-trash-can.png')}/></TouchableOpacity>
-          </View>
+    if (userTemplates.includes(item)) {
+      return (
+        <View>
+          <TouchableOpacity onPress = {() => {if (!isOngoingWorkout) manageTemplate(item)}} style={styles.templateBox}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={standards.headerText}>{item.name}</Text>
+              <TouchableOpacity onPress = {() => {deleteTemplate(item.id)}}>{/*<Text style={standards.regularText}>Delete</Text>*/}<Image style={{width: 25, height: 25}} source={require('../assets/images/white-trash-can.png')}/></TouchableOpacity>
+            </View>
 
-          {template.exercises.map((exercise, idx) => (
-            <Text key={exercise.id || idx} style={standards.smallText}>
-              {exercise.name} ({exercise.sets.length} sets)
-            </Text>
-          ))}
-        </TouchableOpacity>
-        <View style={{padding: 5}}/>
-      </View>
-    )
+            {template.exercises.map((exercise, idx) => (
+              <Text key={exercise.id || idx} style={standards.smallText}>
+                {exercise.name} ({exercise.sets.length} sets)
+              </Text>
+            ))}
+          </TouchableOpacity>
+          <View style={{padding: 5}}/>
+        </View>
+      )
+    }
+    else {
+      return (
+        <View>
+          <TouchableOpacity onPress = {() => {if (!isOngoingWorkout) manageTemplate(item)}} style={styles.templateBox}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={standards.headerText}>{item.name}</Text>
+            </View>
+
+            {template.exercises.map((exercise, idx) => (
+              <Text key={exercise.id || idx} style={standards.smallText}>
+                {exercise.name} ({exercise.sets.length} sets)
+              </Text>
+            ))}
+          </TouchableOpacity>
+          <View style={{padding: 5}}/>
+        </View>
+      )
+    }
+    
   }
 
   const deleteTemplate = (id) => {
@@ -211,8 +234,8 @@ export default function WorkoutScreen() {
     loadTemplates()
   }
 
-  const manageTemplate = (id, name) => {
-    setSelectedTemplate({ id, name });
+  const manageTemplate = (t) => {
+    setSelectedTemplate(t);
     setManageTemplateModal(true);
   }
 
@@ -391,6 +414,7 @@ export default function WorkoutScreen() {
           <WorkoutModal 
             workoutModal={workoutModal} 
             setWorkoutModal={setWorkoutModal} 
+            userTemplates={userTemplates}
             template={selectedTemplate}
             finishWorkout={finishWorkout}
           />
@@ -402,7 +426,7 @@ export default function WorkoutScreen() {
           />
 
           <Text style={[standards.headerText, {padding: 10}]}>Templates</Text>
-          <View style={{flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 10}}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 5}}>
             <TouchableOpacity style={styles.button} onPress ={() => setExerciseCreation(true)}><Text style={standards.smallText}>+ Exercise</Text></TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress ={() => router.push('/createTemplate')}><Text style={standards.smallText}>+ Template</Text></TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress ={() => setModalVisible(true)}><Text style={standards.smallText}>Exercise List</Text></TouchableOpacity>
@@ -419,11 +443,13 @@ export default function WorkoutScreen() {
               </TouchableOpacity>
             </View>
           ) : null}
+
+          <View style={{paddingVertical: 5}}/>
           
           {/* Display Custom Templates if exists */}
-          {(userTemplates.length > 0) ? (
+          {(presetTemplates.length > 0) ? (
             <SectionList
-            sections={[{title: 'Custom Templates', data: userTemplates}, {title: 'Example Templates', data: exampleTemplates}]}
+            sections={[{title: 'Custom Templates', data: userTemplates}, {title: 'Example Templates', data: presetTemplates}]}
             keyExtractor={(item) => item.id.toString()}
             renderItem={renderTemplate}
             style={{padding: 10}}
