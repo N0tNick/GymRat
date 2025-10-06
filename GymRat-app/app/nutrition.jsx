@@ -750,14 +750,14 @@ useEffect(() => {
             </View>
           </ScrollView>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.loginButton}
             onPress={() => router.push('/login')}
           >
             <Text style={styles.loginButtonText}>
               Go to Login
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity
             style={styles.historyButton}
