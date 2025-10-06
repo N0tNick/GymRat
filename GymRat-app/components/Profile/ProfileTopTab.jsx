@@ -68,12 +68,13 @@ const TopTab = () => {
       <TabView 
       selectedIndex={selectedIndex} 
       onSelect={index => setSelectedIndex(index)} 
-      indicatorStyle={styles.indicator}
+      indicatorStyle={{height:0}}
       style={{backgroundColor: '#2c2c2e', borderTopWidth:2,borderColor:'#6a5acd'}}
+      tabBarStyle={styles.tabBarStyle}
       >
         <Tab 
-          title={evaProps => <Text {...evaProps} style={standards.headerText}>Overview</Text>}
-          style={styles.tabStyle}
+          title={evaProps => <Text {...evaProps} style={[standards.headerText]}>Overview</Text>}
+          style={[styles.tabBase, selectedIndex === 0 && styles.activeTab]} 
         >         
           <Layout style={styles.tabContainer}>
               <Calendar/>
@@ -91,8 +92,8 @@ const TopTab = () => {
         </Tab>
         
         <Tab 
-          title={evaProps => <Text {...evaProps} style={standards.headerText}>Body</Text>}
-          style={styles.tabStyle}
+          title={evaProps => <Text {...evaProps} style={[standards.headerText]}>Body</Text>}
+          style={[styles.tabBase, selectedIndex === 1 && styles.activeTab]}
         >         
           <Layout style={styles.tabContainer}>
             <View style={{width:screenWidth*0.95,height:screenHeight*0.11, padding:5, marginBottom:20,borderRadius:10,backgroundColor:'#2c2c2e'}}>
@@ -205,18 +206,27 @@ const TopTab = () => {
 export default TopTab
 
 const styles = StyleSheet.create({
-  tabStyle: {
+  tabBarStyle: {
     backgroundColor: '#2c2c2e',
-    margin:3,
+    padding:0,
+    margin:0,
+    height:screenHeight*0.04
+  },
+  tabStyle: {
+    backgroundColor: 'transparent',
+  },
+  tabBase: {
+    flex:1,
+    margin:-4,
+    backgroundColor:'transparent',
+  },
+  activeTab: {
+    backgroundColor: '#6a5acd',
   },
   tabText: {
     color: '#e0e0e0',
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  indicator: {
-    backgroundColor: '#6a5acd',
-    height:2,
   },
   tabContainer: {
     height: screenHeight,

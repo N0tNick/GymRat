@@ -2,9 +2,14 @@ import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { data } from './nutsplash';
+import standards from '../components/ui/appStandards'
+
+
+const { height: ScreenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 const userData = data
 
@@ -59,41 +64,46 @@ function calculateAge(birthDateString, referenceDateString = new Date().toISOStr
     return age
 }
 
-const SetGoalSpeed = ({ goal }) => {
-    //console.log(goal)
+const SetGoalSpeed = ({ goal, onBack }) => {
     const [sliderValue, setSliderValue] = React.useState(.25);
-
-    return(
-        <View style={{color: 'transparent', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
-            <View style={[styles.inputContainer, {height: '35%'}]}>
-                <Text style={[styles.text, {textAlign: 'center'}]}>How fast do you want to {goal} weight?</Text>
-                <Text style={[styles.text, {fontSize: 25}]}>{sliderValue} lbs/week</Text>
+    return (
+        <View style={styles.container}>
+            <View style={[styles.inputContainer, {alignSelf:'center', height:'35%'}]}>
+                <Text style={[standards.headerText, {fontSize:24, textAlign:'center'}]}>How fast do you want to {goal} weight?</Text>
+                <Text style={[standards.regularText, {fontSize:24}]}>{sliderValue} lbs/week</Text>
                 <Slider
-                style={{width: 200, height: 40}}
-                minimumValue={.25}
-                maximumValue={2}
-                minimumTrackTintColor="#FFFFFF"
-                maximumTrackTintColor="#000000"
-                step={.25}
-                tapToSeek={true}
-                onValueChange={(value) => {
-                    setSliderValue(value);
-                }}
+                    style={{width:200, height:40}}
+                    minimumValue={.25}
+                    maximumValue={2}
+                    minimumTrackTintColor="#FFFFFF"
+                    maximumTrackTintColor="#000000"
+                    step={.25}
+                    tapToSeek
+                    onValueChange={setSliderValue}
                 />
-                <TouchableOpacity style={styles.saveButton} onPress={() => {
-                    //console.log(sliderValue)
-                    cals = Math.round(calcCalories({ goal, speed: sliderValue }))
-                    console.log(cals)
-                    router.replace('/nutrition')
-                }}>
-                    <Text style={[styles.text, {fontSize: 20}]}>Save</Text>
-                </TouchableOpacity>
+                <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                    <TouchableOpacity
+                        style={[styles.saveButton, styles.nextButton]}
+                        onPress={onBack}
+                    >
+                        <Text style={[standards.regularText, { fontSize:20 }]}>Back</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.saveButton, styles.nextButton]}
+                        onPress={() => {
+                            cals = Math.round(calcCalories({ goal, speed: sliderValue }));
+                            router.replace('/nutrition');
+                        }}
+                    >
+                        <Text style={[standards.regularText, { fontSize:20 }]}>Save</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
-    )
+    );
 }
 
-const SetGoalWeight = ({ currentWeight, goal }) => {
+const SetGoalWeight = ({ currentWeight, goal, onBack }) => {
     const [tempWeight, setTempWeight] = React.useState('')
     const Increase = () => setTempWeight(prevWeight => {
         return Number(prevWeight) + 1;
@@ -111,19 +121,22 @@ const SetGoalWeight = ({ currentWeight, goal }) => {
 
     return(
         showGoalSpeed ? (
-            <SetGoalSpeed goal={goal} />
+            <SetGoalSpeed
+                goal={goal}
+                onBack={() => setShowGoalSpeed(false)}
+            />
         ) : (
-            <View style={{color: 'transparent', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{ flex:1, backgroundColor:'#1a1b1c', justifyContent:'center', alignItems:'center'}}>
                 <View style={styles.inputContainer}>
-                    <Text style={{color: '#fff', fontSize: 28, fontWeight: 'bold'}}>Goal Weight</Text>
+                    <Text style={[standards.regularText, {fontSize:24}]}>Goal Weight</Text>
 
                     <View style={{color: '#232f30', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingHorizontal: 20, paddingVertical: 10}}>
                         <TouchableOpacity onPress={Decrease}>
-                            <Text style={styles.text}>-</Text>
+                            <Text style={[standards.regularText,{fontSize:28}]}>-</Text>
                         </TouchableOpacity>
                         <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '50%'}}>
                             <TextInput 
-                                style={[styles.numInput, { width: '35%' }]}
+                                style={[standards.regularText, { fontSize:24}]}
                                 keyboardType="numeric"
                                 placeholder= {(goal === 'lose' ? (currentWeight - 1) : goal === 'gain' ? (currentWeight + 1) : currentWeight).toString()}
                                 onChangeText={text => {
@@ -137,18 +150,26 @@ const SetGoalWeight = ({ currentWeight, goal }) => {
                                 }} // Ensure it stays a number
                                 maxLength={3} // Limit to 3 digits
                             />
-                            <Text style={styles.text}> lbs</Text>
+                            <Text style={[standards.regularText,{fontSize:24}]}> lbs</Text>
                         </View>
                         <TouchableOpacity onPress={Increase}>
-                            <Text style={styles.text}>+</Text>
+                            <Text style={[standards.regularText,{fontSize:28}]}>+</Text>
                         </TouchableOpacity>
                     </View>
-
-                    <TouchableOpacity style={styles.saveButton} onPress={() => 
-                    setShowGoalSpeed(true)
-                    }>
-                        <Text style={[styles.text, {fontSize: 20}]}>Save</Text>
-                    </TouchableOpacity>
+                    <View style={{flexDirection:'row', justifyContent:'space-between'}}>     
+                        <TouchableOpacity
+                            style={[styles.saveButton, styles.nextButton]}
+                            onPress={onBack}
+                        >
+                            <Text style={[standards.regularText, { fontSize:20 }]}>Back</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.saveButton, styles.nextButton]}
+                            onPress={() => setShowGoalSpeed(true)}
+                        >
+                            <Text style={[standards.regularText, { fontSize:20 }]}>Next</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         )
@@ -180,25 +201,40 @@ const Goal = () => {
 
     return (
             <SafeAreaProvider>
-                <SafeAreaView style={{flex: 1, flexDirection: 'column', backgroundColor: '#1a1b1c', justifyContent: 'center'}}>
+                <SafeAreaView style={styles.container}>
                     <View style={styles.container}>
                         {showGoalWeight ? (
-                            <SetGoalWeight currentWeight={150} goal={lose ? 'lose' : gain ? 'gain' : 'maintain'} />
+                            <SetGoalWeight
+                                currentWeight={150}
+                                goal={lose ? 'lose' : gain ? 'gain' : 'maintain'}
+                                onBack={() => setShowGoalWeight(false)}
+                            />
                         ) : (
-                            <View style={[styles.inputContainer, {height: '50%', width: '60%'}]}>
-                                <Text style={styles.text}>What is your goal?</Text>
+                            <View style={[styles.inputContainer, {alignSelf:'center',width:screenWidth*0.6, height:ScreenHeight*0.4}]}>
+                                <Text style={[standards.headerText, {textAlign:'center', fontSize:24}]}>What is your goal?</Text>
                                 <TouchableOpacity style={[styles.button, {backgroundColor: lose ? '#32a852' : '#1a1b1c'}]} onPress={() => handlePress('lose')}>
-                                    <Text style={[styles.text, {fontSize: 20}]}>Lose Weight</Text>
+                                    <Text style={[standards.regularText, {fontSize: 20}]}>Lose Weight</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={[styles.button, {backgroundColor: maintain ? '#32a852' : '#1a1b1c'}]} onPress={() => handlePress('maintain')}>
-                                    <Text style={[styles.text, {fontSize: 20}]}>Maintain Weight</Text>
+                                    <Text style={[standards.regularText, {fontSize: 20}]}>Maintain Weight</Text>
                                 </TouchableOpacity> 
                                 <TouchableOpacity style={[styles.button, {backgroundColor: gain ? '#32a852' : '#1a1b1c'}]} onPress={() => handlePress('gain')}>
-                                    <Text style={[styles.text, {fontSize: 20}]}>Gain Weight</Text>
+                                    <Text style={[standards.regularText, {fontSize: 20}]}>Gain Weight</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={[styles.saveButton, {alignSelf: 'center', borderRadius: 10}]} onPress={() => setShowGoalWeight(true)}>
-                                    <Text style={[styles.text, {fontSize: 20}]}>Next</Text>
-                                </TouchableOpacity>
+                                <View style={{flexDirection:'row', justifyContent:'space-between',marginTop:5}}>     
+                                    <TouchableOpacity
+                                        style={[styles.saveButton, styles.nextButton]}
+                                        onPress={() => router.navigate('/nutsplash')}
+                                    >
+                                        <Text style={[standards.regularText, { fontSize: 20 }]}>Back</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={[styles.saveButton, {alignSelf: 'center', borderRadius: 10}]}
+                                        onPress={() => setShowGoalWeight(true)}
+                                    >
+                                        <Text style={[standards.regularText, {fontSize: 20}]}>Next</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         )}
 
@@ -213,9 +249,10 @@ export default Goal;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        height:ScreenHeight,
         flexDirection: 'column',
         backgroundColor: '#1a1b1c',
-        alignItems: 'center',
+        justifyContent: 'center',
     },
     text: {
         color: '#fff',
@@ -232,10 +269,16 @@ const styles = StyleSheet.create({
     saveButton: {
         backgroundColor: '#32a852',
         paddingVertical: 10,
-        width: '50%',
+        width: '45%',
         alignItems: 'center',
         borderRadius: 4,
+        margin:5,
         marginTop: 10,
+    },
+    nextButton: {
+        alignSelf: 'center',
+        borderRadius: 10,
+        marginTop: 8,
     },
     inputContainer: {
         backgroundColor: '#2c2c2e',

@@ -6,9 +6,11 @@ const { width: screenWidth } = Dimensions.get('window');
 
 const standards = {
   background: {
+    flex:1,
+    position:'absolute',
     backgroundColor: '#1a1b1c',
     width: screenWidth,
-    height: screenHeight
+    height: screenHeight,
   },
   buttonBackground:{
     backgroundColor:'#2c2c2e'
