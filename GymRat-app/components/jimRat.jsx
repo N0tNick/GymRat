@@ -1,6 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Button, StyleSheet, TouchableOpacity, Touchable} from "react-native";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+//images for jim rat on home home screen
+const jimRatImages = {
+  1: require("../assets/JimRatHome1.png"),
+  2: require("../assets/JimRatHome2.png"),
+  3: require("../assets/JimRatHome3.png"),
+}
 
 // Tip definitions for daily nutrition
 const tips = [
@@ -59,10 +66,18 @@ function getApplicableTips(totals, targets, hasEntries, hasWorkout) {
   return validTips;
 }
 
-export default function JimRat({ dailyTotals, targets, hasEntries, hasWorkout }) {
+export default function JimRat({ dailyTotals, targets, hasEntries, hasWorkout, streak }) {
   const [messages, setMessages] = useState([]);
   const [index, setIndex] = useState(0);
   const router = useRouter();
+
+  //determines which image to use with what streak
+  const getJimRatImage = () => {
+    if (streak === 1) return jimRatImages[1];
+    if (streak === 2) return jimRatImages[2];
+    if (streak >= 3) return jimRatImages[3];
+    return jimRatImages[1];
+  }
 
   useEffect(() => {
     if (dailyTotals && targets) {
@@ -79,8 +94,11 @@ export default function JimRat({ dailyTotals, targets, hasEntries, hasWorkout })
   if (!messages.length) {
     return (
       <View style={styles.container}>
-        <Text style={styles.header}>Jim Rat:</Text>
-        <Text style={styles.message}>Looking good! Keep logging</Text>
+        <Image source={getJimRatImage()} style={styles.image} resizeMode="contain"/>
+        <View style={styles.textContainer}>
+          <Text style={styles.header}>Jim Rat:</Text>
+          <Text style={styles.message}>Looking good! Keep logging</Text>
+        </View>
       </View>
     );
   }
@@ -89,6 +107,8 @@ export default function JimRat({ dailyTotals, targets, hasEntries, hasWorkout })
 
   return (
     <View style={styles.container}>
+      <Image source={getJimRatImage()} style={styles.image} resizeMode="contain"/>
+      <View style={styles.textContainer}>
       <Text style={styles.header}>Jim Rat:</Text>
       <Text style={styles.message}>
         {currentTip.getMessage(dailyTotals, targets)}
@@ -108,14 +128,17 @@ export default function JimRat({ dailyTotals, targets, hasEntries, hasWorkout })
         </TouchableOpacity>
       )}
     </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: "#27282aff",
-    borderRadius: 12
+    backgroundColor: "transparent",
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
   },
   header: {
     fontSize: 18,
@@ -140,5 +163,13 @@ const styles = StyleSheet.create({
     fontWeight: 600,
     fontSize: 16,
     alignSelf: "center"
+  },
+  image: {
+    width: 200,
+    height: 200,
+    marginRight: 12,
+  },
+  textContainer: {
+    flex: 1,
   },
 });

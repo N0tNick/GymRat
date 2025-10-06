@@ -570,7 +570,6 @@ const allModules = useMemo(() => {
   }, [events, dailyTotals, weekData, setDayModalVisible]);
 
 
-
   return (
     <SafeAreaProvider>
         <View style={styles.container}>
@@ -592,6 +591,7 @@ const allModules = useMemo(() => {
               }}
               hasEntries={hasEntries}
               hasWorkout={hasWorkout}
+              streak={streak}
             />
           )}
 
