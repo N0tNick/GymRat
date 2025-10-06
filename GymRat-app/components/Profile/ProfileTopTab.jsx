@@ -122,7 +122,7 @@ const TopTab = () => {
                   </View>
                   <Pressable 
                     style = {({ pressed }) => [styles.bodyCompContainers]}
-                    onPress={() => setWeightTouchableVisible(true)}> 
+                    onPress={() => setGoalWeightTouchableVisible(true)}> 
                     {({ pressed }) => (
                     <Text style = {[standards.smallText,{color: pressed ? '#6a5acd' : '#e0e0e0'}]}>
                       {lastGoalWeight ? `${lastGoalWeight}` : '__'} lbs
@@ -144,7 +144,7 @@ const TopTab = () => {
                   <BodyFatTouchable isVisible={isBodyFatTouchableVisible} onClose={() => setBodyFatTouchableVisible(false)}/>
                   <Pressable 
                     style = {({ pressed }) => [styles.bodyCompContainers]}
-                    onPress={() => setWeightTouchableVisible(true)}> 
+                    onPress={() => setBodyFatTouchableVisible(true)}> 
                     {({ pressed }) => (
                     <Text style = {[standards.smallText,{textAlign:'center'},{color: pressed ? '#6a5acd' : '#e0e0e0'}]}>
                       {lastBodyFat ? `${lastBodyFat}` : '__'}%
@@ -182,7 +182,7 @@ const TopTab = () => {
                 <BMRTouchable isVisible={isBMRTouchableVisible} onClose={() => setBMRTouchableVisible(false)}/>
                   <Pressable 
                     style = {({ pressed }) => [styles.bodyCompContainers]}
-                    onPress={() => setWeightTouchableVisible(true)}> 
+                    onPress={() => setBMRTouchableVisible(true)}> 
                     {({ pressed }) => (
                     <Text style = {[standards.smallText,{textAlign:'left'},{color: pressed ? '#6a5acd' : '#e0e0e0'}]}>
                       {lastBMR ? `${lastBMR}` : '__'}
