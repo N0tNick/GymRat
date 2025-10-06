@@ -232,41 +232,9 @@ export default function App() {
           <Stack.Screen name="registration"/>
           <Stack.Screen name="home"/>
 
-          <Stack.Screen
-            name="nutsplash"
-            options={{
-              title: 'Personal Details',
-              headerShown: true,
-              headerTintColor: '#1a1b1c',
-              headerStyle: { backgroundColor: '#32a852' },
-              headerLeft: () => (
-                <TouchableOpacity onPress={() => router.back()}>
-                  <Text style={{ color: "#1a1b1c", paddingHorizontal: 10, fontSize: 15 }}>Back</Text>
-                </TouchableOpacity>
-              ),
-              headerTitleAlign: 'center',
-              headerShadowVisible: false, 
-              animation: 'fade'
-            }}
-          />
+          <Stack.Screen name="nutsplash"/>
 
-          <Stack.Screen
-            name="goal"
-            options={{
-              title: 'Goal',
-              headerShown: true,
-              headerTintColor: '#1a1b1c',
-              headerStyle: { backgroundColor: '#32a852' },
-              headerLeft: () => (
-                <TouchableOpacity onPress={() => router.back()}>
-                  <Text style={{ color: "#1a1b1c", paddingHorizontal: 10, fontSize: 15 }}>Back</Text>
-                </TouchableOpacity>
-              ),
-              headerTitleAlign: 'center',
-              headerShadowVisible: false,
-              animation: 'fade'
-            }}
-          />
+          <Stack.Screen name="goal"/>
 
           <Stack.Screen name="nutrition"/>
           <Stack.Screen name="profile"/>

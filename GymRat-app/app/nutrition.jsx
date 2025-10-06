@@ -7,6 +7,7 @@ import { Dimensions, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOp
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, G, Path, Text as SvgText, TSpan } from 'react-native-svg';
 import { SwipeGesture } from "react-native-swipe-gesture-handler";
+import JimRatNutrition from '../components/jimRatNutrition';
 import NavBar from '../components/NavBar';
 import { UserContext, useUser } from '../UserContext';
 import { cals } from './goal';
@@ -123,7 +124,10 @@ export default function Nutrition() {
   const router = useRouter();
   const [historyVisible, setHistoryVisible] = useState(false);
   const [historyByDate, setHistoryByDate] = useState({});
-  const [dailyTotals, setDailyTotals] = useState(null)
+  const [dailyTotals, setDailyTotals] = useState(null);
+  const [streak, setStreak] = useState(0);
+  const [hasEntries, setHasEntries] = useState(false);
+  const [hasWorkout, setHasWorkout] = useState(false);
 
   const totalCalories = dailyTotals?.totalCalories || 0;
   const proteinTotal = dailyTotals?.totalProtein || 0;
@@ -324,6 +328,42 @@ const onSwipePerformed = (action) => {
       );
     }
   };
+
+  useEffect(() => {
+  (async () => {
+    const uid = userId || user?.id;
+    if (!uid) return;
+    try {
+      const res = await db.getAllAsync(
+        'SELECT current_streak FROM userStreaks WHERE user_id = ?',
+        [uid]
+      );
+      if (res && res[0]) {
+        setStreak(res[0].current_streak);
+      }
+    } catch (err) {
+      console.warn('streak read failed', err);
+    }
+  })();
+}, [db, userId, user?.id]);
+
+useEffect(() => {
+  (async () => {
+    const uid = userId || user?.id;
+    if (!uid) return;
+    const today = new Date().toISOString().split("T")[0];
+    const workoutRes = await db.getAllAsync(
+      `SELECT COUNT(*) as count FROM workoutLog WHERE user_id = ? AND date = ?`,
+      [uid, today]
+    );
+    setHasWorkout(workoutRes[0]?.count > 0);
+    const entriesRes = await db.getAllAsync(
+      `SELECT COUNT(*) as count FROM dailyNutLog WHERE user_id = ? AND date = ?`,
+      [uid, today]
+    );
+    setHasEntries(entriesRes[0]?.count > 0);
+  })();
+}, [db, userId, user?.id, modalVisible]);
 
 
   useEffect(() => {
@@ -533,6 +573,20 @@ const onSwipePerformed = (action) => {
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.content}>
+              {dailyTotals && (
+                <JimRatNutrition
+                dailyTotals={dailyTotals}
+                targets={{
+                  calorieTarget: cals,
+                  proteinTarget: proteinTarget,
+                  carbsTarget: carbsTarget,
+                  fatTarget: fatTarget,
+                }}
+                streak={streak}
+                hasEntries={hasEntries}
+                hasWorkout={hasWorkout}
+              />
+              )}
               {/* <Text style={styles.text}>Nutrition Screen</Text> */}
               <Text style={[styles.text, { fontSize: 18 }]}>
                 Today's Calorie Goal: {cals}
@@ -724,14 +778,14 @@ const onSwipePerformed = (action) => {
             </View>
           </ScrollView>
 
-          {/* <TouchableOpacity
+          <TouchableOpacity
             style={styles.loginButton}
             onPress={() => router.push('/login')}
           >
             <Text style={styles.loginButtonText}>
               Go to Login
             </Text>
-          </TouchableOpacity> */}
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.historyButton}

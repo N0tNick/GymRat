@@ -1,9 +1,13 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { React, useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useSQLiteContext } from 'expo-sqlite';
+import standards from '../components/ui/appStandards'
+
+const { height: ScreenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 export const data = [
     { id: 'weight', title: 'Current Weight', val: 0.0 },
@@ -105,8 +109,8 @@ const nutsplash = () => {
                     : item.id === 'activityLevel' ? handleActLevelPress
                     : undefined
                 }>
-                <Text style={{color: '#fff', fontSize: 20, padding: 10}}>{item.title}</Text>
-                <Text style={{color: '#fff', fontSize: 20, padding: 10}}>{displayValue}</Text>
+                <Text style={[standards.regularText, { fontSize: 20, padding:5 }]}>{item.title}</Text>
+                <Text style={[standards.regularText, { fontSize: 20, padding:5 }]}>{displayValue}</Text>
             </TouchableOpacity>
         );
     }
@@ -116,16 +120,35 @@ const nutsplash = () => {
             <SafeAreaView style={styles.container}>
                 <View style={styles.container}>
                     {!(showWeight || showHeight || showDob || showGender || showActLevel) ? (
-                        <>
-                            <FlatList 
-                                data={data}
-                                renderItem={renderItem}
-                                keyExtractor={item => item.id}
-                            />
-                            <TouchableOpacity style={[styles.saveButton, {alignSelf: 'center', borderRadius: 10}]} onPress={() => router.replace('/goal')}>
-                                <Text style={[styles.text, {fontSize: 20}]}>Next</Text>
-                            </TouchableOpacity>
-                        </>
+                        // Modal-style overlay for the FlatList
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modalCard}>
+                                <View style={{alignItems:'center',width:'100%', padding:10,borderBottomWidth:2, borderColor:'#1a1b1c'}}>
+                                    <Text style={[standards.headerText, {fontSize:24}]}>Body Details</Text>
+                                </View>
+                                <FlatList
+                                    data={data}
+                                    renderItem={renderItem}
+                                    keyExtractor={item => item.id}
+                                    showsVerticalScrollIndicator={false}
+                                    contentContainerStyle={styles.listContent}
+                                />
+                                <View style={{flexDirection:'row', justifyContent:'space-between', marginTop:5}}>     
+                                <TouchableOpacity
+                                    style={[styles.saveButton, styles.nextButton]}
+                                    onPress={() => router.navigate('/home')}
+                                >
+                                    <Text style={[standards.regularText, { fontSize: 20 }]}>Back</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.saveButton, styles.nextButton]}
+                                    onPress={() => router.replace('/goal')}
+                                >
+                                    <Text style={[standards.regularText, { fontSize: 20 }]}>Next</Text>
+                                </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
                     ) : null}
                     {showWeight && <CurrentWeight weight={weightVal} />}
                     {showHeight && <Height height={heightVal} />}
@@ -151,7 +174,7 @@ const CurrentWeight = ({ weight }) => {
     return(
         <View style={{color: 'transparent', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
             <View style={styles.inputContainer}>
-                <Text style={{color: '#fff', fontSize: 28, fontWeight: 'bold'}}>Current Weight</Text>
+                <Text style={[standards.regularText, { fontSize: 20 }]}>Current Weight</Text>
 
                 <View style={{color: '#232f30', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingHorizontal: 20, paddingVertical: 10}}>
                     <TouchableOpacity onPress={Decrease}>
@@ -213,7 +236,7 @@ const Height = ({ height }) => {
     return (
         <View style={{color: 'transparent', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
             <View style={styles.inputContainer}>
-                <Text style={{color: '#fff', fontSize: 28, fontWeight: 'bold'}}>Height</Text>
+                <Text style={[standards.regularText, { fontSize: 20 }]}>Height</Text>
 
                 <View style={{color: '#232f30', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingHorizontal: 20, paddingVertical: 10}}>
                     <TouchableOpacity onPress={Decrease}>
@@ -269,7 +292,7 @@ const DOB = ({ dob }) => {
     return(
         <View style={{color: 'transparent', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
             <View style={styles.inputContainer}>
-                <Text style={{color: '#fff', fontSize: 28, fontWeight: 'bold'}}>Date of Birth</Text>
+                <Text style={[standards.regularText, { fontSize: 20 }]}>Date of Birth</Text>
 
                 <View style={{color: '#232f30', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingHorizontal: 20, paddingVertical: 10}}>
                     <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '100%'}}>
@@ -352,7 +375,7 @@ const Gender = ({ gender }) => {
     return(
         <View style={{color: 'transparent', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
             <View style={styles.inputContainer}>
-                <Text style={{color: '#fff', fontSize: 28, fontWeight: 'bold'}}>Gender</Text>
+                <Text style={[standards.regularText, { fontSize: 20 }]}>Gender</Text>
 
                 <View style={{color: '#232f30', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingHorizontal: 20, paddingVertical: 10}}>
                     <TouchableOpacity
@@ -413,7 +436,7 @@ const ActivityLevel = ({ actLevel }) => {
     return(
         <View style={{color: 'transparent', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
             <View style={[styles.inputContainer, {height: '50%', width: '60%'}]}>
-                <Text style={{color: '#fff', fontSize: 28, fontWeight: 'bold'}}>Activity Level</Text>
+                <Text style={[standards.regularText, { fontSize: 20 }]}>Activity Level</Text>
                     <TouchableOpacity
                     style={{backgroundColor: isLow ? '#32a852' : '#1a1b1c', borderRadius: 10, width: '50%', alignItems: 'center', paddingVertical: 10, marginRight: 10}}
                     onPress={() => handlePress('Low')}>
@@ -457,6 +480,7 @@ export default nutsplash
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        height:ScreenHeight,
         flexDirection: 'column',
         backgroundColor: '#1a1b1c',
         justifyContent: 'center',
@@ -468,7 +492,7 @@ const styles = StyleSheet.create({
     },
     button: {
         backgroundColor: '#2c2c2e',
-        paddingVertical: 10,
+        paddingVertical: 14,
         borderBottomColor: '#1a1b1c',
         borderBottomWidth: 2,
         width: '100%',
@@ -478,9 +502,9 @@ const styles = StyleSheet.create({
         zIndex: 1,
     },
     inputContainer: {
-        backgroundColor: '#232f30',
-        width: '75%',
-        height: '25%',
+        backgroundColor: '#2c2c2e',
+        width: ScreenHeight*0.75,
+        height: screenWidth*0.5,
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -489,8 +513,8 @@ const styles = StyleSheet.create({
     },
     navButton: {
         marginTop: 20,
-        backgroundColor: '#232f30',
-        paddingVertical: 10,
+        backgroundColor: '#2c2c2e',
+        paddingVertical: 5,
         alignItems: 'center',
         borderRadius: 4,
     },
@@ -501,9 +525,10 @@ const styles = StyleSheet.create({
     saveButton: {
         backgroundColor: '#32a852',
         paddingVertical: 10,
-        width: '50%',
+        width: '45%',
         alignItems: 'center',
         borderRadius: 4,
+        margin:5,
         marginTop: 10,
     },
     numInput: {
@@ -513,5 +538,32 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 28,
         fontWeight: 'bold',
+    },
+    // New styles for modal FlatList
+    modalOverlay: {
+        position: 'absolute',
+        top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: '#1a1b1c',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+        zIndex: 5,
+    },
+    modalCard: {
+        backgroundColor: '#2c2c2e',
+        width: '80%',
+        maxHeight: '70%',
+        borderRadius: 16,
+        paddingTop: 4,
+        paddingBottom: 12,
+        overflow: 'hidden',
+    },
+    listContent: {
+        width: '100%',
+    },
+    nextButton: {
+        alignSelf: 'center',
+        borderRadius: 10,
+        marginTop: 8,
     },
 })

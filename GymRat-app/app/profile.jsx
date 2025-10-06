@@ -1,12 +1,11 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { Dimensions, Image, Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SwipeGesture } from "react-native-swipe-gesture-handler";
 import NavBar from '../components/NavBar';
 import TopTab from '../components/Profile/ProfileTopTab';
 import SettingsWheel from '../components/Profile/SettingsWheel';
-import standards from '../components/ui/appStandards';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -42,10 +41,10 @@ export default function ProfileScreen() {
   }
   
   return (
-     <SafeAreaProvider>
-          <ScrollView style={standards.background}>
-            <SwipeGesture onSwipePerformed={onSwipePerformed}>
-            <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center' }}>
+     <SafeAreaProvider style={{flex:1}}>
+      <SwipeGesture onSwipePerformed={onSwipePerformed}>
+          <View style={{flex:1}} contentContainerStyle={{flexGrow:1}}>
+            <LinearGradient style={styles.gradient} colors={['#6a5acd', '#1a1b1c']} locations={[0,0.15,1]}>
             <View style={settingsStyles.settingsWheelWrapper}>
               <SettingsWheel/>
             </View>
@@ -70,7 +69,7 @@ export default function ProfileScreen() {
 
             </Modal>
              <TouchableOpacity
-              style={{width:50, height:50, position:'relative', marginRight:300}}
+              style={{ height:10, position:'absolute', marginRight:100}}
               onPress={() => setModalVisible(true)}
             >
               <Image
@@ -82,16 +81,15 @@ export default function ProfileScreen() {
             </TouchableOpacity>
             <View style={{
               width: screenWidth,
-              marginTop: 20,
+              marginTop: 180,
             }}>
               <TopTab/> 
             </View>
-          </SafeAreaView>
+          </LinearGradient>
+          </View>
           </SwipeGesture>
-          </ScrollView>
-        <NavBar />
+      <NavBar/>
     </SafeAreaProvider>
-    
   );
 }
 
@@ -101,6 +99,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  gradient: { 
+    flex:1,
+    backgroundColor:'#1a1b1c',
+    alignItems:'center'
   },
   text: {
     color: '#e0e0e0',
@@ -125,6 +128,11 @@ const modalStyles = StyleSheet.create ({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  gradient: {
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center'
   },
   modalView: {
     margin: 20,
@@ -154,7 +162,7 @@ const modalStyles = StyleSheet.create ({
     backgroundColor: '#2196F3',
   },
   textStyle: {
-    color: 'e0e0e0e',
+    color: '#e0e0e0e',
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -166,6 +174,6 @@ const modalStyles = StyleSheet.create ({
 
 const settingsStyles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  settingsWheelWrapper: { position: 'absolute', top: 65, right: 20 },
+  settingsWheelWrapper: { position: 'absolute', top: screenHeight*0.05, right: 20 },
   text: { color: '#e0e0e0', fontSize: 28, fontWeight: 'bold' },
 });
