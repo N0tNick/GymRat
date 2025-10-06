@@ -1,18 +1,16 @@
+import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import { encode as btoa } from 'base-64';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Button, Linking, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import NavBar from '../components/NavBar';
-import { auth } from '../firebaseConfig';
-import { Picker } from '@react-native-picker/picker';
-import { useSQLiteContext } from 'expo-sqlite';
 import { useUser } from '../UserContext';
 import FoodModal from '../components/FoodModal';
-import { color } from '@rneui/base';
+import NavBar from '../components/NavBar';
 
 // configuration needed for fatsecret api 
 const FATSECRET_CONFIG = {
@@ -80,6 +78,32 @@ export default function BarcodeScannerScreen() {
   const currentDate = new Date();
   const day = currentDate.getDate();
   const todayLocal = () => new Date().toLocaleDateString('en-CA'); // "YYYY-MM-DD"
+
+  const onSwipePerformed = (action) => {
+    switch(action){
+      case 'left':{
+        console.log('left Swipe performed');
+        router.push('/nutrition') 
+        break;
+      }
+        case 'right':{ 
+        console.log('right Swipe performed');
+        router.push('/workout')
+        break;
+      }
+        case 'up':{ 
+        console.log('up Swipe performed'); 
+        break;
+      }
+        case 'down':{ 
+        console.log('down Swipe performed'); 
+        break;
+      }
+        default : {
+        console.log('Undeteceted action');
+        }
+    }
+  }
 
   // helper to get servings
   const getServingsArray = () => {
@@ -473,6 +497,7 @@ export default function BarcodeScannerScreen() {
               </TouchableOpacity>
               <Text style={{ fontSize: 18, fontWeight: "bold", color: "#e0e0e0" }}>Scan a barcode</Text>
             </View>
+            
             <CameraView
               style={styles.camera}
               facing={type}

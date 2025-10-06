@@ -5,6 +5,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Dimensions, FlatList, Modal, ScrollView, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SwipeGesture } from "react-native-swipe-gesture-handler";
 import exercises from '../assets/exercises.json';
 import schema from '../assets/schema.json';
 import NavBar from '../components/NavBar';
@@ -42,6 +43,32 @@ export default function WorkoutScreen() {
       loadTemplates()
     }, [])
   )
+
+  const onSwipePerformed = (action) => {
+    switch(action){
+      case 'left':{
+        console.log('left Swipe performed');
+        router.push('/barcodeScanner') 
+        break;
+      }
+        case 'right':{ 
+        console.log('right Swipe performed');
+        router.push('/home')
+        break;
+      }
+        case 'up':{ 
+        console.log('up Swipe performed'); 
+        break;
+      }
+        case 'down':{ 
+        console.log('down Swipe performed'); 
+        break;
+      }
+        default : {
+        console.log('Undeteceted action');
+        }
+    }
+  }
 
   const renderItem = ({ item }) => {
     if (item.primaryMuscles) {
@@ -269,7 +296,8 @@ export default function WorkoutScreen() {
           style={styles.container}
         >
           <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth}}>
-          
+          <SwipeGesture onSwipePerformed={onSwipePerformed}>
+            
           {/* Exercise List Modal */}
           <Modal
           visible={modalVisible}
@@ -477,6 +505,7 @@ export default function WorkoutScreen() {
           ItemSeparatorComponent={<View style={{padding: 5}}/>}
           />*/}
 
+        </SwipeGesture>
         </SafeAreaView>
         </View>
         <NavBar />

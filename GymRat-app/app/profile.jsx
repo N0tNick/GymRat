@@ -1,21 +1,50 @@
-import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, TextInput, View, ScrollView, Image, Modal, Pressable, Dimensions } from 'react-native';
+import { Dimensions, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import NavBar from '../components/NavBar'
-import SettingsWheel from '../components/Profile/SettingsWheel'
-import TopTab from '../components/Profile/ProfileTopTab'
-import standards from '../components/ui/appStandards'
+import { SwipeGesture } from "react-native-swipe-gesture-handler";
+import NavBar from '../components/NavBar';
+import TopTab from '../components/Profile/ProfileTopTab';
+import SettingsWheel from '../components/Profile/SettingsWheel';
+import standards from '../components/ui/appStandards';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function ProfileScreen() {
   const [modalVisible, setModalVisible] = useState(false);
+  const router = useRouter();
+
+
+  const onSwipePerformed = (action) => {
+    switch(action){
+      case 'left':{
+        console.log('left Swipe performed');
+        break;
+      }
+        case 'right':{ 
+        console.log('right Swipe performed');
+        router.push('/nutrition')
+        break;
+      }
+        case 'up':{ 
+        console.log('up Swipe performed'); 
+        break;
+      }
+        case 'down':{ 
+        console.log('down Swipe performed'); 
+        break;
+      }
+        default : {
+        console.log('Undeteceted action');
+        }
+    }
+  }
   
   return (
      <SafeAreaProvider>
           <ScrollView style={standards.background}>
+            <SwipeGesture onSwipePerformed={onSwipePerformed}>
             <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center' }}>
             <View style={settingsStyles.settingsWheelWrapper}>
               <SettingsWheel/>
@@ -57,8 +86,8 @@ export default function ProfileScreen() {
             }}>
               <TopTab/> 
             </View>
-
           </SafeAreaView>
+          </SwipeGesture>
           </ScrollView>
         <NavBar />
     </SafeAreaProvider>

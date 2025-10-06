@@ -223,8 +223,7 @@ export default function App() {
       >
       <UserProvider>
         <Stack screenOptions={{ 
-          headerShown: false, 
-          animation: 'fade', 
+          headerShown: false,
           animationDuration:100,
           }} initialRouteName="splash">
           <Stack.Screen name="splash"/>
