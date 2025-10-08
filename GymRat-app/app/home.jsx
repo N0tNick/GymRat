@@ -1,7 +1,7 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import * as Calendar from 'expo-calendar';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dimensions, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -11,6 +11,7 @@ import JimRat from '../components/jimRat';
 import NavBar from '../components/NavBar';
 import { updateStreakOnAppOpen } from '../components/streak';
 import { useUser } from '../UserContext';
+import { HomeModal } from '../components/Onboarding/onboard';
 import { cals } from './goal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -30,6 +31,7 @@ const nutrientOptions = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  const [isHomeModal, setHomeModal] = useState(false);
   const [events, setEvents] = useState([]);
   const db = useSQLiteContext();
   const { userId, setFirestoreUserId, firestoreUserId } = useUser();
@@ -72,16 +74,18 @@ export default function HomeScreen() {
     loadUser();
   }, []);
 
-  useEffect(() => {
-    handleOnboarding()
-  })
+  useFocusEffect(
+    useCallback(() => {
+      handleOnboarding()
+    }, [])
+  )
   
   const handleOnboarding = async () => {
     try {
       const result = await db.getFirstAsync('SELECT * FROM users')
       console.log(result)
       if (result['hasOnboarded'] == 0) {
-        router.push('/nutsplash')
+        setHomeModal(true)
       }
     } catch (error) {
       console.error('Error getting hasOnboarded:', error)
@@ -667,7 +671,8 @@ const allModules = useMemo(() => {
         <View style={styles.container}>
           <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center', justifyContent: 'center' }}>
           <Text style={styles.text}>GymRat</Text>
-
+          
+          <HomeModal isVisible={isHomeModal} onClose={() => setHomeModal(false)}/>
           {/* uncomment to see current gym streak for user. just a bandaid view till jim art is done or streak module done */}
           {streak > 0 && (
             <Text style={styles.streakText}> {streak} day streak</Text>

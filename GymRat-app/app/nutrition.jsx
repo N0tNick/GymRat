@@ -1,8 +1,8 @@
 import { Picker } from '@react-native-picker/picker';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import { Dimensions, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, G, Path, Text as SvgText, TSpan } from 'react-native-svg';
@@ -10,6 +10,7 @@ import JimRatNutrition from '../components/jimRatNutrition';
 import NavBar from '../components/NavBar';
 import { UserContext, useUser } from '../UserContext';
 import { cals } from './goal';
+import { NutOnboardModal } from '../components/Onboarding/onboard';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -127,6 +128,7 @@ export default function Nutrition() {
   const [streak, setStreak] = useState(0);
   const [hasEntries, setHasEntries] = useState(false);
   const [hasWorkout, setHasWorkout] = useState(false);
+  const [isNutOnboardModal, setNutOnboardModal] = useState(false);
 
   const totalCalories = dailyTotals?.totalCalories || 0;
   const proteinTotal = dailyTotals?.totalProtein || 0;
@@ -163,6 +165,24 @@ export default function Nutrition() {
 }, [totalCalories, fatTotal, carbsTotal, sugarTotal]);
 
 const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
+
+  useFocusEffect(
+    useCallback(() => {
+      handleOnboarding()
+    }, [])
+  )
+  
+  const handleOnboarding = async () => {
+    try {
+      const result = await db.getFirstAsync('SELECT * FROM users')
+      console.log(result)
+      if (result['hasOnboarded'] == 0) {
+        setNutOnboardModal(true)
+      }
+    } catch (error) {
+      console.error('Error getting hasOnboarded:', error)
+    }
+  }
 
   const loadTodaysTotals = async (userId) => {
     const date = new Date().toISOString().split('T')[0];
@@ -563,7 +583,7 @@ useEffect(() => {
               <Text style={[styles.text, { fontSize: 18 }]}>
                 Today's Calorie Goal: {cals}
               </Text>
-
+              <NutOnboardModal isVisible={isNutOnboardModal} onClose={() => setNutOnboardModal(false)}/>
               <View style={styles.toggleRow}>
                 <TouchableOpacity
                   style={[styles.toggleBtn, viewMode === 'bars' && styles.toggleBtnActive]}

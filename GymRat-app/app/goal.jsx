@@ -5,6 +5,7 @@ import React from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { data } from './nutsplash';
+import { useSQLiteContext } from 'expo-sqlite';
 import standards from '../components/ui/appStandards'
 
 
@@ -66,6 +67,16 @@ function calculateAge(birthDateString, referenceDateString = new Date().toISOStr
 
 const SetGoalSpeed = ({ goal, onBack }) => {
     const [sliderValue, setSliderValue] = React.useState(.25);
+
+    const db = useSQLiteContext()
+    
+    const handleOnboarded = async () => {
+        try {
+            await db.runAsync('UPDATE users SET hasOnboarded = ?', [1])
+        } catch (error) {
+        console.error(error) }
+    }
+    
     return (
         <View style={styles.container}>
             <View style={[styles.inputContainer, {alignSelf:'center', height:'35%'}]}>
@@ -92,6 +103,7 @@ const SetGoalSpeed = ({ goal, onBack }) => {
                         style={[styles.saveButton, styles.nextButton]}
                         onPress={() => {
                             cals = Math.round(calcCalories({ goal, speed: sliderValue }));
+                            handleOnboarded();
                             router.replace('/nutrition');
                         }}
                     >

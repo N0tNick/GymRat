@@ -11,6 +11,7 @@ import ExerciseCreationModal from '../components/exerciseCreationModal';
 import JimRatWorkout from '../components/jimRatWorkout';
 import NavBar from '../components/NavBar';
 import WorkoutModal from '../components/WorkoutModal';
+import { WorkoutOnboardModal } from '../components/Onboarding/onboard';
 import { useUser } from '../UserContext';
 import { cals } from './goal';
 import { usePersistedBoolean, usePersistedWorkout } from './ongoingWorkout';
@@ -21,6 +22,7 @@ const { width: screenWidth } = Dimensions.get('window');
 
 export default function WorkoutScreen() {
   const db = useSQLiteContext()
+  const [isWorkoutOnboardModal, setWorkoutOnboardModal] = useState(false)
   const [userTemplates, setUserTemplates] = useState([])
   const [presetTemplates, setPresetTemplates] = useState([])
   const router = useRouter();
@@ -48,8 +50,21 @@ export default function WorkoutScreen() {
   useFocusEffect(
     useCallback(() => {
       loadTemplates()
+      handleOnboarding()
     }, [])
   )
+
+    const handleOnboarding = async () => {
+      try {
+        const result = await db.getFirstAsync('SELECT * FROM users')
+        console.log(result)
+        if (result['hasOnboarded'] == 0) {
+          setWorkoutOnboardModal(true)
+        }
+      } catch (error) {
+        console.error('Error getting hasOnboarded:', error)
+      }
+    }
 
     useEffect(() => {
       (async () => {
@@ -332,7 +347,7 @@ export default function WorkoutScreen() {
           style={styles.container}
         >
           <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth}}>
-          
+          <WorkoutOnboardModal isVisible={isWorkoutOnboardModal} onClose={() => setWorkoutOnboardModal(false)}/>
           {/* Exercise List Modal */}
           <Modal
           visible={modalVisible}
