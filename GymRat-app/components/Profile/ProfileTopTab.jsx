@@ -5,6 +5,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import Calendar from './ProfileCalendar'
 import { QuestionModal1, QuestionModal2, QuestionModal3, WeightTouchable ,GoalWeightTouchable, BodyFatTouchable, BMRTouchable } from './bodyTabModals'
 import { useSQLiteContext } from 'expo-sqlite';
+import LineChart from './weightHistoryChart'
 import standards from '../ui/appStandards'
 
 
@@ -21,7 +22,6 @@ const TopTab = () => {
   const [isBodyFatTouchableVisible, setBodyFatTouchableVisible] = useState(false);
   const [isBMRTouchableVisible, setBMRTouchableVisible] = useState(false);
   const router = useRouter();
- 
   const [weight, setWeight] = useState('')
   const [lastWeight, setLastWeight] = useState(null) 
   
@@ -96,10 +96,12 @@ const TopTab = () => {
           style={[styles.tabBase, selectedIndex === 1 && styles.activeTab]}
         >         
           <Layout style={styles.tabContainer}>
+            <View style={{backgroundColor:'#2c2c2e', width:screenWidth*0.95,borderRadius:10, padding:5, marginBottom:20}}>
+              <LineChart/>
+            </View>
             <View style={{width:screenWidth*0.95,height:screenHeight*0.11, padding:5, marginBottom:20,borderRadius:10,backgroundColor:'#2c2c2e'}}>
               <Text style={[standards.headerText, { paddingLeft:8,paddingTop:3,paddingBottom:5}]}>Progress</Text>
               <View style = {{ flexDirection:'row',justifyContent:'space-between',padding:5,paddingRight:10}}>
-                
                 <View style={{paddingLeft:10}}>
                   <WeightTouchable isVisible={isWeightTouchableVisible} onClose={() => setWeightTouchableVisible(false)}/>
                   <View style={{paddingBottom:3}}>

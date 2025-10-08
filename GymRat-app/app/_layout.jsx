@@ -210,6 +210,14 @@ export default function App() {
           );`
         );
 
+        //await db.execAsync(`DROP TABLE IF EXISTS weightHistory;`);  
+        await db.execAsync(
+          `CREATE TABLE IF NOT EXISTS weightHistory (
+            date TEXT PRIMARY KEY NOT NULL,
+            weight TEXT NOT NULL
+          );`
+        )
+
         await db.execAsync('PRAGMA journal_mode=WAL');
         try {
            await db.execAsync(`ALTER TABLE users ADD COLUMN hasOnboarded INTEGER NOT NULL DEFAULT 0;`);
