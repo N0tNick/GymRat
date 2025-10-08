@@ -54,6 +54,7 @@ export default function HomeScreen() {
   const [nutrientEntries, setNutrientEntries] = useState([]);
   const [showNutritionSummary, setShowNutritionSummary] = useState(true);
   const [moduleOrder, setModuleOrder] = useState(['nutritionSummary', 'tasks', 'nutrition', 'weekly']);
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
 
   // check if daily log has entries for Jim rat
   const [hasEntries, setHasEntries] = useState(false);
@@ -242,6 +243,20 @@ export default function HomeScreen() {
     })();
   }, [db, userId, foodModalVisible]);
 
+  useEffect(() => {
+    (async () => {
+      if (!userId) return;
+      await initializeModulePreferences();
+      await loadModulePreferences();
+    })();
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId && preferencesLoaded) {
+      saveModulePreferences();
+    }
+  }, [showNutritionSummary, showTasks, showNutrition, showWeekly, moduleOrder, userId, preferencesLoaded]);
+
   const checkIfFoodLoggedToday = async (db, userId) => {
     const today = new Date().toISOString().split("T")[0];
     try {
@@ -372,6 +387,72 @@ export default function HomeScreen() {
       alert('Failed to save food entry');
     }
   };
+
+const initializeModulePreferences = async () => {
+  try {
+    await db.runAsync(`
+      CREATE TABLE IF NOT EXISTS modulePreferences (
+        user_id INTEGER PRIMARY KEY,
+        show_nutrition_summary INTEGER DEFAULT 1,
+        show_tasks INTEGER DEFAULT 1,
+        show_nutrition INTEGER DEFAULT 1,
+        show_weekly INTEGER DEFAULT 1,
+        module_order TEXT DEFAULT '["nutritionSummary","tasks","nutrition","weekly"]'
+      );
+    `);
+  } catch (error) {
+    console.error('Error creating modulePreferences table:', error);
+  }
+};
+
+const saveModulePreferences = async () => {
+  if (!userId) return;
+  try {
+    await db.runAsync(
+      `INSERT OR REPLACE INTO modulePreferences 
+       (user_id, show_nutrition_summary, show_tasks, show_nutrition, show_weekly, module_order) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        userId,
+        showNutritionSummary ? 1 : 0,
+        showTasks ? 1 : 0,
+        showNutrition ? 1 : 0,
+        showWeekly ? 1 : 0,
+        JSON.stringify(moduleOrder)
+      ]
+    );
+  } catch (error) {
+    console.error('Error saving module preferences:', error);
+  }
+};
+
+const loadModulePreferences = async () => {
+  if (!userId) return;
+  try {
+    const result = await db.getAllAsync(
+      'SELECT * FROM modulePreferences WHERE user_id = ?',
+      [userId]
+    );
+    if (result && result[0]) {
+      const prefs = result[0];
+      setShowNutritionSummary(prefs.show_nutrition_summary === 1);
+      setShowTasks(prefs.show_tasks === 1);
+      setShowNutrition(prefs.show_nutrition === 1);
+      setShowWeekly(prefs.show_weekly === 1);
+
+      try {
+        const order = JSON.parse(prefs.module_order);
+        setModuleOrder(order);
+      } catch (e) {
+        console.error('Error parsing module order:', e);
+      }
+    }
+    setPreferencesLoaded(true);
+  } catch (error) {
+    console.error('Error loading module preferences:', error);
+    setPreferencesLoaded(true);
+  }
+};
 
 const allModules = useMemo(() => {
   const enabled = [];
@@ -917,7 +998,8 @@ const allModules = useMemo(() => {
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => setCustomizeModalVisible(false)}>
+              <TouchableOpacity onPress={() => {saveModulePreferences();
+                setCustomizeModalVisible(false)}}>
                 <Text style={styles.cancelText}>Close</Text>
               </TouchableOpacity>
             </View>
