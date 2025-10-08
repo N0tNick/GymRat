@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native';
@@ -6,6 +6,9 @@ import { deleteUser, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig.js';
 import { useUser } from '../UserContext.js';
 import { Platform } from 'react-native';
+import { fbdb } from '../firebaseConfig.js';
+import { collection, query, where, doc, getDocs, setDoc, addDoc } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import * as Application from 'expo-application';
 
@@ -23,10 +26,23 @@ export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { setUserId } = useUser();
+  const { setUserId, setFirestoreUserId } = useUser();
   const db = useSQLiteContext();
 
   const googleSignIn = useGoogleSignIn ? useGoogleSignIn().signIn : null;
+
+  //useEffect(() => {
+  //  const testFirestore = async () => {
+  //    try {
+  //      const usersSnap = await getDocs(collection(db, "users"));
+  //      console.log("Firestore connection successful! Found", usersSnap.size, "users.");
+  //    } catch (err) {
+  //      console.error("Firestore test failed:", err);
+  //    }
+  //  };
+  //
+  //  testFirestore();
+  //}, []);
 
   return (
     <View style={styles.container}>
@@ -45,6 +61,40 @@ export default function LoginScreen() {
             alert('Please verify your email before logging in.');
             return;
           }
+
+        const usersRef = collection(fbdb, "users");
+        const q = query(usersRef, where("email", "==", user.email));
+        const querySnapshot = await getDocs(q);
+                
+        let firestoreUserId;
+                
+        if (querySnapshot.empty) {
+          console.log("No Firestore user found. Creating new user...");
+        
+          // 2️⃣ Add new document with random ID (Firestore auto-generates it)
+          const newUserRef = await addDoc(collection(fbdb, "users"), {
+            dob: "2000-01-01",
+            email: user.email,
+            hasOnboarded: 0,
+            profile_icon: "",
+            username: user.email.split("@")[0],
+          });
+        
+          firestoreUserId = newUserRef.id;
+          console.log("Created new Firestore user with ID:", firestoreUserId);
+        
+          // 3️⃣ Initialize empty subcollections
+          const subcollections = ["customExercises", "historyLog", "userStats", "workoutLog", "workoutTemplates"];
+          for (const sub of subcollections) {
+            const subRef = collection(fbdb, "users", firestoreUserId, sub);
+            await addDoc(subRef, { initialized: true }); // dummy field so Firestore creates it
+          }
+        
+        } else {
+          // 4️⃣ User already exists, get their doc ID
+          firestoreUserId = querySnapshot.docs[0].id;
+          console.log("Found existing Firestore user with ID:", firestoreUserId);
+        }
 
           // check if user exists in SQLite
           const result = await db.getFirstAsync(
@@ -73,6 +123,10 @@ export default function LoginScreen() {
           }
 
           setUserId(userId)
+          setFirestoreUserId(firestoreUserId)
+
+          await AsyncStorage.setItem('firestoreUserId', firestoreUserId)
+
           router.replace('/home');
         } catch (error) {
           console.error(error);

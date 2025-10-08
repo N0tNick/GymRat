@@ -13,6 +13,11 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useUser } from '../UserContext';
 import FoodModal from '../components/FoodModal';
 import { color } from '@rneui/base';
+import { Keyboard, TouchableWithoutFeedback } from 'react-native';
+
+import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { app } from "../firebaseConfig";
+const dbFirestore = getFirestore(app);
 
 // configuration needed for fatsecret api 
 const FATSECRET_CONFIG = {
@@ -67,14 +72,11 @@ export default function BarcodeScannerScreen() {
   // manual food search modal
   const [manualModalVisible, setManualModalVisible] = useState(false);
   const [manualResults, setManualResults] = useState([]);
-  // logging test modal
-  const [showLogModal, setShowLogModal] = useState(false);
-  const [dailyTotals, setDailyTotals] = useState(null);
   // selecting serving and setting quantity
   const [selectedServingIndex, setSelectedServingIndex] = useState(0);
   const [quantity, setQuantity] = useState("1");
 
-  const { userId } = useUser();
+  const { userId, firestoreUserId } = useUser();
   const db = useSQLiteContext();
 
   const currentDate = new Date();
@@ -135,28 +137,28 @@ export default function BarcodeScannerScreen() {
 
   const scaled = getScaledNutrition();
 
-  const loadTodaysTotals = async (userId) => {
-    const date = new Date().toISOString().split('T')[0];
-
-    try {
-      const result = await db.getAllAsync(
-        `SELECT 
-          SUM(CAST(calories AS REAL)) AS totalCalories,
-          SUM(CAST(protein AS REAL)) AS totalProtein,
-          SUM(CAST(total_Carbs AS REAL)) AS totalCarbs,
-          SUM(CAST(total_Fat AS REAL)) AS totalFat,
-          date AS day
-        FROM dailyNutLog
-        WHERE user_id = ? AND date = ?`,
-        [userId, date]
-      );
-
-      setDailyTotals(result[0]);
-      setShowLogModal(true);
-    } catch (error) {
-      console.error('Error loading totals:', error);
-    }
-  };
+  //const loadTodaysTotals = async (userId) => {
+  //  const date = new Date().toISOString().split('T')[0];
+//
+  //  try {
+  //    const result = await db.getAllAsync(
+  //      `SELECT 
+  //        SUM(CAST(calories AS REAL)) AS totalCalories,
+  //        SUM(CAST(protein AS REAL)) AS totalProtein,
+  //        SUM(CAST(total_Carbs AS REAL)) AS totalCarbs,
+  //        SUM(CAST(total_Fat AS REAL)) AS totalFat,
+  //        date AS day
+  //      FROM dailyNutLog
+  //      WHERE user_id = ? AND date = ?`,
+  //      [userId, date]
+  //    );
+//
+  //    setDailyTotals(result[0]);
+  //    setShowLogModal(true);
+  //  } catch (error) {
+  //    console.error('Error loading totals:', error);
+  //  }
+  //};
 
   const insertIntoDailyLog = async (userId, productInfo) => {
     const serving = Array.isArray(productInfo.servings.serving)
@@ -258,7 +260,22 @@ export default function BarcodeScannerScreen() {
       throw err;
     }
   };
-    const ensureHistoryTable = async () => {
+
+  const insertHistoryLogToFirestore = async (userId, foodName, nutritionData) => {
+    try {
+      const historyRef = collection(dbFirestore, `users/${userId}/historyLog`);
+      await addDoc(historyRef, {
+        name: foodName,
+        date: new Date().toISOString().split("T")[0],
+        nutrition: nutritionData,
+        timestamp: new Date().toISOString(),
+      });
+      console.log("History log added to Firestore");
+    } catch (error) {
+      console.error("Error adding Firestore history log:", error);
+    }
+  };
+  const ensureHistoryTable = async () => {
     await db.runAsync(`
       CREATE TABLE IF NOT EXISTS historyLog (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -389,39 +406,39 @@ export default function BarcodeScannerScreen() {
   }
 };
 
-  // search fatsecret by name using the foods.search
-  const searchFatSecretByName = async (query) => {
-    const accessToken = await getAccessToken();
-
-    try {
-      // post request to api to search food by name
-      const response = await axios.post(
-        FATSECRET_CONFIG.apiUrl,
-        new URLSearchParams({
-          method: 'foods.search',
-          search_expression: query,
-          region: 'US',
-          format: 'json'
-        }).toString(),
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      const foods = response.data.foods?.food;
-      if (!foods || foods.length === 0) throw new Error('No results found');
-
-      // normalize the results to an array
-      const results = Array.isArray(foods) ? foods : [foods];
-      setManualResults(results); // save results for showing list
-    } catch (err) {
-      console.error('Manual search failed:', err.response?.data || err.message);
-      throw err;
-    }
-  };  
+  //// search fatsecret by name using the foods.search
+  //const searchFatSecretByName = async (query) => {
+  //  const accessToken = await getAccessToken();
+  //
+  //  try {
+  //    // post request to api to search food by name
+  //    const response = await axios.post(
+  //      FATSECRET_CONFIG.apiUrl,
+  //      new URLSearchParams({
+  //        method: 'foods.search',
+  //        search_expression: query,
+  //        region: 'US',
+  //        format: 'json'
+  //      }).toString(),
+  //      {
+  //        headers: {
+  //          'Content-Type': 'application/x-www-form-urlencoded',
+  //          'Authorization': `Bearer ${accessToken}`,
+  //        },
+  //      }
+  //    );
+    //
+  //    const foods = response.data.foods?.food;
+  //    if (!foods || foods.length === 0) throw new Error('No results found');
+    //
+  //    // normalize the results to an array
+  //    const results = Array.isArray(foods) ? foods : [foods];
+  //    setManualResults(results); // save results for showing list
+  //  } catch (err) {
+  //    console.error('Manual search failed:', err.response?.data || err.message);
+  //    throw err;
+  //  }
+  //};  
 
   // grab the nutrition info for a given food
   const getFoodDetails = async (foodId, accessToken) => {
@@ -504,6 +521,7 @@ export default function BarcodeScannerScreen() {
           visible={showNutritionModal}
           onRequestClose={() => setShowNutritionModal(false)}
         >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <TouchableOpacity
@@ -597,11 +615,18 @@ export default function BarcodeScannerScreen() {
                             ...serving,
                             calories: scaled.calories,
                             protein: scaled.protein,
-                            carbohydrates: scaled.carbs,
+                            carbohydrate: scaled.carbs,
                             fat: scaled.fat,
                           }
+
+                          const nutritionData = scaledServing;
                           await insertIntoDailyLog(userId, {...productInfo, servings: { serving: scaledServing } });
-                          await loadTodaysTotals(userId);
+                          if (firestoreUserId) {
+                            await insertHistoryLogToFirestore(firestoreUserId, productInfo.food_name, nutritionData);
+                          } else {
+                            console.warn("No Firestore user ID found; skipping cloud sync");
+                          }
+                          alert("Food logged!"); 
                         } catch (e) {
                           console.error('Error:', e);
                         }
@@ -648,6 +673,7 @@ export default function BarcodeScannerScreen() {
               )}
             </View>
           </View>
+          </TouchableWithoutFeedback>
         </Modal>
 
         {/* MANUAL SEARCH MODAL: search the name of food through api */}
@@ -656,37 +682,6 @@ export default function BarcodeScannerScreen() {
           mode={manualModalVisible} // "search" or "manual"
           onClose={() => { setManualModalVisible(false); resetScanner() }}
         />
-
-        {/* TODAYS TOTALS MODAL */}
-        <Modal
-          visible={showLogModal}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={() => setShowLogModal(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <TouchableOpacity
-                onPress={() => setShowLogModal(false)}
-                style={styles.closeButton}
-              >
-                <Text style={{ color: '#e0e0e0', fontSize: 18, fontWeight: "bold" }}>X</Text>
-              </TouchableOpacity>
-              <Text style={styles.modalTitle}>Today's Totals</Text>
-              {dailyTotals ? (
-                <>
-                  <Text style={styles.nutritionLabel}>Calories: {dailyTotals.totalCalories}</Text>
-                  <Text style={styles.nutritionLabel}>Protein: {dailyTotals.totalProtein}g</Text>
-                  <Text style={styles.nutritionLabel}>Carbs: {dailyTotals.totalCarbs}g</Text>
-                  <Text style={styles.nutritionLabel}>Fat: {dailyTotals.totalFat}g</Text>
-                  <Text style={styles.nutritionLabel}>{dailyTotals.day}</Text>
-                </>
-              ) : (
-                <Text>Loading totals...</Text>
-              )}
-            </View>
-          </View>
-        </Modal>
     </SafeAreaProvider>
   );
 }

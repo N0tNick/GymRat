@@ -12,6 +12,7 @@ import NavBar from '../components/NavBar';
 import { updateStreakOnAppOpen } from '../components/streak';
 import { useUser } from '../UserContext';
 import { cals } from './goal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -31,7 +32,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const [events, setEvents] = useState([]);
   const db = useSQLiteContext();
-  const { userId } = useUser();
+  const { userId, setFirestoreUserId, firestoreUserId } = useUser();
   const [streak, setStreak] = useState(0);
   const [dailyTotals, setDailyTotals] = useState(null);
   // add a task
@@ -60,10 +61,20 @@ export default function HomeScreen() {
   const [hasEntries, setHasEntries] = useState(false);
   const [hasWorkout, setHasWorkout] = useState(false);
 
+  useEffect(() => {
+    const loadUser = async () => {
+      const storedFirestoreId = await AsyncStorage.getItem('firestoreUserId');
+      if (storedFirestoreId) {
+        setFirestoreUserId(storedFirestoreId);
+        console.log("Loaded Firestore user ID:", storedFirestoreId);
+      }
+    };
+    loadUser();
+  }, []);
 
-   useEffect(() => {
+  useEffect(() => {
     handleOnboarding()
-    })
+  })
   
   const handleOnboarding = async () => {
     try {

@@ -7,12 +7,19 @@ import { useStatePersist } from 'use-state-persist';
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
+import { getFirestore, doc, setDoc, collection, addDoc } from 'firebase/firestore';
+import { app } from '../firebaseConfig'; // adjust path if needed
+import { useUser } from '../UserContext';
+
 export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplates,template, finishWorkout}) {
-    const db = useSQLiteContext()
-    const [workoutData, setWorkoutData] = useState(null)
+  const db = useSQLiteContext()
+  const [workoutData, setWorkoutData] = useState(null)
   const [exercises, setExercises] = useState([])
   // Track user-updated values for each set
   const [updatedExercises, setUpdatedExercises] = useState([])
+
+  const { firestoreUserId } = useUser();
+  const dbFirestore = getFirestore(app);
 
   useEffect(() => {
     if (!template) {
@@ -91,6 +98,36 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
     };
     fetchWorkout();
   }, [template]);
+
+  const updateWorkoutTemplateInFirestore = async (userId, name, updatedExercises) => {
+    try {
+      const docRef = doc(dbFirestore, `users/${userId}/workoutTemplates/${name}`);
+      await setDoc(docRef, {
+        data: { exercises: updatedExercises },
+        lastUpdated: new Date().toISOString(),
+      },
+      { merge: true }
+    );
+      console.log('Workout template updated in Firestore');
+    } catch (error) {
+      console.error('Error updating Firestore template:', error);
+    }
+  };
+
+  const insertWorkoutLogToFirestore = async (userId, workoutName) => {
+    try {
+      const logRef = collection(dbFirestore, `users/${userId}/workoutLog`);
+      await addDoc(logRef, {
+        workout_name: workoutName,
+        date: new Date().toISOString().split('T')[0],
+        timestamp: new Date().toISOString(),
+      });
+      console.log('Workout log inserted in Firestore');
+    } catch (error) {
+      console.error('Error inserting workout log in Firestore:', error);
+    }
+  };
+
 
     // Timer functions are from geeksforgeeks.org
     const [time, setTime] = useStatePersist('@timer', 0);
@@ -208,6 +245,20 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
           );
           console.log(workRows[0])
           console.log('Workout updated!');
+
+          if (firestoreUserId) {
+            await updateWorkoutTemplateInFirestore(
+              firestoreUserId,
+              workoutData.name,
+              updatedExercises
+            );
+            await insertWorkoutLogToFirestore(
+              firestoreUserId,
+              workoutData.name
+            );
+          } else {
+            console.warn('⚠️ No Firestore user ID found; skipping cloud update');
+          }
         } catch (err) {
           console.error('Failed to update workout:', err.message);
         }
@@ -231,6 +282,20 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
           );
           console.log(workRows[0])
           console.log('Workout updated!');
+
+          if (firestoreUserId) {
+            await updateWorkoutTemplateInFirestore(
+              firestoreUserId,
+              workoutData.name,
+              updatedExercises
+            );
+            await insertWorkoutLogToFirestore(
+              firestoreUserId,
+              workoutData.name
+            );
+          } else {
+            console.warn('⚠️ No Firestore user ID found; skipping cloud update');
+          }
         } catch (err) {
           console.error('Failed to update workout:', err.message);
         }
