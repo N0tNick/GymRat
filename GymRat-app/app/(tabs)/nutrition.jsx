@@ -6,11 +6,9 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { Dimensions, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, G, Path, Text as SvgText, TSpan } from 'react-native-svg';
-import { SwipeGesture } from "react-native-swipe-gesture-handler";
-import JimRatNutrition from '../components/jimRatNutrition';
-import NavBar from '../components/NavBar';
-import { UserContext, useUser } from '../UserContext';
-import { cals } from './goal';
+import JimRatNutrition from '../../components/jimRatNutrition';
+import { UserContext, useUser } from '../../UserContext';
+import { cals } from '../goal';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -164,32 +162,6 @@ export default function Nutrition() {
 }, [totalCalories, fatTotal, carbsTotal, sugarTotal]);
 
 const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
-
-const onSwipePerformed = (action) => {
-    switch(action){
-      case 'left':{
-        console.log('left Swipe performed');
-        router.push('/profile') 
-        break;
-      }
-        case 'right':{ 
-        console.log('right Swipe performed');
-        router.push('/barcodeScanner')
-        break;
-      }
-        case 'up':{ 
-        console.log('up Swipe performed'); 
-        break;
-      }
-        case 'down':{ 
-        console.log('down Swipe performed'); 
-        break;
-      }
-        default : {
-        console.log('Undeteceted action');
-        }
-    }
-  }
 
   const loadTodaysTotals = async (userId) => {
     const date = new Date().toISOString().split('T')[0];
@@ -566,7 +538,6 @@ useEffect(() => {
   return (
     <SafeAreaProvider>
       <LinearGradient style={styles.gradient} colors={['#32a852', '#1a1b1c']} locations={[0,0.15,1]}>
-        <SwipeGesture onSwipePerformed={onSwipePerformed}>
         <SafeAreaView style={styles.container}>
           <ScrollView 
             contentContainerStyle={styles.scrollContent}
@@ -801,7 +772,6 @@ useEffect(() => {
             <Text style={styles.plusSign}>+</Text>
           </TouchableOpacity>
         </SafeAreaView>
-        </SwipeGesture>
       </LinearGradient>
 
         <Modal
@@ -951,7 +921,7 @@ useEffect(() => {
         </Modal>
         
 
-        <NavBar />
+        {/*<NavBar />*/}
     </SafeAreaProvider>
   );
 }

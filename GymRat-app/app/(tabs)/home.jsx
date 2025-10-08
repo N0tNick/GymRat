@@ -7,12 +7,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dimensions, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { SwipeGesture } from "react-native-swipe-gesture-handler";
-import JimRat from '../components/jimRat';
-import NavBar from '../components/NavBar';
-import { updateStreakOnAppOpen } from '../components/streak';
-import { useUser } from '../UserContext';
-import { cals } from './goal';
+import JimRat from '../../components/jimRat';
+import { updateStreakOnAppOpen } from '../../components/streak';
+import { useUser } from '../../UserContext';
+import { cals } from '../goal';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -64,31 +62,6 @@ export default function HomeScreen() {
    useEffect(() => {
     handleOnboarding()
     })
-
-  const onSwipePerformed = (action) => {
-    switch(action){
-      case 'left':{
-        console.log('left Swipe performed');
-        router.push('/workout') 
-        break;
-      }
-        case 'right':{ 
-        console.log('right Swipe performed');
-        break;
-      }
-        case 'up':{ 
-        console.log('up Swipe performed'); 
-        break;
-      }
-        case 'down':{ 
-        console.log('down Swipe performed'); 
-        break;
-      }
-        default : {
-        console.log('Undeteceted action');
-        }
-    }
-  }
   
   const handleOnboarding = async () => {
     try {
@@ -599,14 +572,13 @@ const allModules = useMemo(() => {
   return (
     <SafeAreaProvider>
         <View style={styles.container}>
-          <SwipeGesture onSwipePerformed={onSwipePerformed}>
           <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center', justifyContent: 'center' }}>
           <Text style={styles.text}>GymRat</Text>
 
           {/* uncomment to see current gym streak for user. just a bandaid view till jim art is done or streak module done */}
-          {/* {streak > 0 && (
+          {streak > 0 && (
             <Text style={styles.streakText}> {streak} day streak</Text>
-          )} */}
+          )}
 
           {dailyTotals && (
             <JimRat
@@ -767,7 +739,6 @@ const allModules = useMemo(() => {
             </View>
           </Modal>
           </SafeAreaView>
-          </SwipeGesture>
         </View>
 
         <TouchableOpacity
@@ -778,7 +749,7 @@ const allModules = useMemo(() => {
         </TouchableOpacity>
 
 
-        <NavBar />
+        {/*<NavBar />*/}
         <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContainer}>

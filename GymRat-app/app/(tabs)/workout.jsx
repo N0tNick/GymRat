@@ -5,13 +5,11 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Dimensions, FlatList, Modal, ScrollView, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { SwipeGesture } from "react-native-swipe-gesture-handler";
-import exercises from '../assets/exercises.json';
-import schema from '../assets/schema.json';
-import NavBar from '../components/NavBar';
-import WorkoutModal from '../components/WorkoutModal';
-import ExerciseCreationModal from '../components/exerciseCreationModal';
-import { usePersistedBoolean, usePersistedWorkout } from './ongoingWorkout';
+import exercises from '../../assets/exercises.json';
+import schema from '../../assets/schema.json';
+import WorkoutModal from '../../components/WorkoutModal';
+import ExerciseCreationModal from '../../components/exerciseCreationModal';
+import { usePersistedBoolean, usePersistedWorkout } from '../ongoingWorkout';
 
 
 const { height: screenHeight } = Dimensions.get('window');
@@ -44,32 +42,6 @@ export default function WorkoutScreen() {
     }, [])
   )
 
-  const onSwipePerformed = (action) => {
-    switch(action){
-      case 'left':{
-        console.log('left Swipe performed');
-        router.push('/barcodeScanner') 
-        break;
-      }
-        case 'right':{ 
-        console.log('right Swipe performed');
-        router.push('/home')
-        break;
-      }
-        case 'up':{ 
-        console.log('up Swipe performed'); 
-        break;
-      }
-        case 'down':{ 
-        console.log('down Swipe performed'); 
-        break;
-      }
-        default : {
-        console.log('Undeteceted action');
-        }
-    }
-  }
-
   const renderItem = ({ item }) => {
     if (item.primaryMuscles) {
       return (
@@ -95,7 +67,7 @@ export default function WorkoutScreen() {
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <Text style={standards.regularText}>{item.name}</Text>
             <TouchableOpacity onPress={() => deleteExercise(item.id)}>
-              <Image style={{width: 20, height: 20}} source={require('../assets/images/white-trash-can.png')}/>
+              <Image style={{width: 20, height: 20}} source={require('../../assets/images/white-trash-can.png')}/>
             </TouchableOpacity>
           </View>
           <Text style={standards.smallText}>Equipment: {item.equipment}</Text>
@@ -202,7 +174,7 @@ export default function WorkoutScreen() {
           <TouchableOpacity onPress = {() => {if (!isOngoingWorkout) manageTemplate(item)}} style={styles.templateBox}>
             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <Text style={standards.headerText}>{item.name}</Text>
-              <TouchableOpacity onPress = {() => {deleteTemplate(item.id)}}>{/*<Text style={standards.regularText}>Delete</Text>*/}<Image style={{width: 25, height: 25}} source={require('../assets/images/white-trash-can.png')}/></TouchableOpacity>
+              <TouchableOpacity onPress = {() => {deleteTemplate(item.id)}}>{/*<Text style={standards.regularText}>Delete</Text>*/}<Image style={{width: 25, height: 25}} source={require('../../assets/images/white-trash-can.png')}/></TouchableOpacity>
             </View>
 
             {template.exercises.map((exercise, idx) => (
@@ -296,7 +268,6 @@ export default function WorkoutScreen() {
           style={styles.container}
         >
           <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth}}>
-          <SwipeGesture onSwipePerformed={onSwipePerformed}>
             
           {/* Exercise List Modal */}
           <Modal
@@ -309,7 +280,7 @@ export default function WorkoutScreen() {
             <BlurView intensity={25} style={[styles.centeredView]}>
               <View style={styles.modalView}>
                 <TouchableOpacity style={{padding: 5}} onPress={() => setModalVisible(false)}>
-                  <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
+                  <Image style={{width: '20', height: '20'}} source={require('../../assets/images/xButton.png')}/>
                 </TouchableOpacity>
 
                 <Text style={[standards.headerText, {paddingBottom: 5}]}>Exercises</Text>
@@ -396,7 +367,7 @@ export default function WorkoutScreen() {
                   <BlurView intensity={25} style={[styles.centeredView, {backgroundColor: 'rgba(0,0,0,0)'}]}>
                     <View style={[styles.modalView, {gap: 20, height: 'auto', maxHeight: '85%'}]}>
                       <TouchableOpacity onPress={() => setExerciseInfoModal(false)}>
-                        <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
+                        <Image style={{width: '20', height: '20'}} source={require('../../assets/images/xButton.png')}/>
                       </TouchableOpacity>
                       <Text style={standards.headerText}>{exerciseItem.name}</Text>
                       <Text style={standards.regularText}>Instructions</Text>
@@ -504,11 +475,9 @@ export default function WorkoutScreen() {
           style={{padding: 10}}
           ItemSeparatorComponent={<View style={{padding: 5}}/>}
           />*/}
-
-        </SwipeGesture>
         </SafeAreaView>
         </View>
-        <NavBar />
+        {/*<NavBar />*/}
     </SafeAreaProvider>
   );
 }

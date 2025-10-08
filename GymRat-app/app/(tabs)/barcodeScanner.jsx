@@ -8,9 +8,8 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Button, Linking, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { useUser } from '../UserContext';
-import FoodModal from '../components/FoodModal';
-import NavBar from '../components/NavBar';
+import { useUser } from '../../UserContext';
+import FoodModal from '../../components/FoodModal';
 
 // configuration needed for fatsecret api 
 const FATSECRET_CONFIG = {
@@ -78,32 +77,6 @@ export default function BarcodeScannerScreen() {
   const currentDate = new Date();
   const day = currentDate.getDate();
   const todayLocal = () => new Date().toLocaleDateString('en-CA'); // "YYYY-MM-DD"
-
-  const onSwipePerformed = (action) => {
-    switch(action){
-      case 'left':{
-        console.log('left Swipe performed');
-        router.push('/nutrition') 
-        break;
-      }
-        case 'right':{ 
-        console.log('right Swipe performed');
-        router.push('/workout')
-        break;
-      }
-        case 'up':{ 
-        console.log('up Swipe performed'); 
-        break;
-      }
-        case 'down':{ 
-        console.log('down Swipe performed'); 
-        break;
-      }
-        default : {
-        console.log('Undeteceted action');
-        }
-    }
-  }
 
   // helper to get servings
   const getServingsArray = () => {
@@ -519,7 +492,7 @@ export default function BarcodeScannerScreen() {
           </View>
           </SafeAreaView>
         </LinearGradient>
-        <NavBar />
+        {/*<NavBar />*/}
 
 
         {/* NUTRITION MODAL WHEN SCAN WORKS : shows the nutrition info */}

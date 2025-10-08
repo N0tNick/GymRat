@@ -1,11 +1,10 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Dimensions, Image, Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { SwipeGesture } from "react-native-swipe-gesture-handler";
-import NavBar from '../components/NavBar';
-import TopTab from '../components/Profile/ProfileTopTab';
-import SettingsWheel from '../components/Profile/SettingsWheel';
+import TopTab from '../../components/Profile/ProfileTopTab';
+import SettingsWheel from '../../components/Profile/SettingsWheel';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -13,36 +12,9 @@ const { width: screenWidth } = Dimensions.get('window');
 export default function ProfileScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const router = useRouter();
-
-
-  const onSwipePerformed = (action) => {
-    switch(action){
-      case 'left':{
-        console.log('left Swipe performed');
-        break;
-      }
-        case 'right':{ 
-        console.log('right Swipe performed');
-        router.push('/nutrition')
-        break;
-      }
-        case 'up':{ 
-        console.log('up Swipe performed'); 
-        break;
-      }
-        case 'down':{ 
-        console.log('down Swipe performed'); 
-        break;
-      }
-        default : {
-        console.log('Undeteceted action');
-        }
-    }
-  }
   
   return (
      <SafeAreaProvider style={{flex:1}}>
-      <SwipeGesture onSwipePerformed={onSwipePerformed}>
           <View style={{flex:1}} contentContainerStyle={{flexGrow:1}}>
             <LinearGradient style={styles.gradient} colors={['#6a5acd', '#1a1b1c']} locations={[0,0.15,1]}>
             <View style={settingsStyles.settingsWheelWrapper}>
@@ -87,8 +59,7 @@ export default function ProfileScreen() {
             </View>
           </LinearGradient>
           </View>
-          </SwipeGesture>
-      <NavBar/>
+      {/*<NavBar/>*/}
     </SafeAreaProvider>
   );
 }

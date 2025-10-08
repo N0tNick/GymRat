@@ -1,8 +1,7 @@
 import * as eva from '@eva-design/eva';
-import { ApplicationProvider, Text } from '@ui-kitten/components';
+import { ApplicationProvider } from '@ui-kitten/components';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { syncStorage } from 'use-state-persist';
 import exampleTemplates from '../assets/presetWorkoutTemplates.json';
@@ -163,10 +162,6 @@ export default function App() {
           );`
         );
 
-        /*console.log('exampleTemplates count:', exampleTemplates?.length);
-        console.log('exampleTemplates ids:', exampleTemplates?.map(t => t.id));
-        console.log('exampleTemplates sample:', exampleTemplates?.[0]);*/
-
         for (const t of exampleTemplates) {
           try {
             console.log('Inserting id=', t.id, 'name=', t.name);
@@ -224,22 +219,24 @@ export default function App() {
       <UserProvider>
         <Stack screenOptions={{ 
           headerShown: false,
+          animationMatchesGesture: true,
           animationDuration:100,
           }} initialRouteName="splash">
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="splash"/>
           <Stack.Screen name="index"/>
           <Stack.Screen name="login"/>
           <Stack.Screen name="registration"/>
-          <Stack.Screen name="home"/>
+          {/*<Stack.Screen name="home"/>*/}
 
           <Stack.Screen name="nutsplash"/>
 
           <Stack.Screen name="goal"/>
 
-          <Stack.Screen name="nutrition"/>
-          <Stack.Screen name="profile"/>
-          <Stack.Screen name="workout"/>
-          <Stack.Screen name="barcodeScanner"/>
+          {/*<Stack.Screen name="nutrition"/>*/}
+          {/*<Stack.Screen name="profile"/>*/}
+          {/*<Stack.Screen name="workout"/>*/}
+          {/*<Stack.Screen name="barcodeScanner"/>*/}
           <Stack.Screen name="createTemplate"/>
         </Stack>
       </UserProvider>
