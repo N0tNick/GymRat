@@ -18,18 +18,6 @@ export const data = [
 ];
 
 const nutsplash = () => {
-    const db = useSQLiteContext()
-
-    useEffect(() => {
-        handleOnboarded()
-    })
-
-    const handleOnboarded = async () => {
-        try {
-            await db.runAsync('UPDATE users SET hasOnboarded = ?', [1])
-        } catch (error) {
-      console.error(error) }
-    }
     // For Weight
     const [showWeight, setShowWeight] = useState(false)
     const [weightVal, setWeightVal] = useState('')

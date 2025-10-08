@@ -11,6 +11,10 @@ import ExerciseListModal from '../components/ExerciseListModal';
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { app } from '../firebaseConfig';
+import { useUser } from '../UserContext';
+
 export default function CreateTemplateScreen() {
   const db = useSQLiteContext();
   const router = useRouter();
@@ -19,6 +23,9 @@ export default function CreateTemplateScreen() {
   const [selectedExercises, setSelectedExercises] = useState([]);
   const [numOfSets, setNumOfSets] = useState({})
   var temp = ''
+
+  const { userId, firestoreUserId } = useUser();
+  const dbFirestore = getFirestore(app);
 
   const saveTemplateToDB = async (user_id, name, templateData) => {
     try {
@@ -30,12 +37,28 @@ export default function CreateTemplateScreen() {
       )
 
       console.log("Template saved!")
-      router.back()
+      router.push('/workout')
 
     } catch (error) {
       console.error("Error saving template: ", error)
     }
   }
+
+  const saveTemplateToFirestore = async (userId, name, templateData) => {
+    try {
+      const userRef = doc(dbFirestore, `users/${userId}/workoutTemplates/${name}`);
+      await setDoc(userRef, {
+        name,
+        data: templateData,
+        createdAt: new Date().toISOString(),
+      });
+
+      console.log('Template saved to Firestore!');
+      router.push('/workout');
+    } catch (error) {
+      console.error('Error saving to Firestore:', error);
+    }
+  };
 
   const handleSave = async () => {
     const templateData = {
@@ -45,8 +68,15 @@ export default function CreateTemplateScreen() {
         sets: numOfSets[ex.id] || []
       }))
     }
+
+    if (!firestoreUserId) {
+      console.error("No Firestore user ID found");
+      return;
+    }
+
+    await saveTemplateToFirestore(firestoreUserId, templateName, templateData);
     // right now hardcoding user_id = 1, later replace with actual logged in user
-    await saveTemplateToDB(1, templateName, templateData);
+    await saveTemplateToDB(userId, templateName, templateData);
   }
 
   const ExerciseSetComponent = ({ index, itemId }) => {

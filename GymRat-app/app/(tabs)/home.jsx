@@ -1,13 +1,15 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import * as Calendar from 'expo-calendar';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dimensions, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import JimRat from '../../components/jimRat';
+import { HomeModal } from '../../components/Onboarding/onboard';
 import { updateStreakOnAppOpen } from '../../components/streak';
 import { useUser } from '../../UserContext';
 import { cals } from '../goal';
@@ -28,9 +30,10 @@ const nutrientOptions = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  const [isHomeModal, setHomeModal] = useState(false);
   const [events, setEvents] = useState([]);
   const db = useSQLiteContext();
-  const { userId } = useUser();
+  const { userId, setFirestoreUserId, firestoreUserId } = useUser();
   const [streak, setStreak] = useState(0);
   const [dailyTotals, setDailyTotals] = useState(null);
   // add a task
@@ -53,22 +56,35 @@ export default function HomeScreen() {
   const [nutrientEntries, setNutrientEntries] = useState([]);
   const [showNutritionSummary, setShowNutritionSummary] = useState(true);
   const [moduleOrder, setModuleOrder] = useState(['nutritionSummary', 'tasks', 'nutrition', 'weekly']);
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
 
   // check if daily log has entries for Jim rat
   const [hasEntries, setHasEntries] = useState(false);
   const [hasWorkout, setHasWorkout] = useState(false);
 
+  useEffect(() => {
+    const loadUser = async () => {
+      const storedFirestoreId = await AsyncStorage.getItem('firestoreUserId');
+      if (storedFirestoreId) {
+        setFirestoreUserId(storedFirestoreId);
+        console.log("Loaded Firestore user ID:", storedFirestoreId);
+      }
+    };
+    loadUser();
+  }, []);
 
-   useEffect(() => {
-    handleOnboarding()
-    })
+  useFocusEffect(
+    useCallback(() => {
+      handleOnboarding()
+    }, [])
+  )
   
   const handleOnboarding = async () => {
     try {
       const result = await db.getFirstAsync('SELECT * FROM users')
       console.log(result)
       if (result['hasOnboarded'] == 0) {
-        router.push('/nutsplash')
+        setHomeModal(true)
       }
     } catch (error) {
       console.error('Error getting hasOnboarded:', error)
@@ -241,6 +257,20 @@ export default function HomeScreen() {
     })();
   }, [db, userId, foodModalVisible]);
 
+  useEffect(() => {
+    (async () => {
+      if (!userId) return;
+      await initializeModulePreferences();
+      await loadModulePreferences();
+    })();
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId && preferencesLoaded) {
+      saveModulePreferences();
+    }
+  }, [showNutritionSummary, showTasks, showNutrition, showWeekly, moduleOrder, userId, preferencesLoaded]);
+
   const checkIfFoodLoggedToday = async (db, userId) => {
     const today = new Date().toISOString().split("T")[0];
     try {
@@ -371,6 +401,72 @@ export default function HomeScreen() {
       alert('Failed to save food entry');
     }
   };
+
+const initializeModulePreferences = async () => {
+  try {
+    await db.runAsync(`
+      CREATE TABLE IF NOT EXISTS modulePreferences (
+        user_id INTEGER PRIMARY KEY,
+        show_nutrition_summary INTEGER DEFAULT 1,
+        show_tasks INTEGER DEFAULT 1,
+        show_nutrition INTEGER DEFAULT 1,
+        show_weekly INTEGER DEFAULT 1,
+        module_order TEXT DEFAULT '["nutritionSummary","tasks","nutrition","weekly"]'
+      );
+    `);
+  } catch (error) {
+    console.error('Error creating modulePreferences table:', error);
+  }
+};
+
+const saveModulePreferences = async () => {
+  if (!userId) return;
+  try {
+    await db.runAsync(
+      `INSERT OR REPLACE INTO modulePreferences 
+       (user_id, show_nutrition_summary, show_tasks, show_nutrition, show_weekly, module_order) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        userId,
+        showNutritionSummary ? 1 : 0,
+        showTasks ? 1 : 0,
+        showNutrition ? 1 : 0,
+        showWeekly ? 1 : 0,
+        JSON.stringify(moduleOrder)
+      ]
+    );
+  } catch (error) {
+    console.error('Error saving module preferences:', error);
+  }
+};
+
+const loadModulePreferences = async () => {
+  if (!userId) return;
+  try {
+    const result = await db.getAllAsync(
+      'SELECT * FROM modulePreferences WHERE user_id = ?',
+      [userId]
+    );
+    if (result && result[0]) {
+      const prefs = result[0];
+      setShowNutritionSummary(prefs.show_nutrition_summary === 1);
+      setShowTasks(prefs.show_tasks === 1);
+      setShowNutrition(prefs.show_nutrition === 1);
+      setShowWeekly(prefs.show_weekly === 1);
+
+      try {
+        const order = JSON.parse(prefs.module_order);
+        setModuleOrder(order);
+      } catch (e) {
+        console.error('Error parsing module order:', e);
+      }
+    }
+    setPreferencesLoaded(true);
+  } catch (error) {
+    console.error('Error loading module preferences:', error);
+    setPreferencesLoaded(true);
+  }
+};
 
 const allModules = useMemo(() => {
   const enabled = [];
@@ -574,7 +670,8 @@ const allModules = useMemo(() => {
         <View style={styles.container}>
           <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center', justifyContent: 'center' }}>
           <Text style={styles.text}>GymRat</Text>
-
+          
+          <HomeModal isVisible={isHomeModal} onClose={() => setHomeModal(false)}/>
           {/* uncomment to see current gym streak for user. just a bandaid view till jim art is done or streak module done */}
           {streak > 0 && (
             <Text style={styles.streakText}> {streak} day streak</Text>
@@ -916,7 +1013,8 @@ const allModules = useMemo(() => {
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => setCustomizeModalVisible(false)}>
+              <TouchableOpacity onPress={() => {saveModulePreferences();
+                setCustomizeModalVisible(false)}}>
                 <Text style={styles.cancelText}>Close</Text>
               </TouchableOpacity>
             </View>
@@ -1135,7 +1233,7 @@ const styles = StyleSheet.create({
   },
   customizeButton: {
     position: 'absolute',
-    bottom: 85,
+    bottom: 115,
     left: 20,
     backgroundColor: '#444',
     paddingVertical: 8,

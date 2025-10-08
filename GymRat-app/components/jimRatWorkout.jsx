@@ -4,9 +4,9 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 //images for jim rat on home home screen
 const jimRatImages = {
-  1: require("../assets/Nutrition.png"),
-  2: require("../assets/Nutrition2.png"),
-  3: require("../assets/Nutrition3.png"),
+  1: require("../assets/Fitness.png"),
+  2: require("../assets/Fitness2.png"),
+  3: require("../assets/Fitness3.png"),
 }
 
 // Tip definitions for daily nutrition
@@ -28,7 +28,7 @@ const tips = [
     condition: (totals, targets, hasEntries, hasWorkout) => !hasWorkout,
     action: {
       label: "Go to Workouts",
-      route: "/workout"
+      route: "/workout" 
     }
   },
   {
@@ -134,7 +134,8 @@ export default function JimRat({ dailyTotals, targets, hasEntries, hasWorkout, s
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 5,
     backgroundColor: "transparent",
     borderRadius: 12,
     flexDirection: "row",

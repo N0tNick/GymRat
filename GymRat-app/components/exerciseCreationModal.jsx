@@ -7,6 +7,11 @@ import { Dimensions, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
+import { useUser } from "../UserContext";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { app } from "../firebaseConfig";
+const dbFirestore = getFirestore(app);
+
 export default function ExerciseCreationModal({visibility, setVisibility}) {
   const db = useSQLiteContext()
   const [exerciseName, setExerciseName] = useState(null)
@@ -14,14 +19,32 @@ export default function ExerciseCreationModal({visibility, setVisibility}) {
   const [primaryMuscle, setPrimaryMuscle] = useState(null)
   const [exerciseInstructions, setExerciseInstructions] = useState('')
   const isComplete = exerciseName && exerciseEquipment && primaryMuscle
+  const { userId, firestoreUserId } = useUser();
+  
 
   const saveExercise = async () => {
     if (exerciseName && exerciseEquipment && primaryMuscle) {
       try {
         await db.runAsync(
           `INSERT OR REPLACE INTO customExercises (user_id, name, equipment, primaryMuscle, instructions) VALUES (?, ?, ?, ?, ?);`,
-          [1, exerciseName, exerciseEquipment, primaryMuscle, exerciseInstructions]
+          [userId, exerciseName, exerciseEquipment, primaryMuscle, exerciseInstructions]
         )
+
+        if (firestoreUserId) {
+          try {
+            const exercisesRef = collection(dbFirestore, `users/${firestoreUserId}/customExercises`);
+            await addDoc(exercisesRef, {
+              name: exerciseName,
+              equipment: exerciseEquipment,
+              primaryMuscle: primaryMuscle,
+              instructions: exerciseInstructions,
+              timestamp: new Date().toISOString(),
+            });
+            console.log("Exercise added to Firestore!");
+          } catch (error) {
+            console.error("Error adding exercise to Firestore:", error);
+          }
+        }
 
         console.log("Exercise saved!")
         setVisibility(false)

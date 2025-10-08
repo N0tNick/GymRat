@@ -1,8 +1,10 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+import { useCallback, useState } from 'react';
 import { Dimensions, Image, Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ProfileOnboardModal } from '../../components/Onboarding/onboard';
 import TopTab from '../../components/Profile/ProfileTopTab';
 import SettingsWheel from '../../components/Profile/SettingsWheel';
 
@@ -11,12 +13,32 @@ const { width: screenWidth } = Dimensions.get('window');
 
 export default function ProfileScreen() {
   const [modalVisible, setModalVisible] = useState(false);
-  const router = useRouter();
+  const [isProfileOnboardModal, setProfileOnboardModal] = useState(false);
+  const db = useSQLiteContext();
   
+  useFocusEffect(
+    useCallback(() => {
+      handleOnboarding()
+    }, [])
+  )
+  
+  const handleOnboarding = async () => {
+    try {
+      const result = await db.getFirstAsync('SELECT * FROM users')
+      console.log(result)
+      if (result['hasOnboarded'] == 0) {
+        setProfileOnboardModal(true)
+      }
+    } catch (error) {
+      console.error('Error getting hasOnboarded:', error)
+    }
+  }
+
   return (
      <SafeAreaProvider style={{flex:1}}>
           <View style={{flex:1}} contentContainerStyle={{flexGrow:1}}>
             <LinearGradient style={styles.gradient} colors={['#6a5acd', '#1a1b1c']} locations={[0,0.15,1]}>
+            <ProfileOnboardModal isVisible={isProfileOnboardModal} onClose={() => setProfileOnboardModal(false)}/>
             <View style={settingsStyles.settingsWheelWrapper}>
               <SettingsWheel/>
             </View>
@@ -53,7 +75,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
             <View style={{
               width: screenWidth,
-              marginTop: 180,
+              marginTop: 150,
             }}>
               <TopTab/> 
             </View>

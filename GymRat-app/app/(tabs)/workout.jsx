@@ -7,8 +7,12 @@ import { Alert, Dimensions, FlatList, Modal, ScrollView, SectionList, StyleSheet
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import exercises from '../../assets/exercises.json';
 import schema from '../../assets/schema.json';
-import WorkoutModal from '../../components/WorkoutModal';
 import ExerciseCreationModal from '../../components/exerciseCreationModal';
+import JimRatWorkout from '../../components/jimRatWorkout';
+import { WorkoutOnboardModal } from '../../components/Onboarding/onboard';
+import WorkoutModal from '../../components/WorkoutModal';
+import { useUser } from '../../UserContext';
+import { cals } from '../goal';
 import { usePersistedBoolean, usePersistedWorkout } from '../ongoingWorkout';
 
 
@@ -17,11 +21,17 @@ const { width: screenWidth } = Dimensions.get('window');
 
 export default function WorkoutScreen() {
   const db = useSQLiteContext()
+  const [isWorkoutOnboardModal, setWorkoutOnboardModal] = useState(false)
   const [userTemplates, setUserTemplates] = useState([])
   const [presetTemplates, setPresetTemplates] = useState([])
   const router = useRouter();
   const [isOngoingWorkout, setIsOngoingWorkout] = usePersistedBoolean('isOngoingWorkout', false);
-  const [selectedTemplate, setSelectedTemplate] = usePersistedWorkout('selectedTemplate', null)
+  const [selectedTemplate, setSelectedTemplate] = usePersistedWorkout('selectedTemplate', null);
+  const { userId } = useUser();
+  const [streak, setStreak] = useState(0);
+  const [dailyTotals, setDailyTotals] = useState(null);
+  const [hasEntries, setHasEntries] = useState(false);
+  const [hasWorkout, setHasWorkout] = useState(false);
 
   const loadTemplates = async() => {
     const result = await db.getAllAsync("SELECT * FROM workoutTemplates;")
@@ -39,8 +49,76 @@ export default function WorkoutScreen() {
   useFocusEffect(
     useCallback(() => {
       loadTemplates()
+      handleOnboarding()
     }, [])
   )
+
+    const handleOnboarding = async () => {
+      try {
+        const result = await db.getFirstAsync('SELECT * FROM users')
+        console.log(result)
+        if (result['hasOnboarded'] == 0) {
+          setWorkoutOnboardModal(true)
+        }
+      } catch (error) {
+        console.error('Error getting hasOnboarded:', error)
+      }
+    }
+
+    useEffect(() => {
+      (async () => {
+        if (!userId) return;
+        try {
+          const res = await db.getAllAsync(
+            'SELECT current_streak FROM userStreaks WHERE user_id = ?',
+            [userId]
+          );
+          if (res && res[0]) {
+            setStreak(res[0].current_streak);
+          }
+        } catch (err) {
+          console.warn('streak read failed', err);
+        }
+      })();
+    }, [db, userId]);
+
+    useEffect(() => {
+      (async () => {
+        if (!userId) return;
+        const date = new Date().toISOString().split('T')[0];
+        try {
+          const result = await db.getAllAsync(
+            `SELECT 
+              SUM(CAST(calories AS REAL)) AS totalCalories,
+              SUM(CAST(protein AS REAL)) AS totalProtein,
+              SUM(CAST(total_Carbs AS REAL)) AS totalCarbs,
+              SUM(CAST(total_Fat AS REAL)) AS totalFat
+            FROM dailyNutLog
+            WHERE user_id = ? AND date = ?`,
+            [userId, date]
+          );
+          const totals = result[0];
+          setDailyTotals({
+            totalCalories: totals?.totalCalories || 0,
+            totalProtein: totals?.totalProtein || 0,
+            totalCarbs: totals?.totalCarbs || 0,
+            totalFat: totals?.totalFat || 0,
+          });
+          const entriesRes = await db.getAllAsync(
+            `SELECT COUNT(*) as count FROM dailyNutLog WHERE user_id = ? AND date = ?`,
+            [userId, date]
+          );
+          setHasEntries(entriesRes[0]?.count > 0);
+          const workoutRes = await db.getAllAsync(
+            `SELECT COUNT(*) as count FROM workoutLog WHERE user_id = ? AND date = ?`,
+            [userId, date]
+          );
+          setHasWorkout(workoutRes[0]?.count > 0);
+        } catch (error) {
+          console.error('Error loading data:', error);
+        }
+      })();
+    }, [db, userId]);
 
   const renderItem = ({ item }) => {
     if (item.primaryMuscles) {
@@ -177,11 +255,15 @@ export default function WorkoutScreen() {
               <TouchableOpacity onPress = {() => {deleteTemplate(item.id)}}>{/*<Text style={standards.regularText}>Delete</Text>*/}<Image style={{width: 25, height: 25}} source={require('../../assets/images/white-trash-can.png')}/></TouchableOpacity>
             </View>
 
-            {template.exercises.map((exercise, idx) => (
+            {template.exercises.slice(0, 3).map((exercise, idx) => (
               <Text key={exercise.id || idx} style={standards.smallText}>
                 {exercise.name} ({exercise.sets.length} sets)
               </Text>
             ))}
+            {(template.exercises.length > 3) ?
+              <Text style={standards.smallText}>[...]</Text>
+            : null}
+
           </TouchableOpacity>
           <View style={{padding: 5}}/>
         </View>
@@ -195,11 +277,15 @@ export default function WorkoutScreen() {
               <Text style={standards.headerText}>{item.name}</Text>
             </View>
 
-            {template.exercises.map((exercise, idx) => (
+            {template.exercises.slice(0, 3).map((exercise, idx) => (
               <Text key={exercise.id || idx} style={standards.smallText}>
                 {exercise.name} ({exercise.sets.length} sets)
               </Text>
             ))}
+            {(template.exercises.length > 3) ?
+              <Text style={standards.smallText}>[...]</Text>
+            : null}
+
           </TouchableOpacity>
           <View style={{padding: 5}}/>
         </View>
@@ -268,7 +354,7 @@ export default function WorkoutScreen() {
           style={styles.container}
         >
           <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth}}>
-            
+          <WorkoutOnboardModal isVisible={isWorkoutOnboardModal} onClose={() => setWorkoutOnboardModal(false)}/>
           {/* Exercise List Modal */}
           <Modal
           visible={modalVisible}
@@ -424,7 +510,24 @@ export default function WorkoutScreen() {
             setVisibility={setExerciseCreation}
           />
 
-          <Text style={[standards.headerText, {padding: 10}]}>Templates</Text>
+          <View style={styles.content}>
+          {dailyTotals && (
+            <JimRatWorkout
+            dailyTotals={dailyTotals}
+            targets={{
+              calorieTarget: cals,
+              proteinTarget: Math.round((cals * 0.25) / 4),
+              carbsTarget: Math.round((cals * 0.45) / 4),
+              fatTarget: Math.round((cals * 0.30) / 9),
+            }}
+            streak={streak}
+            hasEntries={hasEntries}
+            hasWorkout={hasWorkout}
+          />
+          )}
+          </View>
+
+          <Text style={[standards.headerText, {paddingHorizontal: 10}]}>Templates</Text>
           <View style={{flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 5}}>
             <TouchableOpacity style={styles.button} onPress ={() => setExerciseCreation(true)}><Text style={standards.smallText}>+ Exercise</Text></TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress ={() => router.push('/createTemplate')}><Text style={standards.smallText}>+ Template</Text></TouchableOpacity>

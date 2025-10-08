@@ -3,6 +3,8 @@ import { Platform } from 'react-native';
 import { initializeApp } from 'firebase/app';
 import { initializeAuth, getReactNativePersistence, browserSessionPersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -24,7 +26,10 @@ const persistence = Platform.OS === 'web'
            : getReactNativePersistence(ReactNativeAsyncStorage);
        const auth = initializeAuth(app, {persistence});
 
-export { auth };
+// firestore setup
+const db = getFirestore(app); 
+
+export { auth, db as fbdb };
 
 // IOS: 467813529391-r54j585g28775613oglrohtr95seatvj.apps.googleusercontent.com
 // WEB: 467813529391-sg1j5mr6r75ae2fn9gnaf1jvcjjau7g8.apps.googleusercontent.com

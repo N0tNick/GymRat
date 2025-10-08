@@ -1,10 +1,16 @@
-import { Modal, View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator, Linking } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { useState , useEffect } from "react";
-import { useSQLiteContext } from "expo-sqlite";
-import { useUser } from "../UserContext";
 import axios from "axios";
 import { encode as btoa } from "base-64";
+import { useSQLiteContext } from "expo-sqlite";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Keyboard, Linking, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useUser } from "../UserContext";
+
+import { addDoc, collection, getFirestore } from "firebase/firestore";
+import { app } from "../firebaseConfig";
+
+const dbFirestore = getFirestore(app);
 
 // ---------------- FatSecret API Config ----------------
 const FATSECRET_CONFIG = {
@@ -151,7 +157,7 @@ const buildNutritionData = (serving, customEntries = []) => {
 
 export default function FoodModal({ visible, onClose }) {
   const db = useSQLiteContext();
-  const { userId } = useUser();
+  const { userId, firestoreUserId } = useUser();
 
   const [isCustomFood, setIsCustomFood] = useState(false);
   const [manualQuery, setManualQuery] = useState("");
@@ -189,6 +195,113 @@ export default function FoodModal({ visible, onClose }) {
       console.error("Error loading recent foods:", err);
     }
   };
+
+  const handleSelectRecentFood = async (food, nutrition) => {
+    try {
+      const date = new Date().toISOString().split("T")[0];
+
+      // defaults for missing nutrients
+      const defaults = {
+        calories: "0",
+        protein: "0",
+        cholesterol: "0",
+        sodium: "0",
+        total_Fat: "0",
+        saturated_Fat: "0",
+        trans_Fat: "0",
+        polyunsaturated_Fat: "0",
+        monosaturated_Fat: "0",
+        total_Carbs: "0",
+        fiber: "0",
+        sugar: "0",
+        vitamin_A: "0",
+        vitamin_C: "0",
+        vitamin_D: "0",
+        vitamin_E: "0",
+        vitamin_K: "0",
+        vitamin_B1: "0",
+        vitamin_B2: "0",
+        vitamin_B3: "0",
+        vitamin_B5: "0",
+        vitamin_B6: "0",
+        vitamin_B7: "0",
+        vitamin_B9: "0",
+        vitamin_B12: "0",
+        iron: "0",
+        calcium: "0",
+        potassium: "0",
+      };
+
+      const fullNutrition = { ...defaults, ...nutrition };
+
+      // add to daily
+      await db.runAsync(
+        `INSERT INTO dailyNutLog (
+          user_id, date, name, calories, protein, cholesterol, sodium,
+          total_Fat, saturated_Fat, trans_Fat, polyunsaturated_Fat, monosaturated_Fat,
+          total_Carbs, fiber, sugar,
+          vitamin_A, vitamin_C, vitamin_D, vitamin_E, vitamin_K,
+          vitamin_B1, vitamin_B2, vitamin_B3, vitamin_B5, vitamin_B6, vitamin_B7, vitamin_B9, vitamin_B12,
+          iron, calcium, potassium
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        [
+          userId, date, food.name,
+          fullNutrition.calories, fullNutrition.protein, fullNutrition.cholesterol, fullNutrition.sodium,
+          fullNutrition.total_Fat, fullNutrition.saturated_Fat, fullNutrition.trans_Fat, fullNutrition.polyunsaturated_Fat, fullNutrition.monosaturated_Fat,
+          fullNutrition.total_Carbs, fullNutrition.fiber, fullNutrition.sugar,
+          fullNutrition.vitamin_A, fullNutrition.vitamin_C, fullNutrition.vitamin_D, fullNutrition.vitamin_E, fullNutrition.vitamin_K,
+          fullNutrition.vitamin_B1, fullNutrition.vitamin_B2, fullNutrition.vitamin_B3, fullNutrition.vitamin_B5, fullNutrition.vitamin_B6, fullNutrition.vitamin_B7, fullNutrition.vitamin_B9, fullNutrition.vitamin_B12,
+          fullNutrition.iron, fullNutrition.calcium, fullNutrition.potassium
+        ]
+      );
+
+      // add to history
+      await db.runAsync(
+        `INSERT INTO historyLog (
+          user_id, date, name, calories, protein, cholesterol, sodium,
+          total_Fat, saturated_Fat, trans_Fat, polyunsaturated_Fat, monosaturated_Fat,
+          total_Carbs, fiber, sugar,
+          vitamin_A, vitamin_C, vitamin_D, vitamin_E, vitamin_K,
+          vitamin_B1, vitamin_B2, vitamin_B3, vitamin_B5, vitamin_B6, vitamin_B7, vitamin_B9, vitamin_B12,
+          iron, calcium, potassium
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        [
+          userId, date, food.name,
+          fullNutrition.calories, fullNutrition.protein, fullNutrition.cholesterol, fullNutrition.sodium,
+          fullNutrition.total_Fat, fullNutrition.saturated_Fat, fullNutrition.trans_Fat, fullNutrition.polyunsaturated_Fat, fullNutrition.monosaturated_Fat,
+          fullNutrition.total_Carbs, fullNutrition.fiber, fullNutrition.sugar,
+          fullNutrition.vitamin_A, fullNutrition.vitamin_C, fullNutrition.vitamin_D, fullNutrition.vitamin_E, fullNutrition.vitamin_K,
+          fullNutrition.vitamin_B1, fullNutrition.vitamin_B2, fullNutrition.vitamin_B3, fullNutrition.vitamin_B5, fullNutrition.vitamin_B6, fullNutrition.vitamin_B7, fullNutrition.vitamin_B9, fullNutrition.vitamin_B12,
+          fullNutrition.iron, fullNutrition.calcium, fullNutrition.potassium
+        ]
+      );
+
+      // add to firebase
+      if (firestoreUserId) {
+        await insertHistoryLogToFirestore(firestoreUserId, food.name, fullNutrition);
+      }
+
+      onClose();
+      alert("Recent food logged!");
+    } catch (err) {
+      console.error("Error logging recent food:", err);
+    }
+  };
+
+  const insertHistoryLogToFirestore = async (userId, foodName, nutritionData) => {
+   try {
+     const historyRef = collection(dbFirestore, `users/${userId}/historyLog`);
+     await addDoc(historyRef, {
+       name: foodName,
+       date: new Date().toISOString().split("T")[0],
+       nutrition: nutritionData,       // full nutrition object
+       timestamp: new Date().toISOString(),
+     });
+     console.log("History log added to Firestore");
+   } catch (error) {
+     console.error("Error adding Firestore history log:", error);
+   }
+} ;
 
   // ---------------- Search Food ----------------
   const handleSearch = async () => {
@@ -264,6 +377,10 @@ export default function FoodModal({ visible, onClose }) {
           nutritionData.iron, nutritionData.calcium, nutritionData.potassium
         ]
       );
+
+      if (firestoreUserId) {
+        await insertHistoryLogToFirestore(firestoreUserId, foodName, nutritionData);
+      }
 
       setManualQuery("");
       setManualResults([]);
@@ -351,6 +468,10 @@ export default function FoodModal({ visible, onClose }) {
         ]
       );
 
+      if (firestoreUserId) {
+        await insertHistoryLogToFirestore(firestoreUserId, foodName, nutritionData);
+      }
+
       setFoodName("");
       setNutrientEntries([]);
       setIsCustomFood(false);
@@ -364,11 +485,12 @@ export default function FoodModal({ visible, onClose }) {
 
   // ---------------- Render ----------------
    return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
     <Modal animationType="slide" transparent={false} visible={visible} onRequestClose={onClose}>
-      <View style={styles.modalContainer}>
+      <SafeAreaView style={styles.modalContainer} edges={["top", "left", "right"]}>
 
         {/* Header with close + toggle */}
-        <View style={styles.headerRow}>
+        <View style={[styles.headerRow, {paddingTop: 30}]}>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Text style={styles.closeButtonText}>X</Text>
           </TouchableOpacity>
@@ -486,10 +608,16 @@ export default function FoodModal({ visible, onClose }) {
 
                     <TouchableOpacity
                         style={styles.logBtn}
-                        onPress={() =>
-                            handleSelectFood(selectedFood.id, selectedFood.name)
+                        onPress={() => {
+                            if (selectedFood.id && selectedFood.id.toString().startsWith("fs_")) {
+                              // Only FatSecret items have IDs like "fs_12345"
+                              handleSelectFood(selectedFood.id.replace("fs_", ""), selectedFood.name);
+                            } else {
+                              // Local food — no need to fetch details again
+                              handleSelectRecentFood(selectedFood, selectedNutrition);
                         }
-                    >
+                      }}
+                      >
                         <Text style={{ color: "#fff", fontWeight: "bold" }}>Log It</Text>
                     </TouchableOpacity>
                 </View>
@@ -521,14 +649,23 @@ export default function FoodModal({ visible, onClose }) {
                   onValueChange={(val) => updateEntry(entry.id, "nutrient", val)}
                 >
                   <Picker.Item label="Select nutrient" value="" color="#888" />
-                  <Picker.Item label="Calories" value="calories" />
-                  <Picker.Item label="Protein" value="protein" />
-                  <Picker.Item label="Fat" value="fat" />
-                  <Picker.Item label="Carbs" value="total_Carbs" />
-                  <Picker.Item label="Sugar" value="sugar" />
-                  <Picker.Item label="Cholesterol" value="cholesterol" />
-                  <Picker.Item label="Sodium" value="sodium" />
-                  <Picker.Item label="Calcium" value="calcium" />
+                  <Picker.Item label="Calories (kcal)" value="calories" />
+                  <Picker.Item label="Protein (g)" value="protein" />
+                  <Picker.Item label="Fat (g)" value="fat" />
+                  <Picker.Item label="Carbs (g)" value="total_Carbs" />
+                  <Picker.Item label="Sugar (g)" value="sugar" />
+                  <Picker.Item label="Cholesterol (mg)" value="cholesterol" />
+                  <Picker.Item label="Sodium (g)" value="sodium" />
+                  <Picker.Item label="Calcium (mg)" value="calcium" />
+                  <Picker.Item label="Fiber (g)" value="fiber" />
+                  <Picker.Item label="Iron (mg)" value="iron" />
+                  <Picker.Item label="Potassium (mg)" value="potassium" />
+                  <Picker.Item label="Vitamin A (mcg)" value="vitamin_A" />
+                  <Picker.Item label="Vitamin B6 (mg)" value="vitamin_B6" />
+                  <Picker.Item label="Vitamin B12 (mcg)" value="vitamin_B12" />
+                  <Picker.Item label="Vitamin C (mg)" value="vitamin_C" />
+                  <Picker.Item label="Vitamin D (mcg)" value="vitamin_D" />
+                  <Picker.Item label="Vitamin E (mg)" value="vitamin_E" />
                 </Picker>
                 <TextInput
                   placeholder="Value"
@@ -546,8 +683,9 @@ export default function FoodModal({ visible, onClose }) {
             </TouchableOpacity>
           </ScrollView>
         )}
-      </View>
+      </SafeAreaView>
     </Modal>
+    </TouchableWithoutFeedback>
   );
 }
 
