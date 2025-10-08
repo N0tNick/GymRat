@@ -134,7 +134,8 @@ export default function JimRat({ dailyTotals, targets, hasEntries, hasWorkout, s
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 5,
     backgroundColor: "transparent",
     borderRadius: 12,
     flexDirection: "row",

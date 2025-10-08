@@ -554,7 +554,7 @@ export default function WorkoutScreen() {
             sections={[{title: 'Custom Templates', data: userTemplates}, {title: 'Example Templates', data: presetTemplates}]}
             keyExtractor={(item) => item.id.toString()}
             renderItem={renderTemplate}
-            style={{padding: 10}}
+            style={styles.templateListContainer}
             renderSectionHeader={({section: {title}}) => (
               <View>
                 <Text style={standards.headerText}>{title}</Text>
@@ -567,7 +567,7 @@ export default function WorkoutScreen() {
             data={userTemplates}
             keyExtractor={(item) => item.id.toString()}
             renderItem={renderTemplate}
-            style={{padding: 10}}
+            style={styles.templateListContainer}
             />
           )}
 
@@ -586,6 +586,10 @@ export default function WorkoutScreen() {
 }
 
 export const styles = StyleSheet.create({
+  templateListContainer: {
+    marginBottom: '15%',
+    paddingHorizontal: 10
+  },
   container: {
     flex: 1,
     alignItems: 'center',

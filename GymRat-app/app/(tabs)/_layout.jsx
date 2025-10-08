@@ -1,8 +1,10 @@
 
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { Image } from 'expo-image';
+import { useRef, useState } from 'react';
 import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import FoodModal from '../../components/FoodModal.jsx';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -14,9 +16,6 @@ function TabBarIcon({ focused, selected, unselected }) {
     />
   );
 }
-
-import { useRef, useState } from 'react';
-import FoodModal from '../../components/FoodModal.jsx';
 
 function CustomTabBar({ state, descriptors, navigation }) {
   const insets = useSafeAreaInsets();
@@ -62,7 +61,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
   );
 
   return (
-    <View style={[styles.tabBar, { bottom: 16 + (insets.bottom || 0) }]}> 
+    <View style={[styles.tabBar, { bottom: (insets.bottom || 0) }]}> 
       {state.routes.map((route, index) => {
         // Icon logic
         let iconProps = {};

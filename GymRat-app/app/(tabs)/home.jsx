@@ -1233,7 +1233,7 @@ const styles = StyleSheet.create({
   },
   customizeButton: {
     position: 'absolute',
-    bottom: 115,
+    bottom: 100,
     left: 20,
     backgroundColor: '#444',
     paddingVertical: 8,
@@ -1268,6 +1268,7 @@ const styles = StyleSheet.create({
   },
     modulesContainer: {
     flex: 1,
+    paddingBottom: '15%',
     paddingHorizontal: 10,
   },
    nutritionSummaryContent: {
