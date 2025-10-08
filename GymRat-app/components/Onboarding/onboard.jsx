@@ -183,13 +183,13 @@ export const ProfileOnboardModal = ({isVisible, onClose}) => {
                     <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
                 </TouchableOpacity>
                 <View style={profileModalStyles.textBox}>
-                    <Text style={[standards.regularText,{padding:10,textAlign:'center'}]}>This is the nutrition page. Here, you can see:</Text>
+                    <Text style={[standards.regularText,{padding:10,textAlign:'center'}]}>This is the profile page. Here you can:</Text>
                     <FlatList
                         data={[
-                            { key: 'A breakdown of your nutrition goals'},
-                            { key: 'Advanced macro tracking'},
-                            { key: 'A history of your saved foods'},
-                            { key: 'And add custom food entries'},
+                            { key: 'See a compelete history of nutritiona and workout logs'},
+                            { key: 'A chart of your weights changes per week'},
+                            { key: 'Overview of progress and composition'},
+                            { key: 'General settings'},
                         ]}
                         renderItem={({item}) => {
                             return(
