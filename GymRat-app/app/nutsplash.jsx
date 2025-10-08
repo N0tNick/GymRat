@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
         backgroundColor: '#2c2c2e',
-        width: ScreenHeight*0.75,
+        width: ScreenHeight*0.4,
         height: screenWidth*0.5,
         borderRadius: 10,
         alignItems: 'center',
