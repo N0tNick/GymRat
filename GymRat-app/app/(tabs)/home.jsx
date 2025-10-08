@@ -57,6 +57,8 @@ export default function HomeScreen() {
   const [showNutritionSummary, setShowNutritionSummary] = useState(true);
   const [moduleOrder, setModuleOrder] = useState(['nutritionSummary', 'tasks', 'nutrition', 'weekly']);
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
+  const [bestStreak, setBestStreak] = useState(0);
+  const [showStreak, setShowStreak] = useState(true);
 
   // check if daily log has entries for Jim rat
   const [hasEntries, setHasEntries] = useState(false);
@@ -265,6 +267,26 @@ export default function HomeScreen() {
     })();
   }, [userId]);
 
+    useEffect(() => {
+    if (userId && preferencesLoaded) {
+      saveModulePreferences();
+    }
+  }, [showNutritionSummary, showTasks, showNutrition, showWeekly, showStreak, moduleOrder, userId, preferencesLoaded]);
+
+  useEffect(() => {
+  (async () => {
+    try {
+      const streakData = await updateStreakOnAppOpen(db, userId);
+      if (streakData) {
+        setStreak(streakData.current_streak);
+        setBestStreak(streakData.best_streak);
+      }
+    } catch (e) {
+      console.error('Error updating streak on app open:', e);
+    }
+  })();
+}, [db, userId]);
+
   useEffect(() => {
     if (userId && preferencesLoaded) {
       saveModulePreferences();
@@ -411,27 +433,38 @@ const initializeModulePreferences = async () => {
         show_tasks INTEGER DEFAULT 1,
         show_nutrition INTEGER DEFAULT 1,
         show_weekly INTEGER DEFAULT 1,
-        module_order TEXT DEFAULT '["nutritionSummary","tasks","nutrition","weekly"]'
+        show_streak INTEGER DEFAULT 1,
+        module_order TEXT DEFAULT '["nutritionSummary","tasks","nutrition","weekly","streak"]'
       );
     `);
+    const tableInfo = await db.getAllAsync("PRAGMA table_info('modulePreferences');");
+    const hasStreakColumn = tableInfo.some(col => col.name === 'show_streak');
+    if (!hasStreakColumn) {
+      await db.runAsync(`
+        ALTER TABLE modulePreferences ADD COLUMN show_streak INTEGER DEFAULT 1;
+      `);
+      console.log('Added show_streak column to modulePreferences table');
+    }
   } catch (error) {
     console.error('Error creating modulePreferences table:', error);
   }
 };
+
 
 const saveModulePreferences = async () => {
   if (!userId) return;
   try {
     await db.runAsync(
       `INSERT OR REPLACE INTO modulePreferences 
-       (user_id, show_nutrition_summary, show_tasks, show_nutrition, show_weekly, module_order) 
-       VALUES (?, ?, ?, ?, ?, ?)`,
+       (user_id, show_nutrition_summary, show_tasks, show_nutrition, show_weekly, show_streak, module_order) 
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         userId,
         showNutritionSummary ? 1 : 0,
         showTasks ? 1 : 0,
         showNutrition ? 1 : 0,
         showWeekly ? 1 : 0,
+        showStreak ? 1 : 0,
         JSON.stringify(moduleOrder)
       ]
     );
@@ -453,9 +486,13 @@ const loadModulePreferences = async () => {
       setShowTasks(prefs.show_tasks === 1);
       setShowNutrition(prefs.show_nutrition === 1);
       setShowWeekly(prefs.show_weekly === 1);
+      setShowStreak(prefs.show_streak === 1);
 
       try {
         const order = JSON.parse(prefs.module_order);
+        if (!order.includes('streak')) {
+          order.push('streak');
+        }
         setModuleOrder(order);
       } catch (e) {
         console.error('Error parsing module order:', e);
@@ -474,9 +511,10 @@ const allModules = useMemo(() => {
   if (showTasks) enabled.push('tasks');
   if (showNutrition) enabled.push('nutrition');
   if (showWeekly) enabled.push('weekly');
+  if (showStreak) enabled.push('streak');
 
   return moduleOrder.filter(k => enabled.includes(k)).map(k => ({ key: k }));
-  }, [showNutritionSummary, showTasks, showNutrition, showWeekly, moduleOrder]);
+  }, [showNutritionSummary, showTasks, showNutrition, showWeekly, showStreak, moduleOrder]);
 
   const renderItem = useCallback(({ item, drag, isActive }) => {
     switch (item.key) {
@@ -659,10 +697,47 @@ const allModules = useMemo(() => {
           </ScaleDecorator>
         );
 
+                case 'streak':
+          return (
+            <ScaleDecorator>
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onLongPress={drag}
+                disabled={isActive}
+                style={styles.gridItem}
+              >
+                <View style={styles.homeModule}>
+                  <Text style={styles.moduleTitle}>Streak Stats</Text>
+                  <View style={styles.streakContainer}>
+                    {/* Current Streak */}
+                    <View style={styles.streakItem}>
+                      <View style={styles.fireIconRed}>
+                        <Text style={styles.fireEmoji}>🔥</Text>
+                      </View>
+                      <Text style={styles.streakLabel}>Current</Text>
+                      <Text style={styles.streakValue}>{streak}</Text>
+                      <Text style={styles.streakDays}>days</Text>
+                    </View>
+
+                    {/* Best Streak */}
+                    <View style={styles.streakItem}>
+                      <View style={styles.fireIconGold}>
+                        <Text style={styles.fireEmoji}>🔥</Text>
+                      </View>
+                      <Text style={styles.streakLabel}>Best</Text>
+                      <Text style={styles.streakValue}>{bestStreak}</Text>
+                      <Text style={styles.streakDays}>days</Text>
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </ScaleDecorator>
+          );
+
       default:
         return null;
     }
-  }, [events, dailyTotals, weekData, setDayModalVisible]);
+  }, [events, dailyTotals, weekData, setDayModalVisible, streak, bestStreak]);
 
 
   return (
@@ -1010,6 +1085,12 @@ const allModules = useMemo(() => {
               <TouchableOpacity onPress={() => setShowWeekly(!showWeekly)}>
                 <Text style={{ color: showWeekly ? '#ffa500' : '#888', marginBottom: 10 }}>
                   {showWeekly ? '✔ ' : '○ '}Weekly Calendar
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => setShowStreak(!showStreak)}>
+                <Text style={{ color: showStreak ? '#ff4500' : '#888', marginBottom: 10 }}>
+                  {showStreak ? '✔ ' : '○ '}Streak Stats
                 </Text>
               </TouchableOpacity>
 
@@ -1432,5 +1513,58 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 4,
     fontStyle: 'italic',
+  },
+    streakContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+  },
+  streakItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  fireIconRed: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: 'rgba(255, 69, 58, 0.2)',
+    borderWidth: 3,
+    borderColor: '#FF453A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  fireIconGold: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: 'rgba(255, 204, 0, 0.2)',
+    borderWidth: 3,
+    borderColor: '#FFD60A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  fireEmoji: {
+    fontSize: 36,
+  },
+  streakLabel: {
+    color: '#e0e0e0',
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  streakValue: {
+    color: '#e0e0e0',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  streakDays: {
+    color: '#888',
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 2,
   },
 });
