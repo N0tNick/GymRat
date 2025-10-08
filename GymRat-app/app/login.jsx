@@ -71,7 +71,7 @@ export default function LoginScreen() {
         if (querySnapshot.empty) {
           console.log("No Firestore user found. Creating new user...");
         
-          // 2️⃣ Add new document with random ID (Firestore auto-generates it)
+          // Add new document with random ID (Firestore auto-generates it)
           const newUserRef = await addDoc(collection(fbdb, "users"), {
             dob: "2000-01-01",
             email: user.email,
@@ -83,7 +83,7 @@ export default function LoginScreen() {
           firestoreUserId = newUserRef.id;
           console.log("Created new Firestore user with ID:", firestoreUserId);
         
-          // 3️⃣ Initialize empty subcollections
+          // Initialize empty subcollections
           const subcollections = ["customExercises", "historyLog", "userStats", "workoutLog", "workoutTemplates"];
           for (const sub of subcollections) {
             const subRef = collection(fbdb, "users", firestoreUserId, sub);
@@ -91,20 +91,20 @@ export default function LoginScreen() {
           }
         
         } else {
-          // 4️⃣ User already exists, get their doc ID
+          // User already exists, get their doc ID
           firestoreUserId = querySnapshot.docs[0].id;
           console.log("Found existing Firestore user with ID:", firestoreUserId);
         }
 
           // check if user exists in SQLite
-          const result = await db.getFirstAsync(
+          let userId;
+          const existingUser = await db.getFirstAsync(
             'SELECT id FROM users WHERE email = ?',
             [email]
           );
 
-          let userId;
-          if (result) {
-            userId = result.id;
+          if (existingUser) {
+            userId = existingUser.id;
             console.log('Found existing user ID:', userId);
           } else {
             // create new user in local DB

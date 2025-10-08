@@ -8,11 +8,14 @@ import UserSettingsTab from './SettingsTabs/UserSettingsTab'
 import UserStatsTab from './SettingsTabs/UserStatsTab'
 import UserGoalsTab from './SettingsTabs/UserGoalsTab'
 import { useSQLiteContext } from 'expo-sqlite';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from '@/UserContext';
 const { width: screenWidth } = Dimensions.get('window');
 const SIDEBAR_WIDTH = screenWidth * 0.30; //Exactly half the screen
 
 const SettingsWheel = () => {
     const db = useSQLiteContext();
+    const { setUserId, setFirestoreUserId} = useUser();
 
     //delete account & userData
     const resetAccountData = async () => {
@@ -26,10 +29,26 @@ const SettingsWheel = () => {
     const [isSidebarVisible, setIsSidebarVisible] = useState(false);
     const sidebarTranslateX = useRef(new Animated.Value(SIDEBAR_WIDTH)).current;
 
-    const handleSignOut = () => {
-    signOut(auth)
-      .then(() => router.replace('/login'))
-      .catch(console.error);
+    const handleSignOut = async () => {
+      try {
+        // sign out from Firebase
+        await signOut(auth);
+    
+        // clear async storage
+        await AsyncStorage.removeItem('firestoreUserId');
+    
+        // clear context values
+        setUserId(null);
+        setFirestoreUserId(null);
+    
+        // clear SQLite session cache if needed
+        //await db.runAsync('DELETE FROM users');
+    
+        console.log('User signed out and local data cleared');
+        router.replace('/login');
+      } catch (err) {
+        console.error('Error signing out:', err);
+      }
     };
 
     const renderMore = () => {

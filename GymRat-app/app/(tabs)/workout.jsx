@@ -34,13 +34,44 @@ export default function WorkoutScreen() {
   const [hasWorkout, setHasWorkout] = useState(false);
 
   const loadTemplates = async() => {
-    const result = await db.getAllAsync("SELECT * FROM workoutTemplates;")
+    const result = await db.getAllAsync("SELECT * FROM workoutTemplates WHERE user_Id =?;", [userId])
     setUserTemplates(result)
-    const result2 = await db.getAllAsync("SELECT * FROM customExercises;")
+    const result2 = await db.getAllAsync("SELECT * FROM customExercises WHERE user_Id =?;", [userId])
     setCustomExercises(result2)
     const result3 = await db.getAllAsync("SELECT * FROM exampleWorkoutTemplates")
     setPresetTemplates(result3)
   }
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const refreshWorkoutData = async () => {
+      try {
+        // Reload templates & custom exercises
+        await loadTemplates();
+
+        // Optionally refresh streak (if you want it live)
+        const res = await db.getAllAsync(
+          'SELECT current_streak FROM userStreaks WHERE user_id = ?',
+          [userId]
+        );
+        if (res && res[0]) {
+          setStreak(res[0].current_streak);
+        }
+      } catch (error) {
+        console.warn('Workout auto-refresh failed:', error);
+      }
+    };
+
+    // Run once immediately
+    refreshWorkoutData();
+
+    // Re-run every 5 seconds (adjust interval if needed)
+    const intervalId = setInterval(refreshWorkoutData, 2000);
+
+    // Cleanup on unmount
+    return () => clearInterval(intervalId);
+  }, [db, userId]);
 
   function finishWorkout(bool) {
     setIsOngoingWorkout(!bool)
@@ -50,7 +81,7 @@ export default function WorkoutScreen() {
     useCallback(() => {
       loadTemplates()
       handleOnboarding()
-    }, [])
+    }, [userId])
   )
 
     const handleOnboarding = async () => {

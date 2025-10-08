@@ -163,6 +163,36 @@ export default function Nutrition() {
   return [cal, fatC, carbC, sugC];
 }, [totalCalories, fatTotal, carbsTotal, sugarTotal]);
 
+useEffect(() => {
+  const uid = userId || user?.id;
+  if (!uid) return;
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const fetchNutritionData = async () => {
+    try {
+      const rows = await db.getAllAsync(
+        `SELECT * FROM dailyNutLog WHERE user_id = ? AND date = ?;`,
+        [uid, today]
+      );
+      setEntries(rows);
+      await loadTodaysTotals(uid);
+    } catch (err) {
+      console.error('Auto refresh nutrition failed:', err);
+    }
+  };
+
+  // Run once immediately
+  fetchNutritionData();
+
+  // Then run every 2 seconds
+  const intervalId = setInterval(fetchNutritionData, 5000);
+
+  // Cleanup on unmount
+  return () => clearInterval(intervalId);
+}, [db, userId, user?.id]);
+
+
 const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
 
   useFocusEffect(

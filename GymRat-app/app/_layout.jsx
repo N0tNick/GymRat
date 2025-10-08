@@ -206,7 +206,7 @@ export default function App() {
         );
 
         //await db.execAsync(`DROP TABLE IF EXISTS weightHistory;`);  
-        //await db.runAsync('UPDATE users SET hasOnboarded = ?', [0])
+        await db.runAsync('UPDATE users SET hasOnboarded = ?', [0])
 
         await db.execAsync(
           `CREATE TABLE IF NOT EXISTS weightHistory (
