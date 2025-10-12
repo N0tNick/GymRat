@@ -7,9 +7,9 @@ import { Dimensions, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
-import { useUser } from "../UserContext";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { addDoc, collection, getFirestore } from "firebase/firestore";
 import { app } from "../firebaseConfig";
+import { useUser } from "../UserContext";
 const dbFirestore = getFirestore(app);
 
 export default function ExerciseCreationModal({visibility, setVisibility}) {
@@ -61,6 +61,7 @@ export default function ExerciseCreationModal({visibility, setVisibility}) {
     <Modal
     visible={visibility}
     transparent={true}
+    animationType='fade'
     onRequestClose={() => setVisibility(false)}
     >
       <BlurView intensity={25} style={styles.centeredView}>

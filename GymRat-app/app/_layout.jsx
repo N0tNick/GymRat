@@ -8,6 +8,7 @@ import exampleTemplates from '../assets/presetWorkoutTemplates.json';
 
 // required for userId's
 import { SQLiteProvider } from 'expo-sqlite';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { UserProvider } from '../UserContext';
 
 const MyTheme = {
@@ -38,6 +39,7 @@ export default function App() {
   }
 
   return (
+    <SafeAreaProvider>
     <GestureHandlerRootView style={{ flex: 1 }}>
     <ApplicationProvider {...eva} theme={MyTheme}>
     <SQLiteProvider
@@ -253,6 +255,7 @@ export default function App() {
     </SQLiteProvider>
     </ApplicationProvider>
     </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
   

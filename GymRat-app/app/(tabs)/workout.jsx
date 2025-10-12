@@ -390,7 +390,7 @@ export default function WorkoutScreen() {
           <Modal
           visible={modalVisible}
           transparent={true}
-          
+          animationType='fade'
           onRequestClose={() => {
             setModalVisible(!modalVisible)
           }}>
@@ -504,6 +504,7 @@ export default function WorkoutScreen() {
           <Modal
             visible={manageTemplateModal}
             transparent={true}
+            animationType='fade'
             onRequestClose={() => setManageTemplateModal(false)}
           >
             <BlurView intensity={25} style={styles.centeredView}>

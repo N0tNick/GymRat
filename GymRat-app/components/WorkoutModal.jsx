@@ -7,7 +7,7 @@ import { useStatePersist } from 'use-state-persist';
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
-import { getFirestore, doc, setDoc, collection, addDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, getFirestore, setDoc } from 'firebase/firestore';
 import { app } from '../firebaseConfig'; // adjust path if needed
 import { useUser } from '../UserContext';
 
@@ -307,6 +307,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
         <Modal
         visible={workoutModal}
         transparent={true}
+        animationType='slide'
         onRequestClose={() => setWorkoutModal(false)}
         >
             <View style={styles.centeredView}>

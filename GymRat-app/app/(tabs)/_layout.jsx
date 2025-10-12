@@ -3,7 +3,7 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { Image } from 'expo-image';
 import { useRef, useState } from 'react';
 import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import FoodModal from '../../components/FoodModal.jsx';
 
 const Tab = createMaterialTopTabNavigator();
@@ -232,6 +232,7 @@ const styles = StyleSheet.create({
 
 export default function TabLayout() {
   return (
+    <SafeAreaProvider>
     <Tab.Navigator
       initialRouteName="home"
       tabBarPosition="bottom"
@@ -261,5 +262,6 @@ export default function TabLayout() {
         component={require('./profile.jsx').default}
       />
     </Tab.Navigator>
+    </SafeAreaProvider>
   );
 }

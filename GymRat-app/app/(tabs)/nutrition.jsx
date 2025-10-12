@@ -587,7 +587,7 @@ useEffect(() => {
 
   return (
     <SafeAreaProvider>
-      <LinearGradient style={styles.gradient} colors={['#32a852', '#1a1b1c']} locations={[0,0.15,1]}>
+      <LinearGradient style={styles.gradient} colors={['#32a852', '#1a1b1c']} locations={[0,0.15]}>
         <SafeAreaView style={[styles.container, {marginBottom: '20%'}]}>
           <ScrollView 
             contentContainerStyle={styles.scrollContent}
