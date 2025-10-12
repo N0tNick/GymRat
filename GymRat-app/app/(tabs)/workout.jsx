@@ -1,5 +1,6 @@
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useState } from 'react';
@@ -384,6 +385,7 @@ export default function WorkoutScreen() {
           backgroundColor={'#1a1b1c'}
           style={styles.container}
         >
+          <LinearGradient style={styles.gradient} colors={['#375573', '#1a1b1c']} locations={[0,0.15]}>
           <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth}}>
           <WorkoutOnboardModal isVisible={isWorkoutOnboardModal} onClose={() => setWorkoutOnboardModal(false)}/>
           {/* Exercise List Modal */}
@@ -611,6 +613,7 @@ export default function WorkoutScreen() {
           ItemSeparatorComponent={<View style={{padding: 5}}/>}
           />*/}
         </SafeAreaView>
+        </LinearGradient>
         </View>
         {/*<NavBar />*/}
     </SafeAreaProvider>
@@ -626,6 +629,11 @@ export const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  gradient: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
   },
   modalView: {
     height: '85%',

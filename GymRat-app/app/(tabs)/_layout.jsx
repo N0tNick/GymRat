@@ -22,6 +22,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
   const [scanExpanded, setScanExpanded] = useState(false);
   const anim = useRef(new Animated.Value(0)).current;
   const [foodModalVisible, setFoodModalVisible] = useState(false);
+  // Removed unused isBarcodeFocused state
 
   const toggleScan = () => {
     setScanExpanded((prev) => !prev);
@@ -65,16 +66,17 @@ function CustomTabBar({ state, descriptors, navigation }) {
       {state.routes.map((route, index) => {
         // Icon logic
         let iconProps = {};
+        const focused = state.index === index;
         switch (route.name) {
           case 'home':
             iconProps = {
-              selected: require('../../assets/images/home(selected).png'),
+              selected: require('../../assets/images/home(white).png'),
               unselected: require('../../assets/images/home3.png'),
             };
             break;
           case 'workout':
             iconProps = {
-              selected: require('../../assets/images/arm(selected).png'),
+              selected: require('../../assets/images/arm(blue).png'),
               unselected: require('../../assets/images/arm2.png'),
             };
             break;
@@ -88,11 +90,13 @@ function CustomTabBar({ state, descriptors, navigation }) {
                   activeOpacity={0.7}
                 >
                   <Image
-                    style={{ width: 25, height: 25, tintColor: '#fff' }}
+                    style={{ width: 25, height: 25 }}
                     source={
                       scanExpanded
-                        ? require('../../assets/images/close.png')
-                        : require('../../assets/images/barcode-scan2.png')
+                        ? require('../../assets/images/xButton.png')
+                        : focused
+                          ? require('../../assets/images/barcode(red).png')
+                          : require('../../assets/images/barcode(grey).png')
                     }
                   />
                 </TouchableOpacity>
@@ -118,8 +122,8 @@ function CustomTabBar({ state, descriptors, navigation }) {
                       }}
                     >
                       <Image
-                        style={{ width: 25, height: 25, tintColor: '#fff' }}
-                        source={require('../../assets/images/barcode-scan2.png')}
+                        style={{ width: 25, height: 25, }}
+                        source={require('../../assets/images/barcode(grey).png')}
                       />
                     </TouchableOpacity>
                   </Animated.View>
@@ -146,7 +150,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
                       }}
                     >
                       <Image
-                        style={{ width: 25, height: 25, tintColor: '#fff' }}
+                        style={{ width: 25, height: 25 }}
                         source={require('../../assets/images/apple2.png')}
                       />
                     </TouchableOpacity>
@@ -166,14 +170,13 @@ function CustomTabBar({ state, descriptors, navigation }) {
             break;
           case 'profile':
             iconProps = {
-              selected: require('../../assets/images/user(selected).png'),
+              selected: require('../../assets/images/user(purple).png'),
               unselected: require('../../assets/images/user2.png'),
             };
             break;
           default:
             break;
         }
-        const focused = state.index === index;
         const onPress = () => {
           if (!focused) {
             navigation.navigate(route.name);
