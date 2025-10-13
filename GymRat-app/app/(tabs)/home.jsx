@@ -910,15 +910,18 @@ const allModules = useMemo(() => {
               </View>
             </View>
           </Modal>
-          </SafeAreaView>
-        </View>
 
+          
         <TouchableOpacity
           style={styles.customizeButton}
           onPress={() => setCustomizeModalVisible(true)}
         >
           <Text style={styles.buttonText}>⚙️</Text>
         </TouchableOpacity>
+        
+          </SafeAreaView>
+        </View>
+
 
 
         {/*<NavBar />*/}
@@ -1314,7 +1317,7 @@ const styles = StyleSheet.create({
   },
   customizeButton: {
     position: 'absolute',
-    bottom: 100,
+    bottom: "30%",
     left: 20,
     backgroundColor: '#444',
     paddingVertical: 8,

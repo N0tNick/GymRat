@@ -167,6 +167,6 @@ const modalStyles = StyleSheet.create ({
 
 const settingsStyles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  settingsWheelWrapper: { position: 'absolute', top: screenHeight*0.05, right: 20 },
+  settingsWheelWrapper: { position: 'absolute', top: screenHeight*0.08, right: 20 },
   text: { color: '#e0e0e0', fontSize: 28, fontWeight: 'bold' },
 });

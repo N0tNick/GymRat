@@ -51,19 +51,11 @@ const TopTab = () => {
     try {
       const result = await db.getFirstAsync('SELECT * FROM userStats')
       //console.log(result)
-      if (result){
       setLastWeight(result['weight']) 
       setLastGoalWeight(result['goal_weight'])
       setLastBodyFat(result['body_fat'])
       setLastBMI(result['BMI']) 
       setLastBMR(result['BMR']) 
-    } else {
-      setLastWeight(null)
-      setLastGoalWeight(null)
-      setLastBodyFat(null)
-      setBMI(null)
-      setBMR(null)
-    }
    } catch (error) {
       console.error('Error fetching last weight:', error)
     }
