@@ -11,7 +11,7 @@ import ExerciseListModal from '../components/ExerciseListModal';
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { doc, getFirestore, setDoc } from 'firebase/firestore';
 import { app } from '../firebaseConfig';
 import { useUser } from '../UserContext';
 
@@ -189,7 +189,7 @@ export default function CreateTemplateScreen() {
               />
 
               <TouchableOpacity 
-              style={{backgroundColor: '#375573', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
+              style={styles.button}
               onPress={() => setModalVisible(true)}
               >
                 <Text style={standards.regularText}>Add Exercises</Text>
@@ -289,8 +289,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   button: {
-    backgroundColor: '#1478db',
-    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#375573',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     padding: 10,
     justifyContent: 'center',
     fontSize: 20,
