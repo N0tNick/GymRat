@@ -1317,7 +1317,7 @@ const styles = StyleSheet.create({
   },
   customizeButton: {
     position: 'absolute',
-    bottom: "30%",
+    bottom: "15%",
     left: 20,
     backgroundColor: '#444',
     paddingVertical: 8,

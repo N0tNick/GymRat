@@ -38,7 +38,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
           if (rows && rows.length > 0) {
             const workout = rows[0]
             setWorkoutData(workout)
-            console.log('Found row:', rows[0]);
+            //console.log('Found row:', rows[0]);
             if (workout.data) {
               const parsed = JSON.parse(workout.data);
               setExercises(parsed.exercises || []);
@@ -53,7 +53,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
             setWorkoutData(null);
             setExercises([]);
             setUpdatedExercises([]);
-            console.log(`No row found with id = ${template.id}`);
+            //console.log(`No row found with id = ${template.id}`);
           }
         } catch (err) {
           console.error(err.message);
@@ -71,7 +71,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
           if (rows && rows.length > 0) {
             const workout = rows[0]
             setWorkoutData(workout)
-            console.log('Found row:', rows[0]);
+            //console.log('Found row:', rows[0]);
             if (workout.data) {
               const parsed = JSON.parse(workout.data);
               setExercises(parsed.exercises || []);
@@ -86,7 +86,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
             setWorkoutData(null);
             setExercises([]);
             setUpdatedExercises([]);
-            console.log(`No row found with id = ${template.id}`);
+            //console.log(`No row found with id = ${template.id}`);
           }
         } catch (err) {
           console.error(err.message);

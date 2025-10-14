@@ -135,50 +135,27 @@ export default function CreateTemplateScreen() {
     });
   };
 
-  const deleteExercise = (exercise) => {
-    let updatedExercises = []
-
-    let j = 0;
-    for (let i = 0; i < selectedExercises.length; i++) {
-      if (exercise != selectedExercises[i]) {
-        updatedExercises[j] = selectedExercises[i]
-        console.log('Exercise ' + i + ' not deleted')
-        j++
-      }
-    }
-
-    setSelectedExercises(updatedExercises)
-    //console.log('updated exercises: ' + selectedExercises)
-  }
-
   const renderItem = ({ item }) => (
-    <View style={{marginBottom: '2.5%'}}>
-      <View style={styles.exerciseContainer}>
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <Text style={standards.regularText}>{item.name}</Text>
-          <TouchableOpacity onPress = {() => {deleteExercise(item)}}>
-            <Image style={{width: 25, height: 25}} source={require('../assets/images/white-trash-can.png')}/>
-          </TouchableOpacity>
-        </View>
+    <View>
+      <Text style={standards.regularText}>{item.name}</Text>
 
-        <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 5}}>
-          <Text style={standards.regularText}>Set</Text>
-          <Text style={standards.regularText}>Previous</Text>
-          <Text style={standards.regularText}>lbs</Text>
-          <Text style={standards.regularText}>Reps</Text>
-        </View>
-
-        {(numOfSets[item.id] || []).map((_, index) => (
-          <ExerciseSetComponent key={`${String(item.id ?? 'noid')}-${index}`} index={index} itemId={item.id}/>
-        ))}
-
-        <TouchableOpacity 
-        style={{backgroundColor: '#375573', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
-        onPress={() => handleAddSets(item.id)}
-        >
-          <Text style={standards.regularText}>Add Set</Text>
-        </TouchableOpacity>
+      <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 5}}>
+        <Text style={standards.regularText}>Set</Text>
+        <Text style={standards.regularText}>Previous</Text>
+        <Text style={standards.regularText}>lbs</Text>
+        <Text style={standards.regularText}>Reps</Text>
       </View>
+
+      {(numOfSets[item.id] || []).map((_, index) => (
+        <ExerciseSetComponent key={`${String(item.id ?? 'noid')}-${index}`} index={index} itemId={item.id}/>
+      ))}
+
+      <TouchableOpacity 
+      style={{backgroundColor: '#375573', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
+      onPress={() => handleAddSets(item.id)}
+      >
+        <Text style={standards.regularText}>Add Set</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -192,7 +169,7 @@ export default function CreateTemplateScreen() {
                   <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
                 </TouchableOpacity>
 
-                <Text style={standards.headerText}>New Template</Text>
+                <Text style={standards.headerText}>Edit Template</Text>
 
                 <TouchableOpacity onPress={handleSave}>
                   <Image style={{width: '25', height: '25'}} source={require('../assets/images/check-mark.png')}/>
@@ -239,13 +216,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  exerciseContainer: {
-    padding: '2%',
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#375573',
-    backgroundColor: 'rgba(255,255,255,0.08)',
   },
   text: {
     flex: 1,

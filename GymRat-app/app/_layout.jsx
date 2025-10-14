@@ -30,13 +30,13 @@ export default function App() {
     setUpTimer()
   }, []);
 
-  const loadExampleTemplates = (db) => {
-    exampleTemplates.forEach(async t => {
-      await db.execAsync("UPSERT INTO workoutTemplates (id, user_id, name, data) VALUES (?, ?, ?, ?)",
-        [t.id, 1, t.name, t.data]
-      )
-    })
-  }
+  // const loadExampleTemplates = (db) => {
+  //   exampleTemplates.forEach(async t => {
+  //     await db.execAsync("UPSERT INTO workoutTemplates (id, user_id, name, data) VALUES (?, ?, ?, ?)",
+  //       [t.id, 1, t.name, t.data]
+  //     )
+  //   })
+  // }
 
   return (
     <SafeAreaProvider>
@@ -166,14 +166,14 @@ export default function App() {
 
         for (const t of exampleTemplates) {
           try {
-            console.log('Inserting id=', t.id, 'name=', t.name);
+            //console.log('Inserting id=', t.id, 'name=', t.name);
             const res = await db.runAsync(
               "INSERT OR IGNORE INTO exampleWorkoutTemplates (id, user_id, name, data) VALUES (?, ?, ?, ?)",
               [t.id, 1, t.name, JSON.stringify(t.data)]
             );
-            console.log('Insert returned:', res);
+            //console.log('Insert returned:', res);
           } catch (err) {
-            console.error('Insert error for id', t.id, err);
+            //console.error('Insert error for id', t.id, err);
           }
         }
 
@@ -208,7 +208,7 @@ export default function App() {
         );
 
         //await db.execAsync(`DROP TABLE IF EXISTS weightHistory;`);  
-        await db.runAsync('UPDATE users SET hasOnboarded = ?', [0])
+        //await db.runAsync('UPDATE users SET hasOnboarded = ?', [0])
 
         await db.execAsync(
           `CREATE TABLE IF NOT EXISTS weightHistory (
@@ -239,17 +239,10 @@ export default function App() {
           <Stack.Screen name="index"/>
           <Stack.Screen name="login"/>
           <Stack.Screen name="registration"/>
-          {/*<Stack.Screen name="home"/>*/}
-
           <Stack.Screen name="nutsplash"/>
-
           <Stack.Screen name="goal"/>
-
-          {/*<Stack.Screen name="nutrition"/>*/}
-          {/*<Stack.Screen name="profile"/>*/}
-          {/*<Stack.Screen name="workout"/>*/}
-          {/*<Stack.Screen name="barcodeScanner"/>*/}
           <Stack.Screen name="createTemplate"/>
+          <Stack.Screen name="editTemplate"/>
         </Stack>
       </UserProvider>
     </SQLiteProvider>

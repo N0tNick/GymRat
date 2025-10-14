@@ -281,7 +281,10 @@ export default function WorkoutScreen() {
     if (userTemplates.includes(item)) {
       return (
         <View>
-          <TouchableOpacity onPress = {() => {if (!isOngoingWorkout) manageTemplate(item)}} style={styles.templateBox}>
+          <TouchableOpacity style={styles.templateBox} onPress = {() => {
+            setIsTemplatePreset(false)
+            if (!isOngoingWorkout) manageTemplate(item)
+            }}>
             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <Text style={standards.headerText}>{item.name}</Text>
               <TouchableOpacity onPress = {() => {deleteTemplate(item.id)}}>{/*<Text style={standards.regularText}>Delete</Text>*/}<Image style={{width: 25, height: 25}} source={require('../../assets/images/white-trash-can.png')}/></TouchableOpacity>
@@ -304,7 +307,10 @@ export default function WorkoutScreen() {
     else {
       return (
         <View>
-          <TouchableOpacity onPress = {() => {if (!isOngoingWorkout) manageTemplate(item)}} style={styles.templateBox}>
+          <TouchableOpacity style={styles.templateBox} onPress = {() => {
+            setIsTemplatePreset(true)
+            if (!isOngoingWorkout) manageTemplate(item)
+            }}>
             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <Text style={standards.headerText}>{item.name}</Text>
             </View>
@@ -369,6 +375,7 @@ export default function WorkoutScreen() {
   const [workoutModal, setWorkoutModal] = useState(null)
   const [exerciseCreation, setExerciseCreation] = useState(null)
   const [customExercises, setCustomExercises] = useState([])
+  const [isTemplatePreset, setIsTemplatePreset] = useState(false)
 
     useEffect(() => {
       const filtered = exercises.filter((exercise) =>
@@ -536,9 +543,16 @@ export default function WorkoutScreen() {
           >
             <BlurView intensity={25} style={styles.centeredView}>
               <View style={styles.alertView}>
-                <Text style={standards.regularText}>
-                  {selectedTemplate ? `Do you want to start your ${selectedTemplate.name} workout?` : ''}
-                </Text>
+                {isTemplatePreset ? 
+                  <Text style={standards.regularText}>
+                    {selectedTemplate ? `Do you want to start your ${selectedTemplate.name} workout?` : ''}
+                  </Text>
+                :
+                  <Text style={standards.regularText}>
+                    {selectedTemplate ? `Do you want to start or edit your ${selectedTemplate.name} workout?` : ''}
+                  </Text>
+                }
+                
                 <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
                   <TouchableOpacity style={styles.button} onPress={() => {
                     setWorkoutModal(true)
@@ -546,6 +560,14 @@ export default function WorkoutScreen() {
                     setIsOngoingWorkout(true)}}>
                     <Text style={standards.smallText}>Start</Text>
                   </TouchableOpacity>
+                  {isTemplatePreset ? null : 
+                    <TouchableOpacity style={styles.button} onPress={() => {
+                      setManageTemplateModal(false)
+                      router.push('/editTemplate')
+                    }}>
+                      <Text style={standards.smallText}>Edit</Text>
+                    </TouchableOpacity>
+                  }
                   <TouchableOpacity style={styles.button} onPress={() => setManageTemplateModal(false)}>
                     <Text style={standards.smallText}>Cancel</Text>
                   </TouchableOpacity>
@@ -675,8 +697,10 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)'
   },
   alertView: {
-    backgroundColor: '#1a1b1c',
-    borderRadius: 15,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#375573',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     padding: 10,
     alignSelf: 'center',
     maxWidth: '80%',
