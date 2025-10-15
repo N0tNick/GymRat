@@ -212,8 +212,10 @@ export default function App() {
 
         await db.execAsync(
           `CREATE TABLE IF NOT EXISTS weightHistory (
-            date TEXT PRIMARY KEY NOT NULL,
-            weight TEXT NOT NULL
+            user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL,
+            weight TEXT NOT NULL,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE        
           );`
         )
 

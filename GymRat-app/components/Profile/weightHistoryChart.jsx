@@ -30,7 +30,7 @@ const lineChart = () => {
 
     const fetchWeightHistory = async () => {
         try {
-            const user = await db.getAllAsync('SELECT id from users')
+            const user = await db.getFirstAsync('SELECT id from users')
 
             if (!user) {
                 console.log('no user found - weightHistoryChart');

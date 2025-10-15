@@ -77,6 +77,20 @@ const SetGoalSpeed = ({ goal, onBack }) => {
         console.error(error) }
     }
     
+    const insertGoalSpeed = async () => {
+        try {
+            const user = await db.getFirstAsync('SELECT id FROM users')
+            console.log(user.id)
+
+            await db.runAsync('UPDATE userStats SET gain_speed = ? WHERE user_id = ?')
+            console.log(sliderValue.toString())
+            [sliderValue.toString(), user.id]
+            console.log('gain speed logged')
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
         <View style={styles.container}>
             <View style={[styles.inputContainer, {alignSelf:'center', height:'35%'}]}>
@@ -104,6 +118,7 @@ const SetGoalSpeed = ({ goal, onBack }) => {
                         onPress={() => {
                             cals = Math.round(calcCalories({ goal, speed: sliderValue }));
                             handleOnboarded();
+                            insertGoalSpeed();
                             router.replace('/home');
                         }}
                     >
