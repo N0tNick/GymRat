@@ -143,6 +143,8 @@ export default function Nutrition() {
   const vitCTotal      = dailyTotals?.totalVitC      || 0;
   const vitDTotal      = dailyTotals?.totalVitD      || 0;
   const vitETotal      = dailyTotals?.totalVitE      || 0;
+  const calciumTotal   = dailyTotals?.totalCalcium   || 0;
+  const sodiumTotal    = dailyTotals?.totalSodium    || 0;
 
 
   const proteinTarget = Math.round((cals * 0.25) / 4);
@@ -156,12 +158,70 @@ export default function Nutrition() {
   const fatPercent     = fatTarget     > 0 ? Math.round((fatTotal     / fatTarget)     * 100) : 0;
 
   const pieValues = useMemo(() => {
-  const cal = Math.max(0, Number(totalCalories) || 0);
   const fatC = Math.max(0, (Number(fatTotal) || 0) * 9);
   const carbC = Math.max(0, (Number(carbsTotal) || 0) * 4);
   const sugC = Math.max(0, (Number(sugarTotal) || 0) * 4);
-  return [cal, fatC, carbC, sugC];
-}, [totalCalories, fatTotal, carbsTotal, sugarTotal]);
+  return [fatC, carbC, sugC];
+}, [fatTotal, carbsTotal, sugarTotal]);
+
+const engeryPie = useMemo(() => {
+  const fatKcal = Math.max(0, (Number(fatTotal) || 0) * 9);
+  const carbKcal = Math.max(0, (Number(carbsTotal) || 0) * 4);
+  const sugKcal = Math.max(0, (Number(sugarTotal) || 0) * 4);
+  return {
+    values: [fatKcal, carbKcal, sugKcal],
+    labels: ['Fat', 'Carbs', 'Sugar'],
+    valueLabels: [
+      `${Math.round(fatKcal)} g`,
+      `${Math.round(carbKcal)} g`,
+      `${Math.round(sugKcal)} g`,
+    ],
+    colors: ['#ff8800ff', '#c05208ff', '#f5d833ff'],
+    title: 'Energy',
+  };
+}, [fatTotal, carbsTotal, sugarTotal]);
+
+const mineralsPie = useMemo(() => {
+  const ironMg = Math.max(0, (Number(ironTotal) || 0));
+  const calciumMg = Math.max(0, (Number(calciumTotal) || 0));
+  const potassiumMg = Math.max(0, (Number(potassiumTotal) || 0));
+  const sodiumMg = Math.max(0, (Number(sodiumTotal) || 0) * 1000);
+  return {
+    values: [ironMg, calciumMg, potassiumMg, sodiumMg],
+    labels: ['Iron', 'Calcium', 'Potassium', 'Sodium'],
+    valueLabels: [
+      `${Math.round(ironMg)} mg`,
+      `${Math.round(calciumMg)} mg`,
+      `${Math.round(potassiumMg)} mg`,
+      `${Math.round(sodiumMg)} mg`,
+    ],
+    colors: ['#0088ffff', '#00c0ffff', '#00ff88ff', '#00ffc0ff'],
+    title: 'Minerals',
+  };
+}, [ironTotal, calciumTotal, potassiumTotal, sodiumTotal]);
+
+const vitaminsPie = useMemo(() => {
+  const aMg = Math.max(0, (Number(vitATotal) || 0) / 1000);
+  const b6Mg = Math.max(0, (Number(vitB6Total) || 0));
+  const b12Mg = Math.max(0, (Number(vitB12Total) || 0) / 1000);
+  const cMg = Math.max(0, (Number(vitCTotal) || 0));
+  const dMg = Math.max(0, (Number(vitDTotal) || 0) / 1000);
+  const eMg = Math.max(0, (Number(vitETotal) || 0));
+  return {
+    values: [aMg, b6Mg, b12Mg, cMg, dMg, eMg],
+    labels: ['A', 'B6', 'B12', 'C', 'D', 'E'],
+    valueLabels: [
+      `${aMg.toFixed(2)} mg`,
+      `${b6Mg.toFixed(2)} mg`,
+      `${b12Mg.toFixed(2)} mg`,
+      `${cMg.toFixed(2)} mg`,
+      `${dMg.toFixed(2)} mg`,
+      `${eMg.toFixed(2)} mg`,
+    ],
+    colors: ['#ff0088ff', '#ff00c0ff', '#ff00ffff', '#c000ffff', '#8800ffff', '#4400ffff'],
+    title: 'Vitamins',
+  };
+}, [vitATotal, vitB6Total, vitB12Total, vitCTotal, vitDTotal, vitETotal]);
 
 useEffect(() => {
   const uid = userId || user?.id;
@@ -193,7 +253,7 @@ useEffect(() => {
 }, [db, userId, user?.id]);
 
 
-const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
+const pieColors = ['#ff8800ff', '#c05208ff', '#f5d833ff'];
 
   useFocusEffect(
     useCallback(() => {
@@ -232,7 +292,9 @@ const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
           SUM(CAST(vitamin_B12 AS REAL)) AS totalVitB12,
           SUM(CAST(vitamin_C AS REAL)) AS totalVitC,
           SUM(CAST(vitamin_D AS REAL)) AS totalVitD,
-          SUM(CAST(vitamin_E AS REAL)) AS totalVitE
+          SUM(CAST(vitamin_E AS REAL)) AS totalVitE,
+          SUM(CAST(calcium AS REAL)) AS totalCalcium,
+          SUM(CAST(sodium AS REAL)) AS totalSodium
         FROM dailyNutLog
         WHERE user_id = ? AND date = ?`,
         [userId, date]
@@ -255,6 +317,8 @@ const pieColors = ['#32a852', '#ff0000', '#ffa500', '#ff69b4'];
         totalVitC: totals?.totalVitC || 0,
         totalVitD: totals?.totalVitD || 0,
         totalVitE: totals?.totalVitE || 0,
+        totalCalcium: totals?.totalCalcium || 0,
+        totalSodium: totals?.totalSodium || 0,
       });
     } catch (error) {
       console.error('Error loading totals:', error);
@@ -650,7 +714,7 @@ useEffect(() => {
 
               {viewMode === 'pie' && (
                 <Text style={styles.pieCaption}>
-                  Keep Green and Blue larger than Red, Orange, and Pink to achieve goal of pie charts
+                  Below shows comparisons for Engery, Minerals, and Vitamins
                 </Text>
               )}
 
@@ -779,22 +843,44 @@ useEffect(() => {
               )}
 
 
-              {viewMode === 'pie' && (
+              {viewMode === 'pie' && (       
+                <>
+                {/* Energy Pie Chart */}
                 <View style={styles.pieWrap}>
                   <PieChart
                     size={240}
-                    values={pieValues}
-                    colors={pieColors}
-                    labels={['Calories', 'Fat', 'Carbs', 'Sugar']}
-                    valueLabels={[
-                      `${Math.round(totalCalories)} kcal`,
-                      `${Math.round(fatTotal)} g`,
-                      `${Math.round(carbsTotal)} g`,
-                      `${Math.round(sugarTotal)} g`,
-                    ]}
+                    values={engeryPie.values}
+                    labels={engeryPie.labels}
+                    colors={engeryPie.colors}
+                    valueLabels={engeryPie.valueLabels}
                   />
-                  <Text style={styles.pieTitle}>Weight Loss</Text>
+                  <Text style={styles.pieTitle}>{engeryPie.title}</Text>
                 </View>
+
+                {/* Minerals Pie Chart */}
+              <View style={styles.pieWrap}>
+                  <PieChart
+                    size={240}
+                    values={mineralsPie.values}
+                    labels={mineralsPie.labels}
+                    colors={mineralsPie.colors}
+                    valueLabels={mineralsPie.valueLabels}
+                  />
+                  <Text style={styles.pieTitle}>{mineralsPie.title}</Text>
+                </View>
+
+                {/* Vitamins Pie Chart */}
+                <View style={styles.pieWrap}>
+                  <PieChart
+                    size={240}
+                    values={vitaminsPie.values}
+                    labels={vitaminsPie.labels}
+                    colors={vitaminsPie.colors}
+                    valueLabels={vitaminsPie.valueLabels}
+                  />
+                  <Text style={styles.pieTitle}>{vitaminsPie.title}</Text>
+                </View>
+                </>
               )}
             </View>
           </ScrollView>
@@ -1338,6 +1424,7 @@ const styles = StyleSheet.create({
 
   pieWrap: {
     marginTop: 12,
+    marginBottom: 12,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
