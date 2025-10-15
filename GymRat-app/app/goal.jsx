@@ -104,7 +104,7 @@ const SetGoalSpeed = ({ goal, onBack }) => {
                         onPress={() => {
                             cals = Math.round(calcCalories({ goal, speed: sliderValue }));
                             handleOnboarded();
-                            router.replace('/nutrition');
+                            router.replace('/home');
                         }}
                     >
                         <Text style={[standards.regularText, { fontSize:20 }]}>Save</Text>

@@ -220,10 +220,10 @@ export default function App() {
         await db.execAsync('PRAGMA journal_mode=WAL');
         try {
            await db.execAsync(`ALTER TABLE users ADD COLUMN hasOnboarded INTEGER NOT NULL DEFAULT 0;`);
-           console.log('Added hasOnboarded column to existing table');
+           //console.log('Added hasOnboarded column to existing table');
          } catch (error) {
            // Column already exists or other error, which is fine
-           console.log('hasOnboarded column migration skipped:', error.message);
+           //console.log('hasOnboarded column migration skipped:', error.message);
          }
          }}
         options={{useNewConnection: true, enableCRSQLite: false}}

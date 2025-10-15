@@ -43,23 +43,39 @@ const TopTab = () => {
     fetchUserStats()
     const intervalId = setInterval(() => {
       fetchUserStats()
-    }, 2000)
+    }, 10000)
     return () => clearInterval(intervalId)
   }, []);
   
   const fetchUserStats = async () => {
     try {
-      const result = await db.getFirstAsync('SELECT * FROM userStats')
-      //console.log(result)
-      setLastWeight(result['weight']) 
-      setLastGoalWeight(result['goal_weight'])
-      setLastBodyFat(result['body_fat'])
-      setLastBMI(result['BMI']) 
-      setLastBMR(result['BMR']) 
-   } catch (error) {
-      console.error('Error fetching last weight:', error)
+      const user = await db.getFirstAsync('SELECT id FROM users');
+
+      if (!user) {
+        console.log("no user found")
+      }
+
+      const result = await db.getFirstAsync('SELECT * FROM userStats WHERE user_id = ?', [user.id]);
+
+      console.log(result)
+      if (result) {
+        setLastWeight(result['weight']) 
+        setLastGoalWeight(result['goal_weight'])
+        setLastBodyFat(result['body_fat'])
+        setLastBMI(result['BMI']) 
+        setLastBMR(result['BMR']) 
+      } else {
+        await db.runAsync('INSERT INTO userStats (user_id) VALUES (?)',[user.id]);
+      }
+
+    } catch (error) {
+      console.error('Error fetching profile values:', error)
     }
   }
+
+  // either putting values in during onboarding will fix this or a 
+  // merger needs to be put in layour to force the table to exist
+  
     useFocusEffect(
       useCallback(() => {
       }, [])

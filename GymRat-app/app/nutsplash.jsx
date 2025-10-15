@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { React, useEffect, useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -10,7 +10,7 @@ const { height: ScreenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
 export const data = [
-    { id: 'weight', title: 'Current Weight', val: 0.0 },
+    { id: 'weight', title: 'Current Weight', val: '0.0' },
     { id: 'height', title: 'Height', val: [0, 0] },
     { id: 'dob', title: 'Date of Birth', val: [1, 1, 1900] },
     { id: 'gender', title: 'Gender', val: 'Gender'},
@@ -18,6 +18,44 @@ export const data = [
 ];
 
 const nutsplash = () => {
+    const db = useSQLiteContext()
+    const [userId, setUserId] = useState()
+
+    const saveStats = async() => {
+        try {
+            const user = await db.getFirstAsync(
+                'SELECT id FROM users',
+            ); 
+            
+            const weightFromData = data.find(item => item.id === 'weight').val;
+            console.log('Weight to save:', weightFromData); // Debug output
+            const heightString = `${heightVal[0]}'${heightVal[1]}"`;
+             
+            const statsRecord = await db.getFirstAsync(
+                'SELECT * FROM userStats WHERE user_id = ?', 
+                [user.id]
+            );
+
+            if (statsRecord) {
+                // Record exists, update it
+                await db.runAsync(
+                    'UPDATE userStats SET weight = ? WHERE user_id = ?',
+                    [weightVal.toString(), user.id]
+                );
+            } else {
+                // No record exists, insert one
+                await db.runAsync(
+                    'INSERT INTO userStats (user_id, weight) VALUES (?)',
+                    [user.id, weightVal.toString()]
+                );
+            }
+            
+            console.log('User stats updated successfully');
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
     // For Weight
     const [showWeight, setShowWeight] = useState(false)
     const [weightVal, setWeightVal] = useState('')
@@ -124,13 +162,18 @@ const nutsplash = () => {
                                 <View style={{flexDirection:'row', justifyContent:'space-between', marginTop:5}}>     
                                 <TouchableOpacity
                                     style={[styles.saveButton, styles.nextButton]}
-                                    onPress={() => router.navigate('/home')}
+                                    onPress={() => router.navigate('/profile')}
                                 >
                                     <Text style={[standards.regularText, { fontSize: 20 }]}>Back</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={[styles.saveButton, styles.nextButton]}
-                                    onPress={() => router.replace('/goal')}
+                                    onPress={ () => 
+                                        {
+                                        router.replace('/goal')
+                                        saveStats()
+                                        }
+                                    }
                                 >
                                     <Text style={[standards.regularText, { fontSize: 20 }]}>Next</Text>
                                 </TouchableOpacity>

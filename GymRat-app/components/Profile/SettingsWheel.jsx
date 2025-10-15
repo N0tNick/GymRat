@@ -20,7 +20,16 @@ const SettingsWheel = () => {
     //delete account & userData
     const resetAccountData = async () => {
         await db.getAllAsync('DROP TABLE IF EXISTS users;');
+        await db.getAllAsync('DROP TABLE IF EXISTS userSettings;')
+        await db.getAllAsync('DROP TABLE IF EXISTS userStats;')
+        await db.getAllAsync('DROP TABLE IF EXISTS dailyNutLog;')
+        await db.getAllAsync('DROP TABLE IF EXISTS historyLog;')
         await db.getAllAsync('DROP TABLE IF EXISTS workoutTemplates;')
+        await db.getAllAsync('DROP TABLE IF EXISTS exampleWorkoutTemplates;')
+        await db.getAllAsync('DROP TABLE IF EXISTS customExercises;')
+        await db.getAllAsync('DROP TABLE IF EXISTS workoutLog;')
+        await db.getAllAsync('DROP TABLE IF EXISTS weightHistory;')
+
         console.log(`Account data reset.`);
     };
 

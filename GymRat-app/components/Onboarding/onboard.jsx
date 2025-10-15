@@ -21,7 +21,7 @@ export const HomeModal = ({isVisible, onClose}) => {
             visible={isVisible}
             onRequestClose={onClose}
         >
-            <View style={{flex: 1, justifyContent:'center', alignItems:'center',backgroundColor:'translucent'}}>
+            <View style={genModalStyles.viewStyle}>
                 <TouchableOpacity style={homeModalStyles.closeIcon} onPress={onClose}>
                     <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
                 </TouchableOpacity>
@@ -74,7 +74,7 @@ export const WorkoutOnboardModal = ({isVisible, onClose}) => {
             visible={isVisible}
             onRequestClose={onClose}
         >
-            <View style={{flex: 1, justifyContent:'center', alignItems:'center',backgroundColor:'translucent'}}>
+            <View style={genModalStyles.viewStyle}>
                 <TouchableOpacity style={workoutModalStyles.closeIcon} onPress={onClose}>
                     <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
                 </TouchableOpacity>
@@ -126,7 +126,7 @@ export const NutOnboardModal = ({isVisible, onClose}) => {
             visible={isVisible}
             onRequestClose={onClose}
         >
-            <View style={{flex: 1, justifyContent:'center', alignItems:'center',backgroundColor:'translucent'}}>
+            <View style={genModalStyles.viewStyle}>
                 <TouchableOpacity style={nutModalStyles.closeIcon} onPress={onClose}>
                     <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
                 </TouchableOpacity>
@@ -178,7 +178,7 @@ export const ProfileOnboardModal = ({isVisible, onClose}) => {
             visible={isVisible}
             onRequestClose={onClose}
         >
-            <View style={{flex: 1, justifyContent:'center', alignItems:'center',backgroundColor:'translucent'}}>
+            <View style={genModalStyles.viewStyle}>
                 <TouchableOpacity style={profileModalStyles.closeIcon} onPress={onClose}>
                     <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
                 </TouchableOpacity>
@@ -213,6 +213,16 @@ export const ProfileOnboardModal = ({isVisible, onClose}) => {
         </Modal>
     )
 }
+
+const genModalStyles = StyleSheet.create ({
+    viewStyle: {
+      flex: 1, 
+      
+      justifyContent:'center', 
+      alignItems:'center',
+      backgroundColor:'translucent'  
+    },
+});
 
 const homeModalStyles = StyleSheet.create ({
   textBox:{
