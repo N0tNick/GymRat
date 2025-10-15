@@ -27,9 +27,18 @@ const nutsplash = () => {
                 'SELECT id FROM users',
             ); 
             
-            const weightFromData = data.find(item => item.id === 'weight').val;
-            console.log('Weight to save:', weightFromData); // Debug output
-            const heightString = `${heightVal[0]}'${heightVal[1]}"`;
+            const weightFromData = data.find(item => item.id === 'weight').val
+
+            const heightFromData = data.find(item => item.id === 'height').val
+            const heightString = `${heightFromData[0]}'${heightFromData[1]}'`
+
+            const dobFromData = data.find(item => item.id === 'dob').val
+            const dobString = `${dobFromData[0]}'${dobFromData[1]}''${dobFromData[2]}'`
+
+            const genderFromData = data.find(item => item.id === 'gender').val
+            const activityLevelFromData = data.find(item => item.id === 'activityLevel').val
+
+            // console.log('Weight to save:', weightFromData); 
              
             const statsRecord = await db.getFirstAsync(
                 'SELECT * FROM userStats WHERE user_id = ?', 
@@ -39,14 +48,14 @@ const nutsplash = () => {
             if (statsRecord) {
                 // Record exists, update it
                 await db.runAsync(
-                    'UPDATE userStats SET weight = ? WHERE user_id = ?',
-                    [weightVal.toString(), user.id]
+                    'UPDATE userStats SET weight = ?, height = ?, sex = ?, activity_lvl = ? WHERE user_id = ?',
+                    [weightFromData, heightString, genderFromData, activityLevelFromData, user.id]
                 );
             } else {
                 // No record exists, insert one
                 await db.runAsync(
-                    'INSERT INTO userStats (user_id, weight) VALUES (?)',
-                    [user.id, weightVal.toString()]
+                    'INSERT INTO userStats (user_id, weight, height, sex, activity_lvl) VALUES (?, ?, ?, ?, ?)',
+                    [user.id, weightFromData, heightString, genderFromData, activityLevelFromData]
                 );
             }
             

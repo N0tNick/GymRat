@@ -43,7 +43,7 @@ const TopTab = () => {
     fetchUserStats()
     const intervalId = setInterval(() => {
       fetchUserStats()
-    }, 10000)
+    }, 5000)
     return () => clearInterval(intervalId)
   }, []);
   
