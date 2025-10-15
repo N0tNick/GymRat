@@ -748,9 +748,9 @@ const allModules = useMemo(() => {
           
           <HomeModal isVisible={isHomeModal} onClose={() => setHomeModal(false)}/>
           {/* uncomment to see current gym streak for user. just a bandaid view till jim art is done or streak module done */}
-          {streak > 0 && (
+          {/* {streak > 0 && (
             <Text style={styles.streakText}> {streak} day streak</Text>
-          )}
+          )} */}
 
           {dailyTotals && (
             <JimRat

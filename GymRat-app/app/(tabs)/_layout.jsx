@@ -93,10 +93,10 @@ function CustomTabBar({ state, descriptors, navigation }) {
                     style={{ width: 25, height: 25 }}
                     source={
                       scanExpanded
-                        ? require('../../assets/images/xButton.png')
+                        ? require('../../assets/images/redXButton.png')
                         : focused
-                          ? require('../../assets/images/barcode(red).png')
-                          : require('../../assets/images/barcode(grey).png')
+                          ? require('../../assets/images/add(selected).png')
+                          : require('../../assets/images/add.png')
                     }
                   />
                 </TouchableOpacity>
@@ -151,7 +151,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
                     >
                       <Image
                         style={{ width: 25, height: 25 }}
-                        source={require('../../assets/images/apple2.png')}
+                        source={require('../../assets/images/customFood.png')}
                       />
                     </TouchableOpacity>
                   </Animated.View>
