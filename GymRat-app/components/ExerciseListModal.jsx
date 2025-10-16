@@ -209,7 +209,7 @@ export default function ExerciseListModal({
                 
 
             </View> */}
-              <View style={{backgroundColor: '#1a1b1c', borderRadius: 8}}>
+              <ScrollView style={{maxHeight: screenHeight * .80, backgroundColor: '#1a1b1c', borderRadius: 8}}>
                 {schema.properties.primaryMuscles.items[0].enum.map((item, index) => (
                   <TouchableOpacity
                   style={styles.button}
@@ -223,7 +223,7 @@ export default function ExerciseListModal({
                     <Text style={standards.regularText}>{item}</Text>
                   </TouchableOpacity>
                 ))}
-              </View>
+              </ScrollView>
             </BlurView>
         </Modal>
 
@@ -244,7 +244,7 @@ export default function ExerciseListModal({
                 
 
             </View> */}
-              <View style={{backgroundColor: '#1a1b1c', borderRadius: 8}}>
+              <ScrollView style={{maxHeight: screenHeight * .80, backgroundColor: '#1a1b1c', borderRadius: 8}}>
                 {schema.properties.equipment.enum.map((item, index) => {
                   const displayLabel = item == null ? 'No Equipment' : item
 
@@ -262,7 +262,7 @@ export default function ExerciseListModal({
                     </TouchableOpacity>
                   )
                 })}
-              </View>
+              </ScrollView>
             </BlurView>
         </Modal>
 

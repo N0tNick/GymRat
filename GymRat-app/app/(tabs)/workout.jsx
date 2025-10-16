@@ -5,7 +5,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Dimensions, FlatList, Modal, ScrollView, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import exercises from '../../assets/exercises.json';
 import schema from '../../assets/schema.json';
 import ExerciseCreationModal from '../../components/exerciseCreationModal';
@@ -450,7 +450,7 @@ export default function WorkoutScreen() {
                 animationType='fade'
                 onRequestClose={() => { setMuscleFilterModal(!muscleFilterModal) }}>
                   <BlurView intensity={25} style={[styles.centeredView]}>
-                    <View style={{backgroundColor: '#1a1b1c', borderRadius: 8}}>
+                    <ScrollView style={{maxHeight: screenHeight * .80, backgroundColor: '#1a1b1c', borderRadius: 8}}>
                       {schema.properties.primaryMuscles.items[0].enum.map((item, index) => (
                         <TouchableOpacity
                         style={styles.button}
@@ -464,7 +464,7 @@ export default function WorkoutScreen() {
                           <Text style={standards.regularText}>{item}</Text>
                         </TouchableOpacity>
                       ))}
-                    </View>
+                    </ScrollView>
                   </BlurView>
                 </Modal>
 
@@ -474,7 +474,7 @@ export default function WorkoutScreen() {
                 animationType='fade'
                 onRequestClose={() => { setEquipmentFilterModal(!equipmentFilterModal) }}>
                   <BlurView intensity={25} style={[styles.centeredView]}>
-                    <View style={{backgroundColor: '#1a1b1c', borderRadius: 8, maxHeight: '90%'}}>
+                    <ScrollView style={{maxHeight: screenHeight * .80, backgroundColor: '#1a1b1c', borderRadius: 8}}>
                       {schema.properties.equipment.enum.map((item, index) => {
                         const displayLabel = item == null ? 'No Equipment' : item
 
@@ -492,7 +492,7 @@ export default function WorkoutScreen() {
                           </TouchableOpacity>
                         )
                       })}
-                    </View>
+                    </ScrollView>
                   </BlurView>
                 </Modal>
 
@@ -676,6 +676,11 @@ export const styles = StyleSheet.create({
   },
   centeredView: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)'
+  },
+  scrollCenteredView: {
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)'

@@ -774,6 +774,7 @@ const allModules = useMemo(() => {
             contentContainerStyle={styles.flatListContent}
             onDragEnd={({ data }) => setModuleOrder(data.map(d => d.key))}
             showsVerticalScrollIndicator={false}
+            activationDistance={10}
           />
         </View>
 
