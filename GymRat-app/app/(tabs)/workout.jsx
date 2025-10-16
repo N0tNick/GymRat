@@ -452,16 +452,10 @@ export default function WorkoutScreen() {
                 onRequestClose={() => { setMuscleFilterModal(!muscleFilterModal) }}>
                   <BlurView intensity={25} style={[styles.centeredView]}>
                     <View style={{backgroundColor: '#1a1b1c', borderRadius: 8}}>
-                      {/* <FlatList
-                        scrollEnabled={false}
-                        style={styles.filterView}
-                        data={schema.properties.primaryMuscles.items[0].enum}
-                        keyExtractor={(item, index) => (item == null ? `null-${index}` : item.toString())}
-                        renderItem={renderFilterItem('muscle')}
-                      /> */}
-                      {schema.properties.primaryMuscles.items[0].enum.map((item) => (
+                      {schema.properties.primaryMuscles.items[0].enum.map((item, index) => (
                         <TouchableOpacity
                         style={styles.button}
+                        key={index}
                         onPress={() => {
                           setMFilterButtonVal(item)
                           applyFilters(item, eFilterButtonVal)
@@ -481,21 +475,14 @@ export default function WorkoutScreen() {
                 animationType='fade'
                 onRequestClose={() => { setEquipmentFilterModal(!equipmentFilterModal) }}>
                   <BlurView intensity={25} style={[styles.centeredView]}>
-                    {/* <View style={styles.filterView}>
-                      <FlatList
-                        scrollEnabled={true}
-                        data={schema.properties.equipment.enum}
-                        keyExtractor={(item, index) => (item == null ? `null-${index}` : item.toString())}
-                        renderItem={renderFilterItem('equipment')}
-                      />
-                    </View> */}
-                    <View style={{backgroundColor: '#1a1b1c', borderRadius: 8}}>
-                      {schema.properties.equipment.enum.map((item) => {
+                    <View style={{backgroundColor: '#1a1b1c', borderRadius: 8, maxHeight: '90%'}}>
+                      {schema.properties.equipment.enum.map((item, index) => {
                         const displayLabel = item == null ? 'No Equipment' : item
 
                         return(
                           <TouchableOpacity
                           style={styles.button}
+                          key={index}
                           onPress={() => {
                             setEFilterButtonVal(displayLabel)
                             applyFilters(mFilterButtonVal, displayLabel)
@@ -700,7 +687,7 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 2,
     borderColor: '#375573',
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: '#1a1b1c',
     padding: 10,
     alignSelf: 'center',
     maxWidth: '80%',

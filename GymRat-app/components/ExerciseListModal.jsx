@@ -144,7 +144,7 @@ export default function ExerciseListModal({
         <View style={styles.modalView}>
           <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
             <TouchableOpacity style={{padding: 5}} onPress={() => {
-              onSelect() //clear selected exercises
+              //onSelect() //clear selected exercises
               onClose()
               }}>
                 <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
@@ -210,9 +210,10 @@ export default function ExerciseListModal({
 
             </View> */}
               <View style={{backgroundColor: '#1a1b1c', borderRadius: 8}}>
-                {schema.properties.primaryMuscles.items[0].enum.map((item) => (
+                {schema.properties.primaryMuscles.items[0].enum.map((item, index) => (
                   <TouchableOpacity
                   style={styles.button}
+                  key={index}
                   onPress={() => {
                     setMFilterButtonVal(item)
                     applyFilters(item, eFilterButtonVal)
@@ -244,12 +245,13 @@ export default function ExerciseListModal({
 
             </View> */}
               <View style={{backgroundColor: '#1a1b1c', borderRadius: 8}}>
-                {schema.properties.equipment.enum.map((item) => {
+                {schema.properties.equipment.enum.map((item, index) => {
                   const displayLabel = item == null ? 'No Equipment' : item
 
                   return(
                     <TouchableOpacity
                     style={styles.button}
+                    key={index}
                     onPress={() => {
                       setEFilterButtonVal(displayLabel)
                       applyFilters(mFilterButtonVal, displayLabel)

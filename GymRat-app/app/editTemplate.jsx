@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
-import { Dimensions, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import exercises from '../assets/exercises.json';
 import schema from '../assets/schema.json';
@@ -12,6 +12,7 @@ const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { app } from '../firebaseConfig';
 import { useUser } from '../UserContext';
 
@@ -135,28 +136,30 @@ export default function CreateTemplateScreen() {
     });
   };
 
-  const renderItem = ({ item }) => (
-    <View>
-      <Text style={standards.regularText}>{item.name}</Text>
+  const renderItem = ({ item, drag}) => (
+    <ScaleDecorator>
+      <TouchableOpacity onLongPress={drag}>
+        <Text style={standards.regularText}>{item.name}</Text>
 
-      <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 5}}>
-        <Text style={standards.regularText}>Set</Text>
-        <Text style={standards.regularText}>Previous</Text>
-        <Text style={standards.regularText}>lbs</Text>
-        <Text style={standards.regularText}>Reps</Text>
-      </View>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 5}}>
+          <Text style={standards.regularText}>Set</Text>
+          <Text style={standards.regularText}>Previous</Text>
+          <Text style={standards.regularText}>lbs</Text>
+          <Text style={standards.regularText}>Reps</Text>
+        </View>
 
-      {(numOfSets[item.id] || []).map((_, index) => (
-        <ExerciseSetComponent key={`${String(item.id ?? 'noid')}-${index}`} index={index} itemId={item.id}/>
-      ))}
+        {(numOfSets[item.id] || []).map((_, index) => (
+          <ExerciseSetComponent key={`${String(item.id ?? 'noid')}-${index}`} index={index} itemId={item.id}/>
+        ))}
 
-      <TouchableOpacity 
-      style={{backgroundColor: '#375573', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
-      onPress={() => handleAddSets(item.id)}
-      >
-        <Text style={standards.regularText}>Add Set</Text>
+        <TouchableOpacity 
+        style={{backgroundColor: '#375573', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
+        onPress={() => handleAddSets(item.id)}
+        >
+          <Text style={standards.regularText}>Add Set</Text>
+        </TouchableOpacity>
       </TouchableOpacity>
-    </View>
+    </ScaleDecorator>
   );
 
   return(
@@ -182,8 +185,9 @@ export default function CreateTemplateScreen() {
               value={templateName}
               />
 
-              <FlatList
+              <DraggableFlatList
               data={selectedExercises}
+              onDragEnd={({data}) => setSelectedExercises(data)}
               keyExtractor={(item, index) => String(item.id ?? index)}
               renderItem={renderItem}
               />
