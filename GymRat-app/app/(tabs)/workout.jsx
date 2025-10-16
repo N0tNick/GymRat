@@ -387,7 +387,6 @@ export default function WorkoutScreen() {
     }, [searchText])
 
   return (
-    <SafeAreaProvider>
         <View
           backgroundColor={'#1a1b1c'}
           style={styles.container}
@@ -591,7 +590,7 @@ export default function WorkoutScreen() {
             setVisibility={setExerciseCreation}
           />
 
-          <View style={styles.content}>
+          <View style={[styles.content, {marginTop:20}]}>
           {dailyTotals && (
             <JimRatWorkout
             dailyTotals={dailyTotals}
@@ -662,8 +661,6 @@ export default function WorkoutScreen() {
         </SafeAreaView>
         </LinearGradient>
         </View>
-        {/*<NavBar />*/}
-    </SafeAreaProvider>
   );
 }
 

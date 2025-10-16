@@ -35,7 +35,6 @@ export default function ProfileScreen() {
   }
 
   return (
-     <SafeAreaProvider style={{flex:1}}>
           <View style={{flex:1}} contentContainerStyle={{flexGrow:1}}>
             <LinearGradient style={styles.gradient} colors={['#6a5acd', '#1a1b1c']} locations={[0,0.15,1]}>
             <ProfileOnboardModal isVisible={isProfileOnboardModal} onClose={() => setProfileOnboardModal(false)}/>
@@ -81,8 +80,6 @@ export default function ProfileScreen() {
             </View>
           </LinearGradient>
           </View>
-      {/*<NavBar/>*/}
-    </SafeAreaProvider>
   );
 }
 

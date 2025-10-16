@@ -82,7 +82,9 @@ const SetGoalSpeed = ({ goal, onBack }) => {
             const user = await db.getFirstAsync('SELECT id FROM users')
             console.log(user.id)
 
-            await db.runAsync('UPDATE userStats SET gain_speed = ? WHERE user_id = ?')
+            await db.runAsync('UPDATE userStats SET gain_speed = ? WHERE user_id = ?',
+                [sliderValue.toString(), user.id]
+            )
             console.log(sliderValue.toString())
             [sliderValue.toString(), user.id]
             console.log('gain speed logged')
@@ -92,8 +94,6 @@ const SetGoalSpeed = ({ goal, onBack }) => {
     }
 
     return (
-        <SafeAreaProvider>
-            <SafeAreaView style = {styles.container}>
                     <View style={[styles.inputContainer, {alignSelf:'center', height:'35%'}]}>
                         <Text style={[standards.headerText, {fontSize:24, textAlign:'center'}]}>How fast do you want to {goal} weight?</Text>
                         <Text style={[standards.regularText, {fontSize:24}]}>{sliderValue} lbs/week</Text>
@@ -120,15 +120,20 @@ const SetGoalSpeed = ({ goal, onBack }) => {
                                     cals = Math.round(calcCalories({ goal, speed: sliderValue }));
                                     handleOnboarded();
                                     insertGoalSpeed();
-                                    router.navigate('/home');
+                                    router.navigate({
+                                        pathname: '/home',
+                                        params: { refresh: Date.now() } 
+                                    });
+            
+                                    setTimeout(() => {
+                                        router.replace('/(tabs)/home');
+                                    }, 800);
                                 }}  
                             >
                                 <Text style={[standards.regularText, { fontSize:20 }]}>Save</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
-            </SafeAreaView>
-        </SafeAreaProvider>
     );
 }
 
@@ -155,8 +160,6 @@ const SetGoalWeight = ({ currentWeight, goal, onBack }) => {
                 onBack={() => setShowGoalSpeed(false)}
             />
         ) : (
-            <SafeAreaProvider>
-            <SafeAreaView style={{flex:1, backgroundColor:'#1a1b1c', justifyContent:'center', alignItems:'center'}}>
                 <View style={styles.inputContainer}>
                     <Text style={[standards.regularText, {fontSize:24}]}>Goal Weight</Text>
 
@@ -201,8 +204,6 @@ const SetGoalWeight = ({ currentWeight, goal, onBack }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
-            </SafeAreaView>
-        </SafeAreaProvider>
         )
     )
 }
@@ -231,10 +232,8 @@ const Goal = () => {
     const [showGoalWeight, setShowGoalWeight] = React.useState(false);
 
     return (
-            <SafeAreaProvider>
-                <SafeAreaView style={styles.container}>
-                    <View style={styles.container}>
-                        {showGoalWeight ? (
+            <View style={styles.container}>
+                {showGoalWeight ? (
                             <SetGoalWeight
                                 currentWeight={150}
                                 goal={lose ? 'lose' : gain ? 'gain' : 'maintain'}
@@ -268,10 +267,7 @@ const Goal = () => {
                                 </View>
                             </View>
                         )}
-
                     </View>
-                </SafeAreaView>
-            </SafeAreaProvider>
         )
 }
 
@@ -281,6 +277,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         height:ScreenHeight,
+        width:screenWidth,
         flexDirection: 'column',
         backgroundColor: '#1a1b1c',
         justifyContent: 'center',
@@ -316,6 +313,7 @@ const styles = StyleSheet.create({
         width: '75%',
         height: '25%',
         borderRadius: 10,
+        alignSelf:'center',
         alignItems: 'center',
         justifyContent: 'space-between',
         zIndex: 2,

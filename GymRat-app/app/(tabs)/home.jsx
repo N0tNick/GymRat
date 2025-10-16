@@ -2,12 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import * as Calendar from 'expo-calendar';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dimensions, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import JimRat from '../../components/jimRat';
 import { HomeModal } from '../../components/Onboarding/onboard';
 import { updateStreakOnAppOpen } from '../../components/streak';
@@ -30,6 +30,7 @@ const nutrientOptions = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { refresh } = useLocalSearchParams();
   const [isHomeModal, setHomeModal] = useState(false);
   const [events, setEvents] = useState([]);
   const db = useSQLiteContext();
@@ -741,377 +742,373 @@ const allModules = useMemo(() => {
 
 
   return (
-    <SafeAreaProvider>
-        <View style={styles.container}>
-          <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, alignItems:'center', justifyContent: 'center' }}>
-          <Text style={styles.text}>GymRat</Text>
-          
-          <HomeModal isVisible={isHomeModal} onClose={() => setHomeModal(false)}/>
-          {/* uncomment to see current gym streak for user. just a bandaid view till jim art is done or streak module done */}
-          {/* {streak > 0 && (
-            <Text style={styles.streakText}> {streak} day streak</Text>
-          )} */}
-
-          {dailyTotals && (
-            <JimRat
-              dailyTotals={dailyTotals}
-              targets={{
-                proteinTarget: Math.round((cals * 0.25) / 4),
-                carbsTarget: Math.round((cals * 0.45) / 4),
-                fatTarget: Math.round((cals * 0.30) / 9),
-              }}
-              hasEntries={hasEntries}
-              hasWorkout={hasWorkout}
-              streak={streak}
-            />
-          )}
-
-          <View style={styles.modulesContainer}>
-            <DraggableFlatList
-              data={allModules}
-              keyExtractor={(item) => item.key}
-              renderItem={renderItem}
-              contentContainerStyle={styles.flatListContent}
-              onDragEnd={({ data }) => setModuleOrder(data.map(d => d.key))}
-              showsVerticalScrollIndicator={false}
-            />
-          </View>
-
-          {/* <View style={styles.homeModule}>
-            <Text style={styles.moduleTitle}>Tasks to do today</Text>
-            <ScrollView contentContainerStyle={styles.taskList}>
-              {events.length === 0 ? (
-                <Text style={styles.noTask}>No events for today</Text>
-              ) : (
-                events.map((event, index) => (
-                  <View key={event.id}>
-                    {index === 0 && <View style={styles.divider} />}
-                    <View  style={styles.taskRow}>
-                      <View style={styles.timeWrapper}>
-                        <Text style={styles.time}>{formatTime(event.startDate)}</Text>
-                      </View>
-                      <View style={styles.textWrapper}>
-                        <Text style={styles.task}>{event.title}</Text>
-                      </View>
-                    </View>
-                    {index < events.length - 1 && <View style={styles.divider} />}
-                  </View>
-                ))
-              )}
-            </ScrollView>
-            <TouchableOpacity style={styles.addEventButton} onPress={() => setModalVisible(true)}>
-              <Text style={styles.addEventText}>Add Event</Text>
-            </TouchableOpacity>
-          </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
+        <Text style={styles.text}>GymRat</Text>
         
+        <HomeModal isVisible={isHomeModal} onClose={() => setHomeModal(false)}/>
+        {/* uncomment to see current gym streak for user. just a bandaid view till jim art is done or streak module done */}
+        {/* {streak > 0 && (
+          <Text style={styles.streakText}> {streak} day streak</Text>
+        )} */}
 
-          
-          
-          <View style={styles.homeModule}>
-            <Text style={styles.moduleTitle}>Nutrition Rundown</Text>
+        {dailyTotals && (
+          <JimRat
+            dailyTotals={dailyTotals}
+            targets={{
+              proteinTarget: Math.round((cals * 0.25) / 4),
+              carbsTarget: Math.round((cals * 0.45) / 4),
+              fatTarget: Math.round((cals * 0.30) / 9),
+            }}
+            hasEntries={hasEntries}
+            hasWorkout={hasWorkout}
+            streak={streak}
+          />
+        )}
 
-            <View style={styles.nutrientRow}>
-              <Text style={styles.nutrientLabel}>Energy - {dailyTotals.totalCalories} / {cals} kcal</Text>
-              <View style={styles.barContainer}>
-                <View style={[styles.barFill, { backgroundColor: '#00eaff', width: `${Math.min((dailyTotals.totalCalories / cals) * 100, 100)}%` }]} />
-              </View>
-            </View>
-              
-            <View style={styles.nutrientRow}>
-              <Text style={styles.nutrientLabel}>Protein - {dailyTotals.totalProtein} / {Math.round((cals * 0.25) / 4)}g</Text>
-              <View style={styles.barContainer}>
-                <View style={[styles.barFill, { backgroundColor: '#ff00ff', width: `${Math.min((dailyTotals.totalProtein / ((cals * 0.25) / 4)) * 100, 100)}%` }]} />
-              </View>
-            </View>
-              
-            <View style={styles.nutrientRow}>
-              <Text style={styles.nutrientLabel}>Carbs - {dailyTotals.totalCarbs} / {Math.round((cals * 0.45) / 4)}g</Text>
-              <View style={styles.barContainer}>
-                <View style={[styles.barFill, { backgroundColor: '#00ff00', width: `${Math.min((dailyTotals.totalCarbs / ((cals * 0.45) / 4)) * 100, 100)}%` }]} />
-              </View>
-            </View>
-              
-            <View style={styles.nutrientRow}>
-              <Text style={styles.nutrientLabel}>Fat - {dailyTotals.totalFat} / {Math.round((cals * 0.30) / 9)}g</Text>
-              <View style={styles.barContainer}>
-                <View style={[styles.barFill, { backgroundColor: '#ff0000', width: `${Math.min((dailyTotals.totalFat / ((cals * 0.30) / 9)) * 100, 100)}%` }]} />
-              </View>
-            </View>
-          </View>
-        
-
-        
-          <View style={styles.homeModule}>
-            <Text style={styles.moduleTitle}>Weekly Calendar</Text>
-            <View style={styles.weekRow}>
-              {weekData.map((dayInfo, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.dayColumn}
-                  onPress={async () => {
-                    setSelectedDate(dayInfo.date);
-                    if (dayInfo.hasLog) {
-                      const totals = await loadTotalsForDate(dayInfo.date, "historyLog"); // change to STOREDNUTLOG when it works
-                      setDayTotals(totals);
-                    } else {
-                      setDayTotals(null); // no logs for that day
-                    }
-                    setDayModalVisible(true);
-                  }}
-                >
-                  <Text style={styles.dayLabel}>
-                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dayInfo.date.getDay()]}
-                  </Text>
-                  <View style={styles.dayContent}>
-                    <Text style={{ color: "#fff" }}>{dayInfo.date.getDate()}</Text>
-                    <View
-                      style={[
-                        styles.logIndicator,
-                        { backgroundColor: dayInfo.hasLog ? "green" : "transparent" }
-                      ]}
-                    />
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View> */}
-        
-
-          {/* Day Modal */}
-          <Modal
-            transparent={true}
-            visible={dayModalVisible}
-            onRequestClose={() => setDayModalVisible(false)}
-          >
-            <View style={styles.modalOverlay}>
-              <View style={styles.modalContainer}>
-                <Text style={styles.modalTitle}>
-                  {selectedDate?.toDateString()}
-                </Text>
-                <Text style={{ color: "#fff", fontStyle: "italic", marginBottom: 10 }}>
-                  {dayTotals?.workout
-                    ? `Workout: ${dayTotals.workout}`
-                    : "No workout logged today"}
-                </Text>
-
-                {dayTotals && (dayTotals.totalCalories || dayTotals.totalProtein) ? (
-                  <>
-                    <Text style={{ color: "#fff" }}>Calories: {dayTotals.totalCalories}g</Text>
-                    <Text style={{ color: "#fff" }}>Protein: {dayTotals.totalProtein}g</Text>
-                    <Text style={{ color: "#fff" }}>Carbs: {dayTotals.totalCarbs}g</Text>
-                    <Text style={{ color: "#fff" }}>Fat: {dayTotals.totalFat}g</Text>
-                  </>
-                ) : (
-                  <Text style={{ color: "#fff", fontStyle: "italic" }}>No food logged this day</Text>
-                )}
-                <TouchableOpacity onPress={() => setDayModalVisible(false)}>
-                  <Text style={styles.cancelText}>Close</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-
-          
-        <TouchableOpacity
-          style={styles.customizeButton}
-          onPress={() => setCustomizeModalVisible(true)}
-        >
-          <Text style={styles.buttonText}>⚙️</Text>
-        </TouchableOpacity>
-        
-          </SafeAreaView>
+        <View style={styles.modulesContainer}>
+          <DraggableFlatList
+            data={allModules}
+            keyExtractor={(item) => item.key}
+            renderItem={renderItem}
+            contentContainerStyle={styles.flatListContent}
+            onDragEnd={({ data }) => setModuleOrder(data.map(d => d.key))}
+            showsVerticalScrollIndicator={false}
+          />
         </View>
 
+        {/* <View style={styles.homeModule}>
+          <Text style={styles.moduleTitle}>Tasks to do today</Text>
+          <ScrollView contentContainerStyle={styles.taskList}>
+            {events.length === 0 ? (
+              <Text style={styles.noTask}>No events for today</Text>
+            ) : (
+              events.map((event, index) => (
+                <View key={event.id}>
+                  {index === 0 && <View style={styles.divider} />}
+                  <View  style={styles.taskRow}>
+                    <View style={styles.timeWrapper}>
+                      <Text style={styles.time}>{formatTime(event.startDate)}</Text>
+                    </View>
+                    <View style={styles.textWrapper}>
+                      <Text style={styles.task}>{event.title}</Text>
+                    </View>
+                  </View>
+                  {index < events.length - 1 && <View style={styles.divider} />}
+                </View>
+              ))
+            }
+          </ScrollView>
+          <TouchableOpacity style={styles.addEventButton} onPress={() => setModalVisible(true)}>
+            <Text style={styles.addEventText}>Add Event</Text>
+          </TouchableOpacity>
+        </View>
+      
 
+        
+        <View style={styles.homeModule}>
+          <Text style={styles.moduleTitle}>Nutrition Rundown</Text>
 
-        {/*<NavBar />*/}
-        <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>Add New Event</Text>
-              <TextInput style={styles.input} placeholder="Event Name" placeholderTextColor="#888" value={newEventName} onChangeText={setNewEventName}/>
-              <TouchableOpacity 
-                style={styles.timeButton} 
-                onPress={() => setShowTimePicker(true)}
-              >
-                <Text style={styles.timeButtonText}>
-                  Select Time: {newEventTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </Text>
-              </TouchableOpacity>
-
-              {showTimePicker && (
-                <DateTimePicker
-                  value={newEventTime}
-                  mode="time"
-                  display="default"
-                  onChange={(event, selectedTime) => {
-                    if (event.type === "set" && selectedTime) { // "set" means OK pressed
-                      setNewEventTime(selectedTime);
-                    }
-                    setShowTimePicker(false); // hides picker regardless of OK or cancel
-                  }}
-                />
-              )}
-
-              <TouchableOpacity style={styles.modalAddButton} onPress={handleAddEvent}>
-                <Text style={styles.modalAddText}>Add</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Text style={styles.cancelText}>Cancel</Text>
-              </TouchableOpacity>
+          <View style={styles.nutrientRow}>
+            <Text style={styles.nutrientLabel}>Energy - {dailyTotals.totalCalories} / {cals} kcal</Text>
+            <View style={styles.barContainer}>
+              <View style={[styles.barFill, { backgroundColor: '#00eaff', width: `${Math.min((dailyTotals.totalCalories / cals) * 100, 100)}%` }]} />
             </View>
           </View>
-        </Modal>
+            
+          <View style={styles.nutrientRow}>
+            <Text style={styles.nutrientLabel}>Protein - {dailyTotals.totalProtein} / {Math.round((cals * 0.25) / 4)}g</Text>
+            <View style={styles.barContainer}>
+              <View style={[styles.barFill, { backgroundColor: '#ff00ff', width: `${Math.min((dailyTotals.totalProtein / ((cals * 0.25) / 4)) * 100, 100)}%` }]} />
+            </View>
+          </View>
+            
+          <View style={styles.nutrientRow}>
+            <Text style={styles.nutrientLabel}>Carbs - {dailyTotals.totalCarbs} / {Math.round((cals * 0.45) / 4)}g</Text>
+            <View style={styles.barContainer}>
+              <View style={[styles.barFill, { backgroundColor: '#00ff00', width: `${Math.min((dailyTotals.totalCarbs / ((cals * 0.45) / 4)) * 100, 100)}%` }]} />
+            </View>
+          </View>
+            
+          <View style={styles.nutrientRow}>
+            <Text style={styles.nutrientLabel}>Fat - {dailyTotals.totalFat} / {Math.round((cals * 0.30) / 9)}g</Text>
+            <View style={styles.barContainer}>
+              <View style={[styles.barFill, { backgroundColor: '#ff0000', width: `${Math.min((dailyTotals.totalFat / ((cals * 0.30) / 9)) * 100, 100)}%` }]} />
+            </View>
+          </View>
+        </View>
+        
 
-        <Modal
-          animationType="slide"
-          transparent
-          visible={foodModalVisible}
-          onRequestClose={() => setFoodModalVisible(false)}
-        >
-          <View style={styles.foodModalOverlay}>
-            <View style={styles.foodModalContentWrapper}>
-              <ScrollView
-                style={styles.foodModalScroll}
-                contentContainerStyle={styles.foodModalScrollContent}
-                showsVerticalScrollIndicator={true}
+        
+        <View style={styles.homeModule}>
+          <Text style={styles.moduleTitle}>Weekly Calendar</Text>
+          <View style={styles.weekRow}>
+            {weekData.map((dayInfo, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.dayColumn}
+                onPress={async () => {
+                  setSelectedDate(dayInfo.date);
+                  if (dayInfo.hasLog) {
+                    const totals = await loadTotalsForDate(dayInfo.date, "historyLog"); // change to STOREDNUTLOG when it works
+                    setDayTotals(totals);
+                  } else {
+                    setDayTotals(null); // no logs for that day
+                  }
+                  setDayModalVisible(true);
+                }}
               >
-                <Text style={styles.foodModalTitle}>Add Food</Text>
-
-                <View style={styles.foodInputGroup}>
-                  <Text style={styles.foodInputLabel}>Food Name</Text>
-                  <TextInput
-                    style={styles.foodTextInput}
-                    placeholder="Enter food name"
-                    placeholderTextColor="#888"
-                    value={foodName}
-                    onChangeText={setFoodName}
+                <Text style={styles.dayLabel}>
+                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dayInfo.date.getDay()]}
+                </Text>
+                <View style={styles.dayContent}>
+                  <Text style={{ color: "#fff" }}>{dayInfo.date.getDate()}</Text>
+                  <View
+                    style={[
+                      styles.logIndicator,
+                      { backgroundColor: dayInfo.hasLog ? "green" : "transparent" }
+                    ]}
                   />
                 </View>
-
-                <TouchableOpacity
-                  style={styles.addValueButton}
-                  onPress={addEntry}
-                >
-                  <Text style={styles.addValueText}>Add Nutrient Value</Text>
-                </TouchableOpacity>
-
-                {nutrientEntries.map(entry => {
-                  const available = nutrientOptions.filter(opt =>
-                    opt.value === entry.nutrient ||
-                    !nutrientEntries.some(e => e.nutrient === opt.value)
-                  );
-
-                  return (
-                    <View style={styles.entryRow} key={entry.id}>
-                      <View style={styles.pickerWrapper}>
-                        <Picker
-                          selectedValue={entry.nutrient}
-                          onValueChange={val =>
-                            updateEntry(entry.id, 'nutrient', val)
-                          }
-                          style={styles.picker}
-                        >
-                          <Picker.Item label="Select…" value="" />
-                          {available.map(opt => (
-                            <Picker.Item
-                              key={opt.value}
-                              label={opt.label}
-                              value={opt.value}
-                            />
-                          ))}
-                        </Picker>
-                      </View>
-
-                      <TextInput
-                        style={styles.valueInput}
-                        placeholder="Value"
-                        placeholderTextColor="#888"
-                        keyboardType="numeric"
-                        value={entry.value}
-                        onChangeText={val =>
-                          updateEntry(entry.id, 'value', val)
-                        }
-                      />
-                    </View>
-                  );
-                })}
-
-                <View style={styles.foodModalButtons}>
-                  <TouchableOpacity
-                    style={styles.saveButton}
-                    onPress={saveManualEntry}
-                  >
-                    <Text style={styles.saveButtonText}>Save Food Entry</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.closeButton}
-                    onPress={() => setFoodModalVisible(false)}
-                  >
-                    <Text style={styles.closeButtonText}>Close</Text>
-                  </TouchableOpacity>
-                </View>
-              </ScrollView>
-            </View>
+              </TouchableOpacity>
+            ))}
           </View>
-        </Modal>
+        </View> */}
+        
 
+        {/* Day Modal */}
         <Modal
           transparent={true}
-          visible={customizeModalVisible}
-          onRequestClose={() => setCustomizeModalVisible(false)}
+          visible={dayModalVisible}
+          onRequestClose={() => setDayModalVisible(false)}
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>Customize Home Modules</Text>
+              <Text style={styles.modalTitle}>
+                {selectedDate?.toDateString()}
+              </Text>
+              <Text style={{ color: "#fff", fontStyle: "italic", marginBottom: 10 }}>
+                {dayTotals?.workout
+                  ? `Workout: ${dayTotals.workout}`
+                  : "No workout logged today"}
+              </Text>
 
-              <TouchableOpacity onPress={() => setShowNutritionSummary(!showNutritionSummary)}>
-                <Text style={{ color: showNutritionSummary ? '#32a852' : '#888', marginBottom: 10 }}>
-                  {showNutritionSummary ? '✔ ' : '○ '}Nutrition Summary
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => setShowTasks(!showTasks)}>
-                <Text style={{ color: showTasks ? '#32a852' : '#888', marginBottom: 10 }}>
-                  {showTasks ? '✔ ' : '○ '}Tasks
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => setShowNutrition(!showNutrition)}>
-                <Text style={{ color: showNutrition ? '#00eaff' : '#888', marginBottom: 10 }}>
-                  {showNutrition ? '✔ ' : '○ '}Nutrition Rundown
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => setShowWeekly(!showWeekly)}>
-                <Text style={{ color: showWeekly ? '#ffa500' : '#888', marginBottom: 10 }}>
-                  {showWeekly ? '✔ ' : '○ '}Weekly Calendar
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => setShowStreak(!showStreak)}>
-                <Text style={{ color: showStreak ? '#ff4500' : '#888', marginBottom: 10 }}>
-                  {showStreak ? '✔ ' : '○ '}Streak Stats
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => {saveModulePreferences();
-                setCustomizeModalVisible(false)}}>
+              {dayTotals && (dayTotals.totalCalories || dayTotals.totalProtein) ? (
+                <>
+                  <Text style={{ color: "#fff" }}>Calories: {dayTotals.totalCalories}g</Text>
+                  <Text style={{ color: "#fff" }}>Protein: {dayTotals.totalProtein}g</Text>
+                  <Text style={{ color: "#fff" }}>Carbs: {dayTotals.totalCarbs}g</Text>
+                  <Text style={{ color: "#fff" }}>Fat: {dayTotals.totalFat}g</Text>
+                </>
+              ) : (
+                <Text style={{ color: "#fff", fontStyle: "italic" }}>No food logged this day</Text>
+              )}
+              <TouchableOpacity onPress={() => setDayModalVisible(false)}>
                 <Text style={styles.cancelText}>Close</Text>
               </TouchableOpacity>
             </View>
           </View>
         </Modal>
 
-    </SafeAreaProvider>
+        
+        <TouchableOpacity
+          style={styles.customizeButton}
+          onPress={() => setCustomizeModalVisible(true)}
+        >
+          <Text style={styles.buttonText}>⚙️</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Modals */}
+      <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Add New Event</Text>
+            <TextInput style={styles.input} placeholder="Event Name" placeholderTextColor="#888" value={newEventName} onChangeText={setNewEventName}/>
+            <TouchableOpacity 
+              style={styles.timeButton} 
+              onPress={() => setShowTimePicker(true)}
+            >
+              <Text style={styles.timeButtonText}>
+                Select Time: {newEventTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </Text>
+            </TouchableOpacity>
+
+            {showTimePicker && (
+              <DateTimePicker
+                value={newEventTime}
+                mode="time"
+                display="default"
+                onChange={(event, selectedTime) => {
+                  if (event.type === "set" && selectedTime) { // "set" means OK pressed
+                    setNewEventTime(selectedTime);
+                  }
+                  setShowTimePicker(false); // hides picker regardless of OK or cancel
+                }}
+              />
+            )}
+
+            <TouchableOpacity style={styles.modalAddButton} onPress={handleAddEvent}>
+              <Text style={styles.modalAddText}>Add</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setModalVisible(false)}>
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent
+        visible={foodModalVisible}
+        onRequestClose={() => setFoodModalVisible(false)}
+      >
+        <View style={styles.foodModalOverlay}>
+          <View style={styles.foodModalContentWrapper}>
+            <ScrollView
+              style={styles.foodModalScroll}
+              contentContainerStyle={styles.foodModalScrollContent}
+              showsVerticalScrollIndicator={true}
+            >
+              <Text style={styles.foodModalTitle}>Add Food</Text>
+
+              <View style={styles.foodInputGroup}>
+                <Text style={styles.foodInputLabel}>Food Name</Text>
+                <TextInput
+                  style={styles.foodTextInput}
+                  placeholder="Enter food name"
+                  placeholderTextColor="#888"
+                  value={foodName}
+                  onChangeText={setFoodName}
+                />
+              </View>
+
+              <TouchableOpacity
+                style={styles.addValueButton}
+                onPress={addEntry}
+              >
+                <Text style={styles.addValueText}>Add Nutrient Value</Text>
+              </TouchableOpacity>
+
+              {nutrientEntries.map(entry => {
+                const available = nutrientOptions.filter(opt =>
+                  opt.value === entry.nutrient ||
+                  !nutrientEntries.some(e => e.nutrient === opt.value)
+                );
+
+                return (
+                  <View style={styles.entryRow} key={entry.id}>
+                    <View style={styles.pickerWrapper}>
+                      <Picker
+                        selectedValue={entry.nutrient}
+                        onValueChange={val =>
+                          updateEntry(entry.id, 'nutrient', val)
+                        }
+                        style={styles.picker}
+                      >
+                        <Picker.Item label="Select…" value="" />
+                        {available.map(opt => (
+                          <Picker.Item
+                            key={opt.value}
+                            label={opt.label}
+                            value={opt.value}
+                          />
+                        ))}
+                      </Picker>
+                    </View>
+
+                    <TextInput
+                      style={styles.valueInput}
+                      placeholder="Value"
+                      placeholderTextColor="#888"
+                      keyboardType="numeric"
+                      value={entry.value}
+                      onChangeText={val =>
+                        updateEntry(entry.id, 'value', val)
+                      }
+                    />
+                  </View>
+                );
+              })}
+
+              <View style={styles.foodModalButtons}>
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={saveManualEntry}
+                >
+                  <Text style={styles.saveButtonText}>Save Food Entry</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setFoodModalVisible(false)}
+                >
+                  <Text style={styles.closeButtonText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        transparent={true}
+        visible={customizeModalVisible}
+        onRequestClose={() => setCustomizeModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Customize Home Modules</Text>
+
+            <TouchableOpacity onPress={() => setShowNutritionSummary(!showNutritionSummary)}>
+              <Text style={{ color: showNutritionSummary ? '#32a852' : '#888', marginBottom: 10 }}>
+                {showNutritionSummary ? '✔ ' : '○ '}Nutrition Summary
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setShowTasks(!showTasks)}>
+              <Text style={{ color: showTasks ? '#32a852' : '#888', marginBottom: 10 }}>
+                {showTasks ? '✔ ' : '○ '}Tasks
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setShowNutrition(!showNutrition)}>
+              <Text style={{ color: showNutrition ? '#00eaff' : '#888', marginBottom: 10 }}>
+                {showNutrition ? '✔ ' : '○ '}Nutrition Rundown
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setShowWeekly(!showWeekly)}>
+              <Text style={{ color: showWeekly ? '#ffa500' : '#888', marginBottom: 10 }}>
+                {showWeekly ? '✔ ' : '○ '}Weekly Calendar
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setShowStreak(!showStreak)}>
+              <Text style={{ color: showStreak ? '#ff4500' : '#888', marginBottom: 10 }}>
+                {showStreak ? '✔ ' : '○ '}Streak Stats
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => {saveModulePreferences();
+              setCustomizeModalVisible(false)}}>
+              <Text style={styles.cancelText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    height:screenHeight,
+    width:screenWidth,
     backgroundColor: '#1a1b1c',
     justifyContent: 'center',
     alignItems: 'center',

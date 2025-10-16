@@ -650,7 +650,7 @@ useEffect(() => {
   
 
   return (
-    <SafeAreaProvider>
+    <View style={styles.container}>
       <LinearGradient style={styles.gradient} colors={['#32a852', '#1a1b1c']} locations={[0,0.15]}>
         <SafeAreaView style={[styles.container, {marginBottom: '20%'}]}>
           <ScrollView 
@@ -1055,10 +1055,7 @@ useEffect(() => {
             </View>
           </View>
         </Modal>
-        
-
-        {/*<NavBar />*/}
-    </SafeAreaProvider>
+    </View>
   );
 }
 
