@@ -62,6 +62,7 @@ export default function App() {
           REFERENCES users(id) ON DELETE CASCADE);`
         );
 
+        // await db.execAsync ('DROP TABLE IF EXISTS userStats;');
         await db.execAsync (
           `CREATE TABLE IF NOT EXISTS userStats (
           user_id INTEGER NOT NULL, 

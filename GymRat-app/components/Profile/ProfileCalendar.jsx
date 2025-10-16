@@ -66,7 +66,7 @@ const ProfileCalendar = () => {
         setSelected(day.dateString);
         
         // Subtract one day to compensate for timezone offset
-        const adjustedDate = dayjs(day.dateString).add(1, 'day').format('YYYY-MM-DD');
+        const adjustedDate = dayjs(day.dateString).format('YYYY-MM-DD');
         
         // Fetch nutrition data using adjusted date
         const nutritionTotals = await loadTotalsForDate(adjustedDate);
@@ -111,7 +111,7 @@ const ProfileCalendar = () => {
             
             // Mark nutrition dates with green dot
             nutritionDates.forEach(row => {
-                const adjustedDate = dayjs(row.date).subtract(1, 'day').format('YYYY-MM-DD');
+                const adjustedDate = dayjs(row.date).format('YYYY-MM-DD');
                 marked[adjustedDate] = {
                     ...marked[adjustedDate],
                     dots: [
@@ -123,7 +123,7 @@ const ProfileCalendar = () => {
             
             // Mark workout dates with red dot
             workoutDates.forEach(row => {
-                const adjustedDate = dayjs(row.date).subtract(1, 'day').format('YYYY-MM-DD');
+                const adjustedDate = dayjs(row.date).format('YYYY-MM-DD');
                 marked[adjustedDate] = {
                     ...marked[adjustedDate],
                     dots: [

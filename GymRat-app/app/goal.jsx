@@ -92,41 +92,43 @@ const SetGoalSpeed = ({ goal, onBack }) => {
     }
 
     return (
-        <View style={styles.container}>
-            <View style={[styles.inputContainer, {alignSelf:'center', height:'35%'}]}>
-                <Text style={[standards.headerText, {fontSize:24, textAlign:'center'}]}>How fast do you want to {goal} weight?</Text>
-                <Text style={[standards.regularText, {fontSize:24}]}>{sliderValue} lbs/week</Text>
-                <Slider
-                    style={{width:200, height:40}}
-                    minimumValue={.25}
-                    maximumValue={2}
-                    minimumTrackTintColor="#FFFFFF"
-                    maximumTrackTintColor="#000000"
-                    step={.25}
-                    tapToSeek
-                    onValueChange={setSliderValue}
-                />
-                <View style={{flexDirection:'row', justifyContent:'space-between'}}>
-                    <TouchableOpacity
-                        style={[styles.saveButton, styles.nextButton]}
-                        onPress={onBack}
-                    >
-                        <Text style={[standards.regularText, { fontSize:20 }]}>Back</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.saveButton, styles.nextButton]}
-                        onPress={() => {
-                            cals = Math.round(calcCalories({ goal, speed: sliderValue }));
-                            handleOnboarded();
-                            insertGoalSpeed();
-                            router.replace('/home');
-                        }}
-                    >
-                        <Text style={[standards.regularText, { fontSize:20 }]}>Save</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </View>
+        <SafeAreaProvider>
+            <SafeAreaView style = {styles.container}>
+                    <View style={[styles.inputContainer, {alignSelf:'center', height:'35%'}]}>
+                        <Text style={[standards.headerText, {fontSize:24, textAlign:'center'}]}>How fast do you want to {goal} weight?</Text>
+                        <Text style={[standards.regularText, {fontSize:24}]}>{sliderValue} lbs/week</Text>
+                        <Slider
+                            style={{width:200, height:40}}
+                            minimumValue={.25}
+                            maximumValue={2}
+                            minimumTrackTintColor="#FFFFFF"
+                            maximumTrackTintColor="#000000"
+                            step={.25}
+                            tapToSeek
+                            onValueChange={setSliderValue}
+                        />
+                        <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                            <TouchableOpacity
+                                style={[styles.saveButton, styles.nextButton]}
+                                onPress={onBack}
+                            >
+                                <Text style={[standards.regularText, { fontSize:20 }]}>Back</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.saveButton, styles.nextButton]}
+                                onPress={() => {
+                                    cals = Math.round(calcCalories({ goal, speed: sliderValue }));
+                                    handleOnboarded();
+                                    insertGoalSpeed();
+                                    router.navigate('/home');
+                                }}  
+                            >
+                                <Text style={[standards.regularText, { fontSize:20 }]}>Save</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+            </SafeAreaView>
+        </SafeAreaProvider>
     );
 }
 
@@ -153,7 +155,8 @@ const SetGoalWeight = ({ currentWeight, goal, onBack }) => {
                 onBack={() => setShowGoalSpeed(false)}
             />
         ) : (
-            <View style={{ flex:1, backgroundColor:'#1a1b1c', justifyContent:'center', alignItems:'center'}}>
+            <SafeAreaProvider>
+            <SafeAreaView style={{flex:1, backgroundColor:'#1a1b1c', justifyContent:'center', alignItems:'center'}}>
                 <View style={styles.inputContainer}>
                     <Text style={[standards.regularText, {fontSize:24}]}>Goal Weight</Text>
 
@@ -198,7 +201,8 @@ const SetGoalWeight = ({ currentWeight, goal, onBack }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
-            </View>
+            </SafeAreaView>
+        </SafeAreaProvider>
         )
     )
 }
