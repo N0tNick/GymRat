@@ -15,6 +15,9 @@ import WorkoutModal from '../../components/WorkoutModal';
 import { useUser } from '../../UserContext';
 import { cals } from '../goal';
 import { usePersistedBoolean, usePersistedWorkout } from '../ongoingWorkout';
+import { collection, query, where, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { fbdb } from "../../firebaseConfig";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const { height: screenHeight } = Dimensions.get('window');
@@ -176,7 +179,7 @@ export default function WorkoutScreen() {
           }}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <Text style={standards.regularText}>{item.name}</Text>
-            <TouchableOpacity onPress={() => deleteExercise(item.id)}>
+            <TouchableOpacity onPress={() => deleteExercise(item.id, item.name)}>
               <Image style={{width: 20, height: 20}} source={require('../../assets/images/white-trash-can.png')}/>
             </TouchableOpacity>
           </View>
@@ -188,7 +191,7 @@ export default function WorkoutScreen() {
     
   }
 
-  const deleteExercise = (id) => {
+  const deleteExercise = (id, exerciseName) => {
     Alert.alert('Delete Custom Exercise', 'Are you sure you want to delete this exercise?', [
       {
         text: 'Cancel',
@@ -203,6 +206,21 @@ export default function WorkoutScreen() {
               [id]
             );
             console.log('Exercise deleted successfully');
+            const firestoreUserId = await AsyncStorage.getItem("firestoreUserId");
+            if (firestoreUserId) {
+              const colRef = collection(fbdb, "users", firestoreUserId, "customExercises");
+              const q = query(colRef, where("name", "==", exerciseName));
+              const snap = await getDocs(q);
+
+              if (!snap.empty) {
+                for (const docSnap of snap.docs) {
+                  await deleteDoc(doc(fbdb, "users", firestoreUserId, "customExercises", docSnap.id));
+                  console.log("Exercise deleted successfully from Firestore:", docSnap.id);
+                }
+              } else {
+                console.log("No matching Firestore doc found for:", exerciseName);
+              }
+            }
             loadTemplates(); // refresh list AFTER deletion
           } catch (error) {
             console.log('Error deleting exercise: ', error);
@@ -287,7 +305,7 @@ export default function WorkoutScreen() {
             }}>
             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <Text style={standards.headerText}>{item.name}</Text>
-              <TouchableOpacity onPress = {() => {deleteTemplate(item.id)}}>{/*<Text style={standards.regularText}>Delete</Text>*/}<Image style={{width: 25, height: 25}} source={require('../../assets/images/white-trash-can.png')}/></TouchableOpacity>
+              <TouchableOpacity onPress = {() => {deleteTemplate(item.id, item.name)}}>{/*<Text style={standards.regularText}>Delete</Text>*/}<Image style={{width: 25, height: 25}} source={require('../../assets/images/white-trash-can.png')}/></TouchableOpacity>
             </View>
 
             {template.exercises.slice(0, 3).map((exercise, idx) => (
@@ -332,7 +350,7 @@ export default function WorkoutScreen() {
     
   }
 
-  const deleteTemplate = (id) => {
+  const deleteTemplate = (id, exerciseName) => {
     Alert.alert('Delete Template', 'Are you sure you want to delete this template?', [
       {
         text: 'Cancel',
@@ -347,6 +365,21 @@ export default function WorkoutScreen() {
               [id]
             );
             console.log('Template deleted successfully');
+            const firestoreUserId = await AsyncStorage.getItem("firestoreUserId");
+            if (firestoreUserId) {
+              const colRef = collection(fbdb, "users", firestoreUserId, "workoutTemplates");
+              const q = query(colRef, where("name", "==", exerciseName));
+              const snap = await getDocs(q);
+
+              if (!snap.empty) {
+                for (const docSnap of snap.docs) {
+                  await deleteDoc(doc(fbdb, "users", firestoreUserId, "workoutTemplates", docSnap.id));
+                  console.log("Template deleted successfully from Firestore:", docSnap.id);
+                }
+              } else {
+                console.log("No matching Firestore doc found for:", exerciseName);
+              }
+            }
             loadTemplates(); // refresh list AFTER deletion
           } catch (error) {
             console.log('Error deleting template: ', error);

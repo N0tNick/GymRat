@@ -1,3 +1,6 @@
+import { doc, setDoc } from "firebase/firestore";
+import { fbdb } from "../firebaseConfig";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TABLE_SQL = `
 CREATE TABLE IF NOT EXISTS userStreaks (
@@ -63,6 +66,22 @@ await db.runAsync(
     'UPDATE userStreaks SET current_streak = ?, best_streak = ?, last_open_date = ? WHERE user_id = ?',
     [newCurrent, newBest, today, userId]
 );
+
+try {
+  // Retrieve the Firestore user ID from AsyncStorage or context
+  const firestoreUserId = await AsyncStorage.getItem('firestoreUserId');
+  if (firestoreUserId) {
+    const streakRef = doc(fbdb, "users", firestoreUserId, "userStreaks", "main");
+    await setDoc(streakRef, {
+      current_streak: newCurrent,
+      best_streak: newBest,
+      last_open_date: today
+    }, { merge: true });
+    console.log("synced streak to Firestore for user:", firestoreUserId);
+  }
+} catch (err) {
+  console.error("failed to sync streak to Firestore:", err);
+}
 
 return { current_streak: newCurrent, best_streak: newBest, last_open_date: today };
 }
