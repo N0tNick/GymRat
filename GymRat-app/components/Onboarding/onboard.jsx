@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Dimensions, TouchableOpacity, Image, View, Modal, Pressable, ScrollView, Button, TextInput, Text, FlatList } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import rightArrow from '../../assets/images/right-arrow-black-circle.png'
 import leftArrow from '../../assets/images/left-arrow-black-circle.png'
 import standards from '../ui/appStandards'
@@ -21,39 +22,41 @@ export const HomeModal = ({isVisible, onClose}) => {
             visible={isVisible}
             onRequestClose={onClose}
         >
-            <View style={{flex: 1, justifyContent:'center', alignItems:'center',backgroundColor:'translucent'}}>
-                <TouchableOpacity style={homeModalStyles.closeIcon} onPress={onClose}>
-                    <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
-                </TouchableOpacity>
-                <View style={homeModalStyles.textBox}>
-                    <Text style={[standards.headerText,{padding:10,textAlign:'center'}]}>Welcome to GymRat!</Text>
-                    <Text style={[standards.regularText,{padding:10,textAlign:'center'}]}>This is the home page. Here info is displayed at a glance, such as:</Text>
-                    <FlatList
-                        data={[
-                            { key: 'Nutrition rundown and summary'},
-                            { key: 'Daily tasks'},
-                            { key: 'Weekly workout and nutrition logs'},
+            <SafeAreaProvider style={{flex:1}}>
+                <View style={genModalStyles.viewStyle}>
+                    <TouchableOpacity style={homeModalStyles.closeIcon} onPress={onClose}>
+                        <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
+                    </TouchableOpacity>
+                    <View style={homeModalStyles.textBox}>
+                        <Text style={[standards.headerText,{padding:10,textAlign:'center'}]}>Welcome to GymRat!</Text>
+                        <Text style={[standards.regularText,{padding:10,textAlign:'center'}]}>This is the home page. Here info is displayed at a glance, such as:</Text>
+                        <FlatList
+                            data={[
+                                { key: 'Nutrition rundown and summary'},
+                                { key: 'Daily tasks'},
+                                { key: 'Weekly workout and nutrition logs'},
 
-                        ]}
-                        renderItem={({item}) => {
-                            return(
-                                <View style={{ marginBottom: 10 }}>
-                                    <Text style={[standards.regularText,{textAlign:'left',padding:3,marginLeft:10}]}>{`\u2022 ${item.key}`}</Text>
-                                </View>
-                            )
-                        }}
-                    />
+                            ]}
+                            renderItem={({item}) => {
+                                return(
+                                    <View style={{ marginBottom: 10 }}>
+                                        <Text style={[standards.regularText,{textAlign:'left',padding:3,marginLeft:10}]}>{`\u2022 ${item.key}`}</Text>
+                                    </View>
+                                )
+                            }}
+                        />
+                    </View>
+                    <View style={homeModalStyles.arrowContainer}>
+                        <TouchableOpacity style={homeModalStyles.leftArrowBox} onPress={() => null}>
+                            <Image style={homeModalStyles.arrowImage} source={leftArrow}/>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={homeModalStyles.rightArrowBox} 
+                            onPress={() => goNext()}>
+                            <Image style={homeModalStyles.arrowImage} source={rightArrow}/>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-                <View style={homeModalStyles.arrowContainer}>
-                    <TouchableOpacity style={homeModalStyles.leftArrowBox} onPress={() => null}>
-                        <Image style={homeModalStyles.arrowImage} source={leftArrow}/>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={homeModalStyles.rightArrowBox} 
-                        onPress={() => goNext()}>
-                        <Image style={homeModalStyles.arrowImage} source={rightArrow}/>
-                    </TouchableOpacity>
-                </View>
-            </View>
+            </SafeAreaProvider>
         </Modal>
     )
 }
@@ -74,7 +77,7 @@ export const WorkoutOnboardModal = ({isVisible, onClose}) => {
             visible={isVisible}
             onRequestClose={onClose}
         >
-            <View style={{flex: 1, justifyContent:'center', alignItems:'center',backgroundColor:'translucent'}}>
+            <View style={genModalStyles.viewStyle}>
                 <TouchableOpacity style={workoutModalStyles.closeIcon} onPress={onClose}>
                     <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
                 </TouchableOpacity>
@@ -126,7 +129,7 @@ export const NutOnboardModal = ({isVisible, onClose}) => {
             visible={isVisible}
             onRequestClose={onClose}
         >
-            <View style={{flex: 1, justifyContent:'center', alignItems:'center',backgroundColor:'translucent'}}>
+            <View style={genModalStyles.viewStyle}>
                 <TouchableOpacity style={nutModalStyles.closeIcon} onPress={onClose}>
                     <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
                 </TouchableOpacity>
@@ -178,7 +181,7 @@ export const ProfileOnboardModal = ({isVisible, onClose}) => {
             visible={isVisible}
             onRequestClose={onClose}
         >
-            <View style={{flex: 1, justifyContent:'center', alignItems:'center',backgroundColor:'translucent'}}>
+            <View style={genModalStyles.viewStyle}>
                 <TouchableOpacity style={profileModalStyles.closeIcon} onPress={onClose}>
                     <Image style={styles.logo} source={{uri:'https://img.icons8.com/p1em/200/FFFFFF/filled-cancel.png'}}/>
                 </TouchableOpacity>
@@ -213,6 +216,17 @@ export const ProfileOnboardModal = ({isVisible, onClose}) => {
         </Modal>
     )
 }
+
+const genModalStyles = StyleSheet.create ({
+    viewStyle: {
+        flex: 1, 
+        justifyContent:'center', 
+        alignItems:'center',
+        backgroundColor:'translucent',
+        width: screenWidth,
+        heigth:screenHeight
+    },
+});
 
 const homeModalStyles = StyleSheet.create ({
   textBox:{

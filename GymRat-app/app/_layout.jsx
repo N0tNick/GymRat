@@ -62,6 +62,7 @@ export default function App() {
           REFERENCES users(id) ON DELETE CASCADE);`
         );
 
+        // await db.execAsync ('DROP TABLE IF EXISTS userStats;');
         await db.execAsync (
           `CREATE TABLE IF NOT EXISTS userStats (
           user_id INTEGER NOT NULL, 
@@ -212,18 +213,20 @@ export default function App() {
 
         await db.execAsync(
           `CREATE TABLE IF NOT EXISTS weightHistory (
-            date TEXT PRIMARY KEY NOT NULL,
-            weight TEXT NOT NULL
+            user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL,
+            weight TEXT NOT NULL,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE        
           );`
         )
 
         await db.execAsync('PRAGMA journal_mode=WAL');
         try {
            await db.execAsync(`ALTER TABLE users ADD COLUMN hasOnboarded INTEGER NOT NULL DEFAULT 0;`);
-           console.log('Added hasOnboarded column to existing table');
+           //console.log('Added hasOnboarded column to existing table');
          } catch (error) {
            // Column already exists or other error, which is fine
-           console.log('hasOnboarded column migration skipped:', error.message);
+           //console.log('hasOnboarded column migration skipped:', error.message);
          }
          }}
         options={{useNewConnection: true, enableCRSQLite: false}}

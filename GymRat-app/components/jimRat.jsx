@@ -153,7 +153,9 @@ const styles = StyleSheet.create({
     color: "#e0e0e0"
   },
   actionButton: {
-    backgroundColor: "#888",
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderColor: "#888",
+    borderWidth: 1,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,

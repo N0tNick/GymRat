@@ -242,7 +242,7 @@ export const WeightTouchable = ({ isVisible, onClose })  => {
             console.error('Error fetching last weight:', error)
         }
     };
-
+ 
     const saveWeight = async () => {
         const weightValue = parseFloat(weight);
         if (isNaN(weightValue) || weightValue <= 0) {

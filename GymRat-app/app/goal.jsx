@@ -77,41 +77,63 @@ const SetGoalSpeed = ({ goal, onBack }) => {
         console.error(error) }
     }
     
+    const insertGoalSpeed = async () => {
+        try {
+            const user = await db.getFirstAsync('SELECT id FROM users')
+            console.log(user.id)
+
+            await db.runAsync('UPDATE userStats SET gain_speed = ? WHERE user_id = ?',
+                [sliderValue.toString(), user.id]
+            )
+            console.log(sliderValue.toString())
+            [sliderValue.toString(), user.id]
+            console.log('gain speed logged')
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
-        <View style={styles.container}>
-            <View style={[styles.inputContainer, {alignSelf:'center', height:'35%'}]}>
-                <Text style={[standards.headerText, {fontSize:24, textAlign:'center'}]}>How fast do you want to {goal} weight?</Text>
-                <Text style={[standards.regularText, {fontSize:24}]}>{sliderValue} lbs/week</Text>
-                <Slider
-                    style={{width:200, height:40}}
-                    minimumValue={.25}
-                    maximumValue={2}
-                    minimumTrackTintColor="#FFFFFF"
-                    maximumTrackTintColor="#000000"
-                    step={.25}
-                    tapToSeek
-                    onValueChange={setSliderValue}
-                />
-                <View style={{flexDirection:'row', justifyContent:'space-between'}}>
-                    <TouchableOpacity
-                        style={[styles.saveButton, styles.nextButton]}
-                        onPress={onBack}
-                    >
-                        <Text style={[standards.regularText, { fontSize:20 }]}>Back</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.saveButton, styles.nextButton]}
-                        onPress={() => {
-                            cals = Math.round(calcCalories({ goal, speed: sliderValue }));
-                            handleOnboarded();
-                            router.replace('/nutrition');
-                        }}
-                    >
-                        <Text style={[standards.regularText, { fontSize:20 }]}>Save</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </View>
+                    <View style={[styles.inputContainer, {alignSelf:'center', height:'35%'}]}>
+                        <Text style={[standards.headerText, {fontSize:24, textAlign:'center'}]}>How fast do you want to {goal} weight?</Text>
+                        <Text style={[standards.regularText, {fontSize:24}]}>{sliderValue} lbs/week</Text>
+                        <Slider
+                            style={{width:200, height:40}}
+                            minimumValue={.25}
+                            maximumValue={2}
+                            minimumTrackTintColor="#FFFFFF"
+                            maximumTrackTintColor="#000000"
+                            step={.25}
+                            tapToSeek
+                            onValueChange={setSliderValue}
+                        />
+                        <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                            <TouchableOpacity
+                                style={[styles.saveButton, styles.nextButton]}
+                                onPress={onBack}
+                            >
+                                <Text style={[standards.regularText, { fontSize:20 }]}>Back</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.saveButton, styles.nextButton]}
+                                onPress={() => {
+                                    cals = Math.round(calcCalories({ goal, speed: sliderValue }));
+                                    handleOnboarded();
+                                    insertGoalSpeed();
+                                    router.navigate({
+                                        pathname: '/home',
+                                        params: { refresh: Date.now() } 
+                                    });
+            
+                                    setTimeout(() => {
+                                        router.replace('/(tabs)/home');
+                                    }, 800);
+                                }}  
+                            >
+                                <Text style={[standards.regularText, { fontSize:20 }]}>Save</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
     );
 }
 
@@ -138,7 +160,6 @@ const SetGoalWeight = ({ currentWeight, goal, onBack }) => {
                 onBack={() => setShowGoalSpeed(false)}
             />
         ) : (
-            <View style={{ flex:1, backgroundColor:'#1a1b1c', justifyContent:'center', alignItems:'center'}}>
                 <View style={styles.inputContainer}>
                     <Text style={[standards.regularText, {fontSize:24}]}>Goal Weight</Text>
 
@@ -183,7 +204,6 @@ const SetGoalWeight = ({ currentWeight, goal, onBack }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
-            </View>
         )
     )
 }
@@ -212,10 +232,8 @@ const Goal = () => {
     const [showGoalWeight, setShowGoalWeight] = React.useState(false);
 
     return (
-            <SafeAreaProvider>
-                <SafeAreaView style={styles.container}>
-                    <View style={styles.container}>
-                        {showGoalWeight ? (
+            <View style={styles.container}>
+                {showGoalWeight ? (
                             <SetGoalWeight
                                 currentWeight={150}
                                 goal={lose ? 'lose' : gain ? 'gain' : 'maintain'}
@@ -249,10 +267,7 @@ const Goal = () => {
                                 </View>
                             </View>
                         )}
-
                     </View>
-                </SafeAreaView>
-            </SafeAreaProvider>
         )
 }
 
@@ -262,6 +277,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         height:ScreenHeight,
+        width:screenWidth,
         flexDirection: 'column',
         backgroundColor: '#1a1b1c',
         justifyContent: 'center',
@@ -297,6 +313,7 @@ const styles = StyleSheet.create({
         width: '75%',
         height: '25%',
         borderRadius: 10,
+        alignSelf:'center',
         alignItems: 'center',
         justifyContent: 'space-between',
         zIndex: 2,

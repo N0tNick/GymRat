@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { React, useEffect, useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -10,7 +10,7 @@ const { height: ScreenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
 export const data = [
-    { id: 'weight', title: 'Current Weight', val: 0.0 },
+    { id: 'weight', title: 'Current Weight', val: '0.0' },
     { id: 'height', title: 'Height', val: [0, 0] },
     { id: 'dob', title: 'Date of Birth', val: [1, 1, 1900] },
     { id: 'gender', title: 'Gender', val: 'Gender'},
@@ -18,6 +18,53 @@ export const data = [
 ];
 
 const nutsplash = () => {
+    const db = useSQLiteContext()
+    const [userId, setUserId] = useState()
+
+    const saveStats = async() => {
+        try {
+            const user = await db.getFirstAsync(
+                'SELECT id FROM users',
+            ); 
+            
+            const weightFromData = data.find(item => item.id === 'weight').val
+
+            const heightFromData = data.find(item => item.id === 'height').val
+            const heightString = `${heightFromData[0]}'${heightFromData[1]}'`
+
+            const dobFromData = data.find(item => item.id === 'dob').val
+            const dobString = `${dobFromData[0]}'${dobFromData[1]}''${dobFromData[2]}'`
+
+            const genderFromData = data.find(item => item.id === 'gender').val
+            const activityLevelFromData = data.find(item => item.id === 'activityLevel').val
+
+            // console.log('Weight to save:', weightFromData); 
+             
+            const statsRecord = await db.getFirstAsync(
+                'SELECT * FROM userStats WHERE user_id = ?', 
+                [user.id]
+            );
+
+            if (statsRecord) {
+                // Record exists, update it
+                await db.runAsync(
+                    'UPDATE userStats SET weight = ?, height = ?, sex = ?, activity_lvl = ? WHERE user_id = ?',
+                    [weightFromData, heightString, genderFromData, activityLevelFromData, user.id]
+                );
+            } else {
+                // No record exists, insert one
+                await db.runAsync(
+                    'INSERT INTO userStats (user_id, weight, height, sex, activity_lvl) VALUES (?, ?, ?, ?, ?)',
+                    [user.id, weightFromData, heightString, genderFromData, activityLevelFromData]
+                );
+            }
+            
+            console.log('User stats updated successfully');
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
     // For Weight
     const [showWeight, setShowWeight] = useState(false)
     const [weightVal, setWeightVal] = useState('')
@@ -124,13 +171,18 @@ const nutsplash = () => {
                                 <View style={{flexDirection:'row', justifyContent:'space-between', marginTop:5}}>     
                                 <TouchableOpacity
                                     style={[styles.saveButton, styles.nextButton]}
-                                    onPress={() => router.navigate('/home')}
+                                    onPress={() => router.navigate('/profile')}
                                 >
                                     <Text style={[standards.regularText, { fontSize: 20 }]}>Back</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={[styles.saveButton, styles.nextButton]}
-                                    onPress={() => router.replace('/goal')}
+                                    onPress={ () => 
+                                        {
+                                        router.replace('/goal')
+                                        saveStats()
+                                        }
+                                    }
                                 >
                                     <Text style={[standards.regularText, { fontSize: 20 }]}>Next</Text>
                                 </TouchableOpacity>
