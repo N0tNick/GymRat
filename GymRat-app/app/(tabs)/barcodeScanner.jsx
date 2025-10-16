@@ -10,6 +10,7 @@ import { ActivityIndicator, Button, Keyboard, Linking, Modal, StyleSheet, Text, 
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useUser } from '../../UserContext';
 import FoodModal from '../../components/FoodModal';
+import { Image } from "expo-image";
 
 import { addDoc, collection, getFirestore } from "firebase/firestore";
 import { app } from "../../firebaseConfig";
@@ -481,8 +482,8 @@ export default function BarcodeScannerScreen() {
           <SafeAreaView style={{ flex: 1 }}>
             <View style={styles.overlay}>
             <View style={styles.header}>
-              <TouchableOpacity onPress={() => router.replace("/")} style={{ padding: 5 }}>
-                <Text style={{fontSize: 18,fontWeight: "bold", color: "#e0e0e0"}}>X</Text>
+              <TouchableOpacity onPress={() => router.back()}>
+                <Image style={{width: '20', height: '20'}} source={require('../../assets/images/xButton.png')}/>
               </TouchableOpacity>
               <Text style={{ fontSize: 18, fontWeight: "bold", color: "#e0e0e0" }}>Scan a barcode</Text>
             </View>

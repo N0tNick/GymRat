@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, Keyboard, Linking, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useUser } from "../UserContext";
+import { Image } from "expo-image"
 
 import { addDoc, collection, getFirestore } from "firebase/firestore";
 import { app } from "../firebaseConfig";
@@ -492,7 +493,7 @@ export default function FoodModal({ visible, onClose }) {
         {/* Header with close + toggle */}
         <View style={[styles.headerRow, {paddingTop: 30}]}>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>X</Text>
+            <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -721,7 +722,9 @@ const styles = StyleSheet.create({
         color: "#fff",
     },
     rescanButton: { 
-        backgroundColor: "#32a852", 
+        borderColor: "#32a852",
+        backgroundColor: "rgba(255,255,255,0.08)", 
+        borderWidth: 1,
         padding: 10, 
         borderRadius: 6, 
         alignItems: "center", 
@@ -741,21 +744,27 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
     },
     addBtn: { 
-        backgroundColor: "#32a852", 
+        borderColor: "#32a852",
+        backgroundColor: "rgba(255,255,255,0.08)", 
+        borderWidth: 1,
         padding: 10, 
         borderRadius: 6, 
         marginBottom: 10, 
         alignItems: "center",
     },
     saveBtn: { 
-        backgroundColor: "#32a852", 
+        borderColor: "#32a852",
+        backgroundColor: "rgba(255,255,255,0.08)", 
+        borderWidth: 1, 
         padding: 10, 
         borderRadius: 6, 
         marginTop: 10, 
         alignItems: "center",
     },
     toggleBtn: { 
-        backgroundColor: "#32a852", 
+        borderColor: "#32a852",
+        backgroundColor: "rgba(255,255,255,0.08)",  
+        borderWidth: 1,
         padding: 15, 
         borderRadius: 8, 
         marginTop: 20, 
@@ -777,7 +786,9 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     toggleBtnSmall: {
-        backgroundColor: "#32a852",
+        borderColor: "#32a852",
+        backgroundColor: "rgba(255,255,255,0.08)", 
+        borderWidth: 1,
         paddingVertical: 6,
         paddingHorizontal: 12,
         borderRadius: 6,
@@ -800,7 +811,9 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     logBtn: {
-        backgroundColor: "#32a852",
+        borderColor: "#32a852",
+        backgroundColor: "rgba(255,255,255,0.08)", 
+        borderWidth: 1,
         padding: 10,
         borderRadius: 6,
         alignItems: "center",
@@ -812,7 +825,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#2a2b2d",
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: "#888",
+        borderColor: "#32a852",
         maxHeight: 250,
     },
     resultsHeader: {

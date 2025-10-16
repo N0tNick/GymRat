@@ -1114,19 +1114,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   text: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontSize: 28,
     fontWeight: 'bold',
   },
-  nutsplashButton: {
-    marginTop: 10,
-    backgroundColor: '#32a852',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
   buttonText: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -1144,7 +1137,7 @@ const styles = StyleSheet.create({
   moduleTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#e0e0e0',
     marginBottom: 10,
     textAlign: 'center',
   },
@@ -1160,7 +1153,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   time: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontWeight: 'bold',
     textAlign: 'left',
     flex: 1,
@@ -1193,7 +1186,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   nutrientLabel: {
-    color: '#fff',
+    color: '#e0e0e0',
     marginBottom: 4,
     fontWeight: 'bold',
     fontSize: 14,
@@ -1227,7 +1220,7 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
   },
   dayLabel: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontWeight: 'bold',
     marginBottom: 8,
   },
@@ -1248,7 +1241,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   addEventText: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontWeight: 'bold',
   },
   modalOverlay: {
@@ -1267,12 +1260,12 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#e0e0e0',
     marginBottom: 15,
   },
   input: {
     backgroundColor: '#444',
-    color: '#fff',
+    color: '#e0e0e0',
     padding: 10,
     borderRadius: 8,
     width: '100%',
@@ -1286,7 +1279,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   modalAddText: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontWeight: 'bold',
   },
   cancelText: {
@@ -1301,7 +1294,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   timeButtonText: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -1337,13 +1330,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
   smallLabel: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontSize: 13,
     fontWeight: '700',
     marginBottom: 4,
   },
   smallValue: {
-    color: '#ddd',
+    color: '#e0e0e0',
     fontSize: 12,
     fontWeight: '600',
   },
@@ -1363,7 +1356,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   calorieLabel: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 4,
@@ -1374,15 +1367,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   addFoodButton: {
-    backgroundColor: '#rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     borderColor: '#32a852',
     borderWidth: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 8,
+    alignSelf: 'center',
+    marginBottom: 10,
   },
   addFoodText: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontWeight: 'bold',
     fontSize: 14,
   },
@@ -1412,7 +1407,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 15,
     textAlign: 'center',
-    color: '#fff',
+    color: '#e0e0e0',
   },
   foodInputGroup: {
     width: '100%',
@@ -1422,7 +1417,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 5,
-    color: '#fff',
+    color: '#e0e0e0',
   },
   foodTextInput: {
     borderWidth: 1,
@@ -1430,7 +1425,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     backgroundColor: '#444',
-    color: '#fff',
+    color: '#e0e0e0',
   },
   addValueButton: {
     backgroundColor: '#32a852',
@@ -1441,7 +1436,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   addValueText: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -1463,7 +1458,7 @@ const styles = StyleSheet.create({
   picker: {
     height: 44,
     width: '100%',
-    color: '#fff',
+    color: '#e0e0e0',
   },
   valueInput: {
     width: 80,
@@ -1472,7 +1467,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     backgroundColor: '#444',
-    color: '#fff',
+    color: '#e0e0e0',
   },
   foodModalButtons: {
     marginTop: 20,
@@ -1491,7 +1486,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saveButtonText: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -1504,7 +1499,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closeButtonText: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontSize: 16,
     fontWeight: 'bold',
   },

@@ -10,6 +10,7 @@ import JimRatNutrition from '../../components/jimRatNutrition';
 import { NutOnboardModal } from '../../components/Onboarding/onboard';
 import { UserContext, useUser } from '../../UserContext';
 import { cals } from '../goal';
+import FoodModal from '../../components/FoodModal.jsx';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -128,6 +129,7 @@ export default function Nutrition() {
   const [hasEntries, setHasEntries] = useState(false);
   const [hasWorkout, setHasWorkout] = useState(false);
   const [isNutOnboardModal, setNutOnboardModal] = useState(false);
+  const [foodModalVisible, setFoodModalVisible] = useState(false);
 
   const totalCalories = dailyTotals?.totalCalories || 0;
   const proteinTotal = dailyTotals?.totalProtein || 0;
@@ -903,14 +905,19 @@ useEffect(() => {
 
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => setModalVisible(true)}
+            onPress={() => setFoodModalVisible(true)}
           >
             <Text style={styles.plusSign}>+</Text>
           </TouchableOpacity>
         </SafeAreaView>
       </LinearGradient>
 
-        <Modal
+
+      <FoodModal
+        visible={foodModalVisible}
+        onClose={() => setFoodModalVisible(false)}
+      />
+        {/* <Modal
           animationType="slide"
           transparent
           visible={modalVisible}
@@ -1003,7 +1010,7 @@ useEffect(() => {
               </ScrollView>
             </View>
           </View>
-        </Modal>
+        </Modal> */}
 
         <Modal
           transparent
