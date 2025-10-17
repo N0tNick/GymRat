@@ -95,10 +95,10 @@ function PieChart({ size = 220, values, colors, labels, valueLabels }) {
               textAnchor="middle"
               dominantBaseline="middle"
             >
-              <TSpan fontSize="12" fontWeight="bold" fill="#fff">
+              <TSpan fontSize="12" fontWeight="bold" fill="#e0e0e0">
                 {s.label}
               </TSpan>
-              <TSpan x={s.labelX} dy={14} fontSize="11" fill="#fff">
+              <TSpan x={s.labelX} dy={14} fontSize="11" fill="#e0e0e0">
                 {s.valueLabel}
               </TSpan>
             </SvgText>
@@ -158,6 +158,9 @@ export default function Nutrition() {
   const proteinPercent = proteinTarget > 0 ? Math.round((proteinTotal / proteinTarget) * 100) : 0;
   const carbsPercent   = carbsTarget   > 0 ? Math.round((carbsTotal   / carbsTarget)   * 100) : 0;
   const fatPercent     = fatTarget     > 0 ? Math.round((fatTotal     / fatTarget)     * 100) : 0;
+
+  const [selectedFood, setSelectedFood] = useState(null);
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
 
   const pieValues = useMemo(() => {
   const fatC = Math.max(0, (Number(fatTotal) || 0) * 9);
@@ -224,6 +227,88 @@ const vitaminsPie = useMemo(() => {
     title: 'Vitamins',
   };
 }, [vitATotal, vitB6Total, vitB12Total, vitCTotal, vitDTotal, vitETotal]);
+
+const openFoodDetail = async (foodItem, date) => {
+  const uid = userId || user?.id;
+  if (!uid) return;
+  try {
+    const rows = await db.getAllAsync(
+      `SELECT * FROM historyLog WHERE user_id = ? AND date = ? AND name = ? LIMIT 1;`,
+      [uid, date, foodItem.name]
+    );
+    if (rows && rows[0]) {
+      const food = rows[0];
+      const details = {
+        name: food.name,
+        date: date,
+        calories: parseFloat(food.calories) || 0,
+        protein: parseFloat(food.protein) || 0,
+        sugar: parseFloat(food.sugar) || 0,
+        cholesterol: parseFloat(food.cholesterol) || 0,
+        total_fat: parseFloat(food.total_Fat) || 0,
+        calcium: parseFloat(food.calcium) || 0,
+        sodium: parseFloat(food.sodium) || 0,
+        fiber: parseFloat(food.fiber) || 0,
+        iron: parseFloat(food.iron) || 0,
+        potassium: parseFloat(food.potassium) || 0,
+        vitamin_A: parseFloat(food.vitamin_A) || 0,
+        vitamin_B6: parseFloat(food.vitamin_B6) || 0,
+        vitamin_B12: parseFloat(food.vitamin_B12) || 0,
+        vitamin_C: parseFloat(food.vitamin_C) || 0,
+        vitamin_D: parseFloat(food.vitamin_D) || 0,
+        vitamin_E: parseFloat(food.vitamin_E) || 0,
+      };
+      setSelectedFood(details);
+      setDetailModalVisible(true);
+    }
+  } catch (error) {
+    console.error('Error fetching food details:', error);
+  }
+};
+
+const formatNutrientDisplay = (key, value) => {
+  const displayNames = {
+    calories: 'Calories',
+    protein: 'Protein',
+    sugar: 'Sugar',
+    cholesterol: 'Cholesterol',
+    fat: 'Total Fat',
+    calcium: 'Calcium',
+    sodium: 'Sodium',
+    fiber: 'Fiber',
+    iron: 'Iron',
+    potassium: 'Potassium',
+    vitamin_A: 'Vitamin A',
+    vitamin_B6: 'Vitamin B6',
+    vitamin_B12: 'Vitamin B12',
+    vitamin_C: 'Vitamin C',
+    vitamin_D: 'Vitamin D',
+    vitamin_E: 'Vitamin E',
+  };
+  const units = {
+    calories: 'kcal',
+    protein: 'g',
+    sugar: 'g',
+    cholesterol: 'mg',
+    fat: 'g',
+    calcium: 'mg',
+    sodium: 'mg',
+    fiber: 'g',
+    iron: 'mg',
+    potassium: 'mg',
+    vitamin_A: 'mcg',
+    vitamin_B6: 'mg',
+    vitamin_B12: 'mcg',
+    vitamin_C: 'mg',
+    vitamin_D: 'mcg',
+    vitamin_E: 'mg',
+  };
+  return {
+    name: displayNames[key] || key,
+    value: value.toFixed(value < 1 ? 2 : 1),
+    unit: units[key] || '',
+  };
+};
 
 useEffect(() => {
   const uid = userId || user?.id;
@@ -1039,21 +1124,25 @@ useEffect(() => {
                       <Text style={styles.historyDate}>{fmtDate(date)}</Text>
 
                       {items.map((it, idx) => (
-                        <View key={`${date}-${idx}-${it.id}`} style={styles.historyCard}>
+                        <TouchableOpacity
+                          key={`${date}-${idx}-${it.id}`}
+                          style={styles.historyCard}
+                          onPress={() => openFoodDetail(it, date)}
+                          activeOpacity={0.7}
+                        >
                           <Text numberOfLines={2} style={styles.cardName}>{it.name}</Text>
-
                           <View style={styles.cardRight}>
                             <Text style={styles.cardLine}>
                               Calories: <Text style={styles.cardValue}>{it.calories}</Text>
                             </Text>
                             <Text style={styles.cardLine}>
-                              Protein: <Text style={styles.cardValue}>{it.protein}</Text>
+                              Protein: <Text style={styles.cardValue}>{it.protein}g</Text>
                             </Text>
                             <Text style={styles.cardLine}>
-                              Carbs : <Text style={styles.cardValue}>{it.carbs}</Text>
+                              Carbs: <Text style={styles.cardValue}>{it.carbs}g</Text>
                             </Text>
                           </View>
-                        </View>
+                        </TouchableOpacity>
                       ))}
                     </View>
                   ))
@@ -1062,6 +1151,102 @@ useEffect(() => {
             </View>
           </View>
         </Modal>
+
+        <Modal
+        transparent
+        visible={detailModalVisible}
+        animationType="slide"
+        onRequestClose={() => setDetailModalVisible(false)}
+      >
+        <View style={styles.detailOverlay}>
+          <View style={styles.detailModal}>
+            <View style={styles.detailHeader}>
+              <View style={styles.detailTitleSection}>
+                <Text style={styles.detailTitle}>{selectedFood?.name}</Text>
+                <Text style={styles.detailDate}>{fmtDate(selectedFood?.date)}</Text>
+              </View>
+              <TouchableOpacity onPress={() => setDetailModalVisible(false)}>
+                <Text style={styles.detailClose}>Close</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView
+              contentContainerStyle={styles.detailScrollContent}
+              showsVerticalScrollIndicator={false}
+            >
+              {selectedFood &&(
+                <>
+                {/* Main Nutrients */}
+                <View style={styles.detailSection}>
+                  <Text style={styles.detailSectionTitle}>Main Nutrients</Text>
+                  {['calories', 'protein', 'sugar', 'cholesterol', 'total_fat'].map(key => {
+                    const val = selectedFood[key];
+                    if (val > 0) {
+                      const formatted = formatNutrientDisplay(key, val);
+                      return (
+                        <View key={key} style={styles.nutrientRow}>
+                          <Text style={styles.nutrientName}>{formatted.name}</Text>
+                          <Text style={styles.nutrientValue}>
+                            {formatted.value} {formatted.unit}
+                          </Text>
+                        </View>
+                      );
+                    }
+                    return null;
+                  })}
+                </View>
+
+                {/* Minerals */}
+                {(selectedFood.calcium > 0 || selectedFood.sodium > 0 || 
+                  selectedFood.fiber > 0 || selectedFood.iron > 0 || selectedFood.potassium > 0) && (
+                  <View style={styles.detailSection}>
+                    <Text style={styles.sectionTitle}>Minerals</Text>
+                    {['calcium', 'sodium', 'fiber', 'iron', 'potassium'].map(key => {
+                      const val = selectedFood[key];
+                      if (val > 0) {
+                        const formatted = formatNutrientDisplay(key, val);
+                        return (
+                          <View key={key} style={styles.nutrientRow}>
+                            <Text style={styles.nutrientName}>{formatted.name}</Text>
+                            <Text style={styles.nutrientValue}>
+                              {formatted.value} {formatted.unit}
+                            </Text>
+                          </View>
+                        );
+                      }
+                      return null;
+                    })}
+                  </View>
+                )}
+
+                {/* Vitamins */}
+                {(selectedFood.vitamin_A > 0 || selectedFood.vitamin_B6 > 0 || 
+                  selectedFood.vitamin_B12 > 0 || selectedFood.vitamin_C > 0 ||
+                  selectedFood.vitamin_D > 0 || selectedFood.vitamin_E > 0) && (
+                  <View style={styles.detailSection}>
+                    <Text style={styles.sectionTitle}>Vitamins</Text>
+                    {['vitamin_A', 'vitamin_B6', 'vitamin_B12', 'vitamin_C', 'vitamin_D', 'vitamin_E'].map(key => {
+                      const val = selectedFood[key];
+                      if (val > 0) {
+                        const formatted = formatNutrientDisplay(key, val);
+                        return (
+                          <View key={key} style={styles.nutrientRow}>
+                            <Text style={styles.nutrientName}>{formatted.name}</Text>
+                            <Text style={styles.nutrientValue}>
+                              {formatted.value} {formatted.unit}
+                            </Text>
+                          </View>
+                        );
+                      }
+                      return null;
+                    })}
+                  </View>
+                )}
+              </>
+            )}
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
     </View>
   );
 }
@@ -1090,7 +1275,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   text: { 
-    color: '#fff', 
+    color: '#e0e0e0', 
     fontSize: 18, 
     fontWeight: 'bold' 
   },
@@ -1142,7 +1327,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: { 
     fontSize: 18,
-    color: '#fff', 
+    color: '#e0e0e0', 
     fontWeight: '600', 
     marginBottom: 15,
     textAlign: 'center',
@@ -1154,7 +1339,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: { 
     fontSize: 16, 
-    color: '#fff',
+    color: '#e0e0e0',
     fontWeight: 'normal', 
     marginBottom: 5 
   },
@@ -1177,7 +1362,7 @@ const styles = StyleSheet.create({
     borderColor: '#32a852',
   },
   addValueText: { 
-    color: '#fff', 
+    color: '#e0e0e0', 
     fontSize: 16, 
     fontWeight: 'bold' 
   },
@@ -1462,5 +1647,83 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 8,
   },
-
+  detailOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  detailModal: {
+    width: '90%',
+    maxHeight: screenHeight * 0.75,
+    backgroundColor: '#1a1b1c',
+    borderRadius: 20,
+    padding: 20,
+  },
+  detailHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(50,168,82,0.3)',
+  },
+  detailTitleSection: {
+    flex: 1,
+    marginRight: 10,
+  },
+  detailTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#e0e0e0',
+    marginBottom: 4,
+  },
+  detailDate: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.6)',
+  },
+  detailClose: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#32a852',
+  },
+  detailScrollContent: {
+    paddingBottom: 10,
+  },
+  detailSection: {
+    marginBottom: 20,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 12,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(50,168,82,0.2)',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#32a852',
+    marginBottom: 12,
+  },
+  nutrientRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.1)',
+  },
+  nutrientName: {
+    fontSize: 14,
+    color: '#e0e0e0',
+    flex: 1,
+  },
+  nutrientValue: {
+    fontSize: 14,
+    color: '#e0e0e0',
+    fontWeight: '600',
+  },
+  detailSectionTitle: {
+    color: '#32a852',
+  }
 });
