@@ -15,6 +15,8 @@
 #include <react/renderer/components/RNGoogleSignInCGen/ComponentDescriptors.h>
 #include <rnpicker.h>
 #include <react/renderer/components/rnpicker/ComponentDescriptors.h>
+#include <RNDatePickerSpecs.h>
+#include <react/renderer/components/RNDatePickerSpecs/ComponentDescriptors.h>
 #include <rngesturehandler_codegen.h>
 #include <react/renderer/components/rngesturehandler_codegen/ComponentDescriptors.h>
 #include <pagerview.h>
@@ -29,7 +31,6 @@
 #include <RNCWebViewSpec.h>
 #include <react/renderer/components/RNCWebViewSpec/ComponentDescriptors.h>
 #include <rnworklets.h>
-#include <RNVectorIconsSpec.h>
 
 namespace facebook {
 namespace react {
@@ -54,6 +55,10 @@ return module_RNGoogleSignInCGen;
 auto module_rnpicker = rnpicker_ModuleProvider(moduleName, params);
 if (module_rnpicker != nullptr) {
 return module_rnpicker;
+}
+auto module_RNDatePickerSpecs = RNDatePickerSpecs_ModuleProvider(moduleName, params);
+if (module_RNDatePickerSpecs != nullptr) {
+return module_RNDatePickerSpecs;
 }
 auto module_rngesturehandler_codegen = rngesturehandler_codegen_ModuleProvider(moduleName, params);
 if (module_rngesturehandler_codegen != nullptr) {
@@ -87,10 +92,6 @@ auto module_rnworklets = rnworklets_ModuleProvider(moduleName, params);
 if (module_rnworklets != nullptr) {
 return module_rnworklets;
 }
-auto module_RNVectorIconsSpec = RNVectorIconsSpec_ModuleProvider(moduleName, params);
-if (module_RNVectorIconsSpec != nullptr) {
-return module_RNVectorIconsSpec;
-}
   return nullptr;
 }
 
@@ -104,6 +105,7 @@ providerRegistry->add(concreteComponentDescriptorProvider<RNCSliderComponentDesc
 providerRegistry->add(concreteComponentDescriptorProvider<RNGoogleSigninButtonComponentDescriptor>());
 providerRegistry->add(concreteComponentDescriptorProvider<RNCAndroidDialogPickerComponentDescriptor>());
 providerRegistry->add(concreteComponentDescriptorProvider<RNCAndroidDropdownPickerComponentDescriptor>());
+providerRegistry->add(concreteComponentDescriptorProvider<RNDatePickerComponentDescriptor>());
 providerRegistry->add(concreteComponentDescriptorProvider<RNGestureHandlerRootViewComponentDescriptor>());
 providerRegistry->add(concreteComponentDescriptorProvider<RNGestureHandlerButtonComponentDescriptor>());
 providerRegistry->add(concreteComponentDescriptorProvider<RNCViewPagerComponentDescriptor>());
