@@ -524,7 +524,7 @@ export default function FoodModal({ visible, onClose }) {
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => Linking.openURL("https://www.fatsecret.com")}>
-              <Text style={{ color: "#888", fontSize: 12 }}>Powered by FatSecret</Text>
+              <Text style={styles.linkText}>Powered by FatSecret</Text>
             </TouchableOpacity>
 
             {loading && <ActivityIndicator size="small" color="#32a852" style={{ marginTop: 10 }} />}
@@ -835,5 +835,10 @@ const styles = StyleSheet.create({
         padding: 10,
         borderBottomWidth: 1,
         borderBottomColor: "#888",
+    },
+    linkText: { 
+        color: '#888', 
+        fontSize: 12,
+        paddingTop: 6,
     },
 });
