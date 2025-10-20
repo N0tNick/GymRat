@@ -208,15 +208,17 @@ export default function App() {
           );`
         );
 
-        await db.execAsync(`DROP TABLE IF EXISTS weightHistory;`);  
-        //await db.runAsync('UPDATE users SET hasOnboarded = ?', [0])
+        // await db.execAsync(`DROP TABLE IF EXISTS weightHistory;`);  
+        // await db.runAsync('UPDATE users SET hasOnboarded = ?', [0])
 
         await db.execAsync(
           `CREATE TABLE IF NOT EXISTS weightHistory (
-            user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
             date TEXT NOT NULL,
             weight TEXT NOT NULL,
-            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE        
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE      
+            UNIQUE(user_id, date)  
           );`
         )
 

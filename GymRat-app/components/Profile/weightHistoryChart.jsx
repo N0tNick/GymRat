@@ -23,7 +23,7 @@ const lineChart = () => {
         fetchWeightHistory()
         const intervalId = setInterval(() => {
           fetchWeightHistory()
-        }, 10000)
+        }, 5000)
         return () => clearInterval(intervalId)
       }, []);
 
@@ -32,9 +32,7 @@ const lineChart = () => {
         try {
             const user = await db.getFirstAsync('SELECT id from users')
 
-            if (!user) {
-                console.log('no user found - weightHistoryChart');
-            }
+            if (!user) { console.log('no user found - weightHistoryChart'); }
 
             const result = await db.getAllAsync('SELECT * FROM weightHistory WHERE user_id = ? ORDER BY date', [user.id])
 
@@ -55,12 +53,14 @@ const lineChart = () => {
                     .map((entry, index) => {
                     const date = dayjs(entry.date)
                     const formattedDate = date.isValid() ? date.format('MM/DD/YY') : `Entry ${index + 1}`
-                                    
+                    const weightValue = parseFloat(entry.weight)
+               
                     return {
-                        value: parseFloat(entry.weight),
+                        value: weightValue,
                         label: formattedDate
                     }
-                    })
+                    }) .filter(item => item !== null) // Remove any null entries
+
                 
                 // Calculate yAxisOffset as lowest weight minus 50
                 if (chartData.length > 0) {
@@ -69,7 +69,6 @@ const lineChart = () => {
                 } else {
                     setYAxisOffset(0)
                 }
-
                 setData(chartData)
             } else {
                 await db.runAsync('INSERT INTO weightHistory (user_id) VALUES (?)',[user.id]);
@@ -113,7 +112,7 @@ const lineChart = () => {
             animateOnDataChange={true}
             disableScroll={true}
         />
-    )
+    ) 
 }
 
 export default lineChart
