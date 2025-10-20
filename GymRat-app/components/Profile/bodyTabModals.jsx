@@ -251,28 +251,42 @@ export const WeightTouchable = ({ isVisible, onClose })  => {
         }
 
         try {
-            const user_id = 1;
+            const user = await db.getFirstAsync('SELECT id from users')
+
 
             await db.runAsync(
                 'UPDATE userStats SET weight = ? WHERE user_id = ?',
-                [weight.trim(), user_id]
+                [weight.trim(), user.id]
             );
 
             const localDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
 
-            await db.runAsync(
-                'REPLACE INTO weightHistory (date, weight) VALUES (?, ?) ',
-                [localDate, weight.trim()]
+            const rowCheck = await db.getAllAsync(
+                'SELECT * FROM weightHistory WHERE date = ? AND user_id = ?', 
+                [localDate, user.id]
             )
+            console.log(rowCheck)
+
+            if (rowCheck && rowCheck[0] != null) {
+                console.log("properly updating");
+                await db.runAsync(
+                    'REPLACE INTO weightHistory (user_id, date, weight) VALUES (?, ?, ?)',
+                    [user.id, localDate, weight.trim()]
+                )            
+            } else { 
+                console.log("properly inserting");
+                await db.runAsync(
+                    'INSERT INTO weightHistory (user_id, date, weight) VALUES (?, ?, ?)',
+                     [user.id, localDate, weight.trim()]           
+                )
+            }
             
             console.log('Success', 'Weight and WeightHistory saved successfully');
-            
             onClose();
             
         } catch (error) {
-            console.log('Error saving to weightHistory:', error);
-            console.log('Error', 'Failed to save weightHistory. Please try again.');
+            console.log('Error saving to weight or weightHistory:', error);
         }
     };
 
