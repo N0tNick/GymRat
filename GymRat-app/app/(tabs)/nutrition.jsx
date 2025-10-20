@@ -130,6 +130,8 @@ export default function Nutrition() {
   const [hasWorkout, setHasWorkout] = useState(false);
   const [isNutOnboardModal, setNutOnboardModal] = useState(false);
   const [foodModalVisible, setFoodModalVisible] = useState(false);
+  const [showMore, setShowMore] = useState(false);
+  const sex = String((user?.sex || user?.gender || 'male')).toLowerCase();
 
   const totalCalories = dailyTotals?.totalCalories || 0;
   const proteinTotal = dailyTotals?.totalProtein || 0;
@@ -153,6 +155,20 @@ export default function Nutrition() {
   const carbsTarget   = Math.round((cals * 0.45) / 4);
   const fatTarget     = Math.round((cals * 0.30) / 9);
   const sugarTarget   = Math.round((cals * 0.10) / 4);
+  const fiberTarget = Math.round(cals * 0.014);
+  const ironTarget = sex === 'female' ? 18: 8;
+  const potassiumTarget = 4700;
+  const sodiumTarget = 2.3;
+  const calciumTarget = 1000;
+  const vitATarget = sex === 'female' ? 700 : 900;
+  const vitB6Target = sex === 'female' ? 1.1 : 1.3;
+  const vitB12Target = 2.4
+  const vitCTarget = sex === 'female' ? 70 : 90;
+  const vitDTarget = 70;
+  const vitETarget = 15;
+
+const clampPct = (num) => Math.max(0, Math.min(100, Math.round(num)));
+const pct = (val, tgt) => (tgt > 0 ? clampPct(((Number(val) || 0) / tgt) * 100) : 0);
 
   const percent = totalCalories > 0 ? Math.round((totalCalories / cals) * 100) : 0;
   const proteinPercent = proteinTarget > 0 ? Math.round((proteinTotal / proteinTarget) * 100) : 0;
@@ -162,6 +178,21 @@ export default function Nutrition() {
   const [selectedFood, setSelectedFood] = useState(null);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
 
+  const moreBars = [
+    { key: 'sugar', label: 'Sugar', value: sugarTotal, target: sugarTarget, unit: 'g', barColor: '#f5d833'},
+    { key: 'fiber', label: 'Fiber', value: fiberTotal, target: fiberTarget, unit: 'g', barColor: '#33f5d8'},
+    { key: 'iron', label: 'Iron', value: ironTotal, target: ironTarget, unit: 'mg', barColor: '#d833f5'},
+    { key: 'potassium', label: 'Potassium', value: potassiumTotal, target: potassiumTarget, unit: 'mg', barColor: '#f5338c'},
+    { key: 'sodium', label: 'Sodium', value: sodiumTotal, target: sodiumTarget, unit: 'g', barColor: '#33f58c'},
+    { key: 'calcium', label: 'Calcium', value: calciumTotal, target: calciumTarget, unit: 'mg', barColor: '#338cf5'},
+    { key: 'vitamin_A', label: 'Vitamin A', value: vitATotal, target: vitATarget, unit: 'mcg', barColor: '#f5a833'},
+    { key: 'vitamin_B6', label: 'Vitamin B6', value: vitB6Total, target: vitB6Target, unit: 'mg', barColor: '#a8f533'},
+    { key: 'vitamin_B12', label: 'Vitamin B12', value: vitB12Total, target: vitB12Target, unit: 'mcg', barColor: '#33f57f'},
+    { key: 'vitamin_C', label: 'Vitamin C', value: vitCTotal, target: vitCTarget, unit: 'mg', barColor: '#f53333'},
+    { key: 'vitamin_D', label: 'Vitamin D', value: vitDTotal, target: vitDTarget, unit: 'mcg', barColor: '#33a8f5'},
+    { key: 'vitamin_E', label: 'Vitamin E', value: vitETotal, target: vitETarget, unit: 'mg', barColor: '#8c33f5'},
+  ]
+
   const pieValues = useMemo(() => {
   const fatC = Math.max(0, (Number(fatTotal) || 0) * 9);
   const carbC = Math.max(0, (Number(carbsTotal) || 0) * 4);
@@ -169,7 +200,7 @@ export default function Nutrition() {
   return [fatC, carbC, sugC];
 }, [fatTotal, carbsTotal, sugarTotal]);
 
-const engeryPie = useMemo(() => {
+const energyPie = useMemo(() => {
   const fatKcal = Math.max(0, (Number(fatTotal) || 0) * 9);
   const carbKcal = Math.max(0, (Number(carbsTotal) || 0) * 4);
   const sugKcal = Math.max(0, (Number(sugarTotal) || 0) * 4);
@@ -801,7 +832,7 @@ useEffect(() => {
 
               {viewMode === 'pie' && (
                 <Text style={styles.pieCaption}>
-                  Below shows comparisons for Engery, Minerals, and Vitamins
+                  Below shows comparisons for Energy, Minerals, and Vitamins
                 </Text>
               )}
 
@@ -878,8 +909,51 @@ useEffect(() => {
                       <Text style={[styles.text, styles.progressText]}>{fatPercent}%</Text>
                     </View>
                   </View>
-                </>
+
+                  <View style={{width: '92%', marginTop: 14}}>
+                    <TouchableOpacity
+                      onPress={() => setShowMore(v => !v)}
+                      style={styles.seeMoreBtn}
+                      accessibilityRole="button"
+                      accessibilityLabel="See more nutrients"
+                      >
+                        <Text style={styles.seeMoreText}>{showMore ? 'See less' : 'See more'}</Text>
+                        <Text style={styles.seeMoreChevron}>{showMore ? '▲' : '▼'}</Text>
+                      </TouchableOpacity>
+                  </View>
+
+                  {showMore && (
+                    <View style={{ width: '92%', marginTop: 6}}>
+                      {moreBars.map(item => {
+                        const percentage = pct(item.value, item.target);
+                        return (
+                          <View key={item.key} style={styles.progressGroup}>
+                            <View style={styles.progressHeader}>
+                              <Text style={styles.progressTitle}>{item.label}</Text>
+                              <Text style={styles.progressTopValue}>
+                                {Math.round(Number(item.value) || 0)} / {item.target}{item.unit}
+                              </Text>
+                            </View>
+                            <View style={styles.progressRow}>
+                              <View style={styles.progressBarContainer}>
+                                <View
+                                  style={[
+                                    styles.progressBarFill,
+                                    { width: `${percentage}%`, backgroundColor: item.barColor }
+                                  ]}
+                                  />
+                              </View>
+                              <Text style={[styles.text, styles.progressText]}>{percentage}%</Text>
+                            </View>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  )}
+                  </>
               )}
+                  
+
 
               {viewMode === 'macros' && (
                 <>
@@ -936,12 +1010,12 @@ useEffect(() => {
                 <View style={styles.pieWrap}>
                   <PieChart
                     size={240}
-                    values={engeryPie.values}
-                    labels={engeryPie.labels}
-                    colors={engeryPie.colors}
-                    valueLabels={engeryPie.valueLabels}
+                    values={energyPie.values}
+                    labels={energyPie.labels}
+                    colors={energyPie.colors}
+                    valueLabels={energyPie.valueLabels}
                   />
-                  <Text style={styles.pieTitle}>{engeryPie.title}</Text>
+                  <Text style={styles.pieTitle}>{energyPie.title}</Text>
                 </View>
 
                 {/* Minerals Pie Chart */}
@@ -1725,5 +1799,26 @@ const styles = StyleSheet.create({
   },
   detailSectionTitle: {
     color: '#32a852',
-  }
+  },
+  seeMoreBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#32a852',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  seeMoreText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  seeMoreChevron: {
+    color: '#32a852',
+    fontSize: 14,
+    fontWeight: '700',
+  },
 });
