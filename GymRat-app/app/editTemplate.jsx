@@ -1,217 +1,363 @@
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import exercises from '../assets/exercises.json';
 import schema from '../assets/schema.json';
 import ExerciseListModal from '../components/ExerciseListModal';
+import { usePersistedWorkout } from './ongoingWorkout';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
-import { doc, getFirestore, setDoc } from 'firebase/firestore';
-import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
-import { app } from '../firebaseConfig';
-import { useUser } from '../UserContext';
 
-export default function CreateTemplateScreen() {
+export default function EditTemplateScreen() {
   const db = useSQLiteContext();
   const router = useRouter();
-  const [templateName, setTemplateName] = useState('New Template')
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedExercises, setSelectedExercises] = useState([]);
-  const [numOfSets, setNumOfSets] = useState({})
-  var temp = ''
+  const [workoutData, setWorkoutData] = useState(null)
+  const [selectedExercises, setSelectedExercises] = useState([])
+  // Track user-updated values for each set
+  const [updatedExercises, setUpdatedExercises] = useState([])
+  // Read the persisted selected template using the hook
+  const [selectedTemplate] = usePersistedWorkout('selectedTemplate', null);
+  const [userTemplates, setUserTemplates] = useState(null)
+  const [templateName, setTemplateName] = useState(null)
+  const [modalVisible, setModalVisible] = useState(false)
+  const [updatedTemplate, setUpdatedTemplate] = useState(null)
 
-  const { userId, firestoreUserId } = useUser();
-  const dbFirestore = getFirestore(app);
-
-  const saveTemplateToDB = async (user_id, name, templateData) => {
-    try {
-      const jsonData = JSON.stringify(templateData)
-
-      await db.runAsync(
-        `INSERT OR REPLACE INTO workoutTemplates (user_id, name, data) VALUES (?, ?, ?);`,
-        [user_id, name, jsonData]
-      )
-
-      console.log("Template saved!")
-      router.push('/workout')
-
-    } catch (error) {
-      console.error("Error saving template: ", error)
-    }
-  }
-
-  const saveTemplateToFirestore = async (userId, name, templateData) => {
-    try {
-      const userRef = doc(dbFirestore, `users/${userId}/workoutTemplates/${name}`);
-      await setDoc(userRef, {
-        name,
-        data: templateData,
-        createdAt: new Date().toISOString(),
-      });
-
-      console.log('Template saved to Firestore!');
-      router.push('/workout');
-    } catch (error) {
-      console.error('Error saving to Firestore:', error);
-    }
-  };
-
-  const handleSave = async () => {
-    const templateData = {
-      exercises: selectedExercises.map(ex => ({
-        name: ex.name,
-        id: ex.id,
-        sets: numOfSets[ex.id] || []
-      }))
-    }
-
-    if (!firestoreUserId) {
-      console.error("No Firestore user ID found");
+  useEffect(() => {
+    if (!selectedTemplate) {
+      setWorkoutData(null);
+      setSelectedExercises([]);
+      setUpdatedExercises([]);
       return;
     }
+    const fetchWorkout = async () => {
+      try {
+        setUserTemplates(await db.getAllAsync(
+          `SELECT * FROM workoutTemplates`
+        ))
+        const rows = await db.getAllAsync(
+          `SELECT * FROM workoutTemplates WHERE id = ?`,
+          [selectedTemplate.id]
+        );
+        if (rows && rows.length > 0) {
+          const workout = rows[0]
+          setWorkoutData(workout)
+          console.log('Found row:', rows[0]);
+          if (workout.data) {
+            const parsed = JSON.parse(workout.data);
+            setSelectedExercises(parsed.exercises || []);
+            // Deep copy for user editing
+            setUpdatedExercises(JSON.parse(JSON.stringify(parsed.exercises || [])));
+          }
+          else { 
+            setSelectedExercises([])
+            setUpdatedExercises([])
+          }
+        } else {
+          setWorkoutData(null);
+          setSelectedExercises([]);
+          setUpdatedExercises([]);
+          //console.log(`No row found with id = ${template.id}`);
+        }
+      } catch (err) {
+        console.error(err.message);
+        setWorkoutData(null);
+        setSelectedExercises([]);
+        setUpdatedExercises([]);
+      }
+    }
+    fetchWorkout();
+  }, [selectedTemplate]);
 
-    await saveTemplateToFirestore(firestoreUserId, templateName, templateData);
-    // right now hardcoding user_id = 1, later replace with actual logged in user
-    await saveTemplateToDB(userId, templateName, templateData);
-  }
-
-  const ExerciseSetComponent = ({ index, itemId }) => {
-    const setData = numOfSets[itemId][index];
-
-    const handleWeightChange = (text) => {
-      setNumOfSets((prev) => {
-        const sets = [...prev[itemId]];
-        sets[index] = { ...sets[index], weight: text };
-        return { ...prev, [itemId]: sets };
-      });
-    };
-
-    const handleRepsChange = (text) => {
-      setNumOfSets((prev) => {
-        const sets = [...prev[itemId]];
-        sets[index] = { ...sets[index], reps: text };
-        return { ...prev, [itemId]: sets };
-      });
-    };
-
-    let numString = '' + (index + 1)
-  
-    return (
-      <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 5}}>
-        <Text style={standards.regularText}>{numString.padEnd(3, ' ')}</Text>
-        <Text style={[standards.regularText, {paddingLeft: 65, paddingRight: 40}]}>-</Text>
-        <TextInput
-        style={styles.templateInput}
-        onChangeText={(val) => temp = val}
-        onEndEditing={() => {setData.weight;handleWeightChange(temp)}}
-        defaultValue={setData.weight}
-        placeholder='-'
-        keyboardType='numeric'
-        placeholderTextColor={'#000'}
-        />
-        <TextInput
-        style={styles.templateInput}
-        onChangeText={(val) => temp = val}
-        onEndEditing={() => {setData.reps;handleRepsChange(temp)}}
-        defaultValue={setData.reps}
-        placeholder='-'
-        keyboardType='numeric'
-        placeholderTextColor={'#000'}
-        />
-      </View>
-    )}
-
-  const handleAddSets = (itemId) => {
-    setNumOfSets((prev) => {
-      const current = prev[itemId] || [];
-      return {
-        ...prev,
-        [itemId]: [...current, { weight: '', reps: '' }],
-      };
-    });
+  const updateWorkoutTemplateInFirestore = async (userId, name, updatedExercises) => {
+    try {
+      const docRef = doc(dbFirestore, `users/${userId}/workoutTemplates/${name}`);
+      await setDoc(docRef, {
+        data: { exercises: updatedExercises },
+        lastUpdated: new Date().toISOString(),
+      },
+      { merge: true }
+    );
+      console.log('Workout template updated in Firestore');
+    } catch (error) {
+      console.error('Error updating Firestore template:', error);
+    }
   };
 
-  const renderItem = ({ item, drag}) => (
-    <ScaleDecorator>
-      <TouchableOpacity onLongPress={drag}>
-        <Text style={standards.regularText}>{item.name}</Text>
+  // Save updated workout to DB
+  const saveUpdatedWorkout = async () => {
+    console.log("old template: ", selectedTemplate)
+    console.log("updated exercises: ", updatedExercises)
+    console.log("updated template name: ", templateName)
+    // setUpdatedTemplate({
+    //   ...selectedTemplate,
+    //   data: JSON.parse(selectedTemplate.data),
+    // });
+    // setUpdatedTemplate({...updatedTemplate, name: templateName, data: {exercises: updatedExercises}})
+    // try {
+    //   await db.runAsync(
+    //     `UPDATE workoutTemplates SET name = ? data = ? WHERE id = ?`,
+    //     [updatedTemplate.name, updatedTemplate.data, workoutData.id]
+    //   )
+    // }
+    // catch (err) {
+    //   console.error('Failed to update workout:', err.message);
+    // }
+  };
 
-        <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 5}}>
-          <Text style={standards.regularText}>Set</Text>
-          <Text style={standards.regularText}>Previous</Text>
-          <Text style={standards.regularText}>lbs</Text>
-          <Text style={standards.regularText}>Reps</Text>
+  const deleteExercise = (exercise) => {
+    let updatedExercises = []
+
+    let j = 0;
+    for (let i = 0; i < selectedExercises.length; i++) {
+      if (exercise != selectedExercises[i]) {
+        updatedExercises[j] = selectedExercises[i]
+        console.log('Exercise ' + i + ' not deleted')
+        j++
+      }
+    }
+
+    setSelectedExercises(updatedExercises)
+    //console.log('updated exercises: ' + selectedExercises)
+  }
+
+  const handleAddSets = (exerciseId) => {
+    // Immutable update: produce a new array and new exercise object
+    setSelectedExercises(prev =>
+      (prev || []).map(ex => {
+        if (ex.id === exerciseId) {
+          return {
+            ...ex,
+            sets: [...(Array.isArray(ex.sets) ? ex.sets : []), { weight: null, reps: null }],
+          };
+        }
+        return ex;
+      })
+    );
+
+    setUpdatedExercises(prev =>
+      (prev || []).map(ex => {
+        if (ex.id === exerciseId) {
+          return {
+            ...ex,
+            sets: [...(Array.isArray(ex.sets) ? ex.sets : []), { weight: null, reps: null }],
+          };
+        }
+        return ex;
+      })
+    )
+  };
+
+  const handleWeightInput = (newWeight, exerciseId, setIndex) => {
+    setUpdatedExercises(prev =>
+      (prev || []).map(exercise => {
+        // If this is the exercise to update
+        if (exercise.id === exerciseId) {
+          return {
+            ...exercise,
+            sets: (exercise.sets || []).map((set, i) => {
+              if (i + 1 === setIndex) {
+                return { ...set, weight: newWeight }
+              }
+              return set
+            }),
+          }
+        }
+
+        // Return unchanged exercise
+        return exercise
+      })
+    )
+  }
+
+  const handleRepsInput = (newReps, exerciseId, setIndex) => {
+    setUpdatedExercises(prev =>
+      (prev || []).map(exercise => {
+        // If this is the exercise to update
+        if (exercise.id === exerciseId) {
+          return {
+            ...exercise,
+            sets: (exercise.sets || []).map((set, i) => {
+              if (i + 1 === setIndex) {
+                return { ...set, reps: newReps }
+              }
+              return set
+            }),
+          }
+        }
+
+        // Return unchanged exercise
+        return exercise
+      })
+    )
+  }
+
+  const renderItem = ({ item, index, drag }) => {
+    let setIndex = 0
+    
+    return (
+      <ScaleDecorator>
+        <View style={{marginBottom: '2.5%'}}>
+          <TouchableOpacity onLongPress={drag} style={styles.exerciseContainer}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={standards.regularText}>{item.name ? item.name : 'Exercise Not Found'}</Text>
+              {/* {console.log(item.name)} */}
+              <TouchableOpacity onPress = {() => {deleteExercise(item)}}>
+                <Image style={{width: 25, height: 25}} source={require('../assets/images/white-trash-can.png')}/>
+              </TouchableOpacity>
+            </View>
+
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 5}}>
+              <Text style={standards.regularText}>Set</Text>
+              <Text style={standards.regularText}>Previous</Text>
+              <Text style={standards.regularText}>lbs</Text>
+              <Text style={standards.regularText}>Reps</Text>
+            </View>
+
+
+            {item.sets.map((set) => {
+              setIndex++
+
+              return(
+                <View key={setIndex} style={{flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 10, paddingLeft: 10}}>
+
+                  <Text style={[standards.regularText, {flex: 3}]}>{setIndex}</Text>
+
+                  {set.weight ? 
+                    <Text style={[standards.regularText, {flex: 3}]}>{set.weight + ' x ' + set.reps}</Text>
+                    :
+                    <Text style={[standards.regularText, {flex: 2}]}>-</Text>
+                  }
+
+                  <TextInput
+                  style={[styles.templateInput, {flex: 2, marginHorizontal: 10}]}
+                  onChangeText={() => {}}
+                  onEndEditing={(text) => {handleWeightInput(text, item.id, setIndex)}}
+                  defaultValue={set.weight}
+                  placeholder='-'
+                  keyboardType='numeric'
+                  placeholderTextColor={'#000'}
+                  />
+
+                  <TextInput
+                  style={[styles.templateInput, {flex: 2, marginHorizontal: 10}]}
+                  onChangeText={() => {}}
+                  onEndEditing={(text) => {handleRepsInput(text, item.id, setIndex)}}
+                  defaultValue={set.reps}
+                  placeholder='-'
+                  keyboardType='numeric'
+                  placeholderTextColor={'#000'}
+                  />
+
+                </View>
+              )
+            })}
+
+            <TouchableOpacity 
+            style={{backgroundColor: '#375573', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
+            onPress={() => {handleAddSets(item.id)}}
+            >
+              <Text style={standards.regularText}>Add Set</Text>
+            </TouchableOpacity>
+
+          </TouchableOpacity>
         </View>
-
-        {(numOfSets[item.id] || []).map((_, index) => (
-          <ExerciseSetComponent key={`${String(item.id ?? 'noid')}-${index}`} index={index} itemId={item.id}/>
-        ))}
-
-        <TouchableOpacity 
-        style={{backgroundColor: '#375573', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
-        onPress={() => handleAddSets(item.id)}
-        >
-          <Text style={standards.regularText}>Add Set</Text>
-        </TouchableOpacity>
-      </TouchableOpacity>
-    </ScaleDecorator>
-  );
+      </ScaleDecorator>
+  )};
 
   return(
-      <SafeAreaProvider>
-          <View style={[styles.container, {backgroundColor: '#1a1b1c'}]}
-          >
-            <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, padding: 10, gap: 10}}>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-                <TouchableOpacity onPress={router.back}>
-                  <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
-                </TouchableOpacity>
+    <SafeAreaView style={{flex: 1, backgroundColor: '#1a1b1c', padding: 10}}>
+      <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+        <TouchableOpacity onPress={router.back}>
+          <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
+        </TouchableOpacity>
 
-                <Text style={standards.headerText}>Edit Template</Text>
+        <Text style={standards.headerText}>Edit Template</Text>
 
-                <TouchableOpacity onPress={handleSave}>
-                  <Image style={{width: '25', height: '25'}} source={require('../assets/images/check-mark.png')}/>
-                </TouchableOpacity>
-              </View>
+        <TouchableOpacity onPress={() => {saveUpdatedWorkout()}}>
+          <Image style={{width: '25', height: '25'}} source={require('../assets/images/check-mark.png')}/>
+        </TouchableOpacity>
+      </View>
 
-              <TextInput
-              style={[standards.headerText, {padding: 10}]}
-              onChangeText={setTemplateName}
-              value={templateName}
-              />
+      <TextInput
+      style={[standards.headerText, {padding: 20}]}
+      onChangeText={setTemplateName}
+      defaultValue={workoutData ? workoutData.name : 'No Workout found'}
+      />
 
-              <DraggableFlatList
-              data={selectedExercises}
-              onDragEnd={({data}) => setSelectedExercises(data)}
-              keyExtractor={(item, index) => String(item.id ?? index)}
-              renderItem={renderItem}
-              />
+      <DraggableFlatList
+      data={selectedExercises}
+      onDragEnd={({data}) => setSelectedExercises(data)}
+      keyExtractor={(item, index) => String(item.id ?? index)}
+      renderItem={renderItem}
+      containerStyle={{height: screenHeight * 0.775, paddingBottom: 10}}
+      />
 
-              <TouchableOpacity 
-              style={styles.button}
-              onPress={() => setModalVisible(true)}
-              >
-                <Text style={standards.regularText}>Add Exercises</Text>
-              </TouchableOpacity>
+      <TouchableOpacity 
+      style={styles.button}
+      onPress={() => setModalVisible(true)}
+      >
+        <Text style={standards.regularText}>Add Exercises</Text>
+      </TouchableOpacity>
 
-              <ExerciseListModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                exercises={exercises}
-                schema={schema}
-                selectedExercises={selectedExercises}
-                onSelect={setSelectedExercises}
-              />
+      <ExerciseListModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        exercises={exercises}
+        schema={schema}
+        selectedExercises={selectedExercises}
+        onSelect={(selected) => {
+          // The modal may pass either:
+          //  - a full updated array (e.g. [...selectedExercises, newItem])
+          //  - or a single exercise object (if modal behavior changes in future)
+          // Merge into current state and dedupe by `id`, preserving previous items.
+          setSelectedExercises((prev = []) => {
+            // ensure prev is an array
+            const prevArr = Array.isArray(prev) ? prev : [];
 
-            </SafeAreaView>
-            
-          </View>
-      </SafeAreaProvider>
+            // helper to push unique by id
+            const pushIfNew = (out, ex, seen) => {
+              if (!ex) return;
+              const id = ex.id ?? ex._id ?? null;
+              if (id == null) {
+                // no id: try to avoid duplicates by reference
+                if (!out.includes(ex)) out.push(ex);
+                return;
+              }
+              if (!seen.has(id)) {
+                out.push(ex);
+                seen.add(id);
+              }
+            };
+
+            const result = [];
+            const seen = new Set();
+
+            // start with existing items
+            for (const ex of prevArr) {
+              pushIfNew(result, ex, seen);
+            }
+
+            if (Array.isArray(selected)) {
+              for (const ex of selected) {
+                pushIfNew(result, ex, seen);
+              }
+            } else {
+              pushIfNew(result, selected, seen);
+            }
+
+            console.log('selectedExercises merged ->', result);
+            return result;
+          });
+        }}
+      />
+
+    </SafeAreaView>
   )
 }
 
@@ -220,6 +366,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  exerciseContainer: {
+    padding: '2%',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#375573',
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
   text: {
     flex: 1,

@@ -208,7 +208,7 @@ export default function App() {
           );`
         );
 
-        //await db.execAsync(`DROP TABLE IF EXISTS weightHistory;`);  
+        await db.execAsync(`DROP TABLE IF EXISTS weightHistory;`);  
         //await db.runAsync('UPDATE users SET hasOnboarded = ?', [0])
 
         await db.execAsync(

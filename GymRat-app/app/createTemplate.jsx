@@ -189,48 +189,50 @@ export default function CreateTemplateScreen() {
       <SafeAreaProvider>
           <View style={[styles.container, {backgroundColor: '#1a1b1c'}]}
           >
-            <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth, padding: 10, gap: 10}}>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-                <TouchableOpacity onPress={router.back}>
-                  <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
+            <SafeAreaView style={{ flex: 1, width: screenWidth, padding: 10, gap: 10}}>
+              <View>
+                <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                  <TouchableOpacity onPress={router.back}>
+                    <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
+                  </TouchableOpacity>
+
+                  <Text style={standards.headerText}>New Template</Text>
+
+                  <TouchableOpacity onPress={handleSave}>
+                    <Image style={{width: '25', height: '25'}} source={require('../assets/images/check-mark.png')}/>
+                  </TouchableOpacity>
+                </View>
+
+                <TextInput
+                style={[standards.headerText, {padding: 10}]}
+                onChangeText={setTemplateName}
+                value={templateName}
+                />
+
+                <DraggableFlatList
+                data={selectedExercises}
+                onDragEnd={({data}) => setSelectedExercises(data)}
+                keyExtractor={(item, index) => String(item.id ?? index)}
+                renderItem={renderItem}
+                containerStyle={{height: screenHeight * 0.775, paddingBottom: 10}}
+                />
+
+                <TouchableOpacity 
+                style={styles.button}
+                onPress={() => setModalVisible(true)}
+                >
+                  <Text style={standards.regularText}>Add Exercises</Text>
                 </TouchableOpacity>
 
-                <Text style={standards.headerText}>New Template</Text>
-
-                <TouchableOpacity onPress={handleSave}>
-                  <Image style={{width: '25', height: '25'}} source={require('../assets/images/check-mark.png')}/>
-                </TouchableOpacity>
+                <ExerciseListModal
+                  visible={modalVisible}
+                  onClose={() => setModalVisible(false)}
+                  exercises={exercises}
+                  schema={schema}
+                  selectedExercises={selectedExercises}
+                  onSelect={(setSelectedExercises)}
+                />
               </View>
-
-              <TextInput
-              style={[standards.headerText, {padding: 10}]}
-              onChangeText={setTemplateName}
-              value={templateName}
-              />
-
-              <DraggableFlatList
-              data={selectedExercises}
-              onDragEnd={({data}) => setSelectedExercises(data)}
-              keyExtractor={(item, index) => String(item.id ?? index)}
-              renderItem={renderItem}
-              />
-
-              <TouchableOpacity 
-              style={styles.button}
-              onPress={() => setModalVisible(true)}
-              >
-                <Text style={standards.regularText}>Add Exercises</Text>
-              </TouchableOpacity>
-
-              <ExerciseListModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                exercises={exercises}
-                schema={schema}
-                selectedExercises={selectedExercises}
-                onSelect={(setSelectedExercises)}
-              />
-
             </SafeAreaView>
             
           </View>

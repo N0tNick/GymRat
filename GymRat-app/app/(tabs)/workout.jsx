@@ -1,8 +1,10 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { collection, deleteDoc, doc, getDocs, query, where } from "firebase/firestore";
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Dimensions, FlatList, Modal, ScrollView, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,12 +14,10 @@ import ExerciseCreationModal from '../../components/exerciseCreationModal';
 import JimRatWorkout from '../../components/jimRatWorkout';
 import { WorkoutOnboardModal } from '../../components/Onboarding/onboard';
 import WorkoutModal from '../../components/WorkoutModal';
+import { fbdb } from "../../firebaseConfig";
 import { useUser } from '../../UserContext';
 import { cals } from '../goal';
 import { usePersistedBoolean, usePersistedWorkout } from '../ongoingWorkout';
-import { collection, query, where, getDocs, doc, deleteDoc } from "firebase/firestore";
-import { fbdb } from "../../firebaseConfig";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const { height: screenHeight } = Dimensions.get('window');
