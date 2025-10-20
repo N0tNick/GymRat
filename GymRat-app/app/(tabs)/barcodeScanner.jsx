@@ -500,7 +500,7 @@ export default function BarcodeScannerScreen() {
               <View style={styles.scanFrame} />
               <Text style={styles.scanText}>Align barcode within the frame</Text>  
 
-              <TouchableOpacity color="#e0e0e0" onPress={() => Linking.openURL("https://www.fatsecret.com")}>
+            <TouchableOpacity color="#e0e0e0" onPress={() => Linking.openURL("https://www.fatsecret.com")}>
               {/*<!-- Begin fatsecret Platform API HTML Attribution Snippet -->*/}
               <Text style={styles.linkText} href="https://www.fatsecret.com">Powered by fatsecret</Text>
               {/*<!-- End fatsecret Platform API HTML Attribution Snippet -->*/}
@@ -526,7 +526,7 @@ export default function BarcodeScannerScreen() {
                 style={{ alignSelf: 'flex-start', marginBottom: 10 }}
                 onPress={() => { setShowNutritionModal(false); resetScanner() }} // close modal
               >
-                <Text style={{ color: '#e0e0e0', fontSize: 18, fontWeight: "bold" }}>X</Text>
+                <Image style={{width: '20', height: '20'}} source={require('../../assets/images/xButton.png')}/>
               </TouchableOpacity>
 
               {loading ? (
@@ -638,7 +638,7 @@ export default function BarcodeScannerScreen() {
 
                       <TouchableOpacity color="#e0e0e0" onPress={() => Linking.openURL("https://www.fatsecret.com")}>
                         {/*<!-- Begin fatsecret Platform API HTML Attribution Snippet -->*/}
-                        <Text color="#e0e0e0" href="https://www.fatsecret.com">Powered by fatsecret</Text>
+                        <Text style={styles.linkText} href="https://www.fatsecret.com">Powered by fatsecret</Text>
                         {/*<!-- End fatsecret Platform API HTML Attribution Snippet -->*/}
                       </TouchableOpacity>
                     </>

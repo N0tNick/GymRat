@@ -22,6 +22,8 @@ import com.reactnativegooglesignin.RNGoogleSigninPackage;
 import com.reactnativecommunity.picker.RNCPickerPackage;
 // expo
 import expo.modules.ExpoModulesPackage;
+// react-native-date-picker
+import com.henninghall.date_picker.DatePickerPackage;
 // react-native-gesture-handler
 import com.swmansion.gesturehandler.RNGestureHandlerPackage;
 // react-native-pager-view
@@ -38,8 +40,6 @@ import com.horcrux.svg.SvgPackage;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
 // react-native-worklets
 import com.swmansion.worklets.WorkletsPackage;
-// react-native-vector-icons
-import com.oblador.vectoricons.VectorIconsPackage;
 
 @SuppressWarnings("deprecation")
 public class PackageList {
@@ -92,6 +92,7 @@ public class PackageList {
       new RNGoogleSigninPackage(),
       new RNCPickerPackage(),
       new ExpoModulesPackage(),
+      new DatePickerPackage(),
       new RNGestureHandlerPackage(),
       new PagerViewPackage(),
       new ReanimatedPackage(),
@@ -99,8 +100,7 @@ public class PackageList {
       new RNScreensPackage(),
       new SvgPackage(),
       new RNCWebViewPackage(),
-      new WorkletsPackage(),
-      new VectorIconsPackage()
+      new WorkletsPackage()
     ));
   }
 }

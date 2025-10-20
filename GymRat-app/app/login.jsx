@@ -84,7 +84,7 @@ export default function LoginScreen() {
           console.log("Created new Firestore user with ID:", firestoreUserId);
         
           // Initialize empty subcollections
-          const subcollections = ["customExercises", "historyLog", "userStats", "workoutLog", "workoutTemplates"];
+          const subcollections = ["customExercises", "historyLog", "userStats", "workoutLog", "workoutTemplates", "userStreaks"];
           for (const sub of subcollections) {
             const subRef = collection(fbdb, "users", firestoreUserId, sub);
             await addDoc(subRef, { initialized: true }); // dummy field so Firestore creates it
