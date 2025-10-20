@@ -5,8 +5,8 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 //images for jim rat on home home screen
 const jimRatImages = {
   1: require("../assets/JimRatHome1.png"),
-  2: require("../assets/JimRatHome2.png"),
-  3: require("../assets/JimRatHome3.png"),
+  14: require("../assets/JimRatHome2.png"),
+  28: require("../assets/JimRatHome3.png"),
 }
 
 // Tip definitions for daily nutrition
