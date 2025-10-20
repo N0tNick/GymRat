@@ -770,7 +770,7 @@ useEffect(() => {
   return (
     <View style={styles.container}>
       <LinearGradient style={styles.gradient} colors={['#32a852', '#1a1b1c']} locations={[0,0.15]}>
-        <SafeAreaView style={[styles.container, {marginBottom: '20%'}]}>
+        <SafeAreaView style={[styles.container]}>
           <ScrollView 
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
@@ -950,9 +950,25 @@ useEffect(() => {
                       })}
                     </View>
                   )}
+                    <View style={styles.fabRow}>
+                      <TouchableOpacity
+                        style={styles.historyButton}
+                        onPress={() => setHistoryVisible(true)}
+                      >
+                        <Text style={styles.historyIcon}>≡</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.addButton}
+                        onPress={() => setFoodModalVisible(true)}
+                      >
+                        <Text style={styles.plusSign}>+</Text>
+                      </TouchableOpacity>
+                    </View>
                   </>
               )}
-                  
+
+
 
 
               {viewMode === 'macros' && (
@@ -1045,29 +1061,6 @@ useEffect(() => {
               )}
             </View>
           </ScrollView>
-
-          {/* <TouchableOpacity
-            style={styles.loginButton}
-            onPress={() => router.push('/login')}
-          >
-            <Text style={styles.loginButtonText}>
-              Go to Login
-            </Text>
-          </TouchableOpacity> */}
-
-          <TouchableOpacity
-            style={styles.historyButton}
-            onPress={() => setHistoryVisible(true)}
-          >
-            <Text style={styles.historyIcon}>≡</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setFoodModalVisible(true)}
-          >
-            <Text style={styles.plusSign}>+</Text>
-          </TouchableOpacity>
         </SafeAreaView>
       </LinearGradient>
 
@@ -1338,12 +1331,13 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     paddingVertical: 20,
+    paddingBottom: 100,
   },
   content: { 
-    justifyContent: 'center', 
+    justifyContent: 'flex-start', 
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: 20,
@@ -1355,8 +1349,8 @@ const styles = StyleSheet.create({
   },
 
   addButton: {
-    position: 'absolute',
-    bottom: 50,
+    //position: 'absolute',
+    bottom: 10,
     right: 20,
     width: 60,
     height: 60,
@@ -1616,8 +1610,8 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   historyButton: {
-    position: 'absolute',
-    bottom: 50,
+    //position: 'absolute',
+    bottom: 10,
     left: 20,
     width: 60,
     height: 60,
@@ -1821,4 +1815,71 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
+  actionsWrap: {
+    width: '92%',
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+
+primaryAction: {
+  flex: 1,
+  height: 48,
+  borderRadius: 10,
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: '#32a852',
+  borderWidth: 1,
+  borderColor: '#32a852',
+},
+
+secondaryAction: {
+  flex: 1,
+  height: 48,
+  borderRadius: 10,
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: 'rgba(255,255,255,0.08)',
+  borderWidth: 1,
+  borderColor: '#32a852',
+},
+
+actionText: {
+  color: '#fff',
+  fontSize: 16,
+  fontWeight: '700',
+},
+fabInlineRow: {
+  width: '92%',
+  flexDirection: 'row',
+  justifyContent: 'flex-end',
+  alignItems: 'center',
+  marginTop: 12,
+  marginBottom: 4,
+},
+
+fabInline: {
+  width: 60,
+  height: 60,
+  backgroundColor: 'rgba(255,255,255,0.08)',
+  borderRadius: 8,
+  justifyContent: 'center',
+  alignItems: 'center',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+  borderWidth: 1,
+  borderColor: '#32a852',
+},
+fabRow: {
+  width: '92%',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginTop: 14,
+  marginBottom: 8,
+  marginTop: 20,
+},
 });
