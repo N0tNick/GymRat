@@ -8,7 +8,7 @@ const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
 import { addDoc, collection, doc, getFirestore, setDoc } from 'firebase/firestore';
-import { app } from '../firebaseConfig'; // adjust path if needed
+import { app } from '../firebaseConfig';
 import { useUser } from '../UserContext';
 
 export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplates,template, finishWorkout}) {
@@ -99,16 +99,21 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
     fetchWorkout();
   }, [template]);
 
-  const updateWorkoutTemplateInFirestore = async (userId, name, updatedExercises) => {
+  const updateWorkoutTemplateInFirestore = async (userId, name, updatedExercises, isExample = false) => {
     try {
-      const docRef = doc(dbFirestore, `users/${userId}/workoutTemplates/${name}`);
-      await setDoc(docRef, {
-        data: { exercises: updatedExercises },
-        lastUpdated: new Date().toISOString(),
-      },
-      { merge: true }
-    );
-      console.log('Workout template updated in Firestore');
+      const targetCollection = isExample ? 'exampleWorkoutTemplates' : 'workoutTemplates';
+      const docRef = doc(dbFirestore, `users/${userId}/${targetCollection}/${name}`);
+
+      await setDoc(
+        docRef,
+        {
+          data: { exercises: updatedExercises },
+          lastUpdated: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+
+      console.log(`Workout template updated in Firestore (${targetCollection})`);
     } catch (error) {
       console.error('Error updating Firestore template:', error);
     }
@@ -250,14 +255,15 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
             await updateWorkoutTemplateInFirestore(
               firestoreUserId,
               workoutData.name,
-              updatedExercises
+              updatedExercises,
+              false
             );
             await insertWorkoutLogToFirestore(
               firestoreUserId,
               workoutData.name
             );
           } else {
-            console.warn('⚠️ No Firestore user ID found; skipping cloud update');
+            console.warn('No Firestore user ID found; skipping cloud update');
           }
         } catch (err) {
           console.error('Failed to update workout:', err.message);
@@ -281,20 +287,21 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
             [template.id]
           );
           console.log(workRows[0])
-          console.log('Workout updated!');
+          console.log('Example workout updated!');
 
           if (firestoreUserId) {
             await updateWorkoutTemplateInFirestore(
               firestoreUserId,
               workoutData.name,
-              updatedExercises
+              updatedExercises,
+              true
             );
             await insertWorkoutLogToFirestore(
               firestoreUserId,
               workoutData.name
             );
           } else {
-            console.warn('⚠️ No Firestore user ID found; skipping cloud update');
+            console.warn('No Firestore user ID found; skipping cloud update');
           }
         } catch (err) {
           console.error('Failed to update workout:', err.message);

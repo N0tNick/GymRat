@@ -1,7 +1,40 @@
-// utils/syncUser.js
 import { collection, getDocs, addDoc, doc, setDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fbdb } from '../firebaseConfig.js';
+
+async function ensureExampleWorkoutTemplates(firestoreUserId, db) {
+  try {
+    const colRef = collection(fbdb, 'users', firestoreUserId, 'exampleWorkoutTemplates');
+    const snap = await getDocs(colRef);
+
+    if (!snap.empty) {
+      console.log('exampleWorkoutTemplates already exists in Firestore');
+      return;
+    }
+
+    console.log('uploading exampleWorkoutTemplates from local SQLite for:', firestoreUserId);
+
+    // Pull all from local SQLite
+    const localExamples = await db.getAllAsync(
+      'SELECT name, data FROM exampleWorkoutTemplates'
+    );
+
+    if (localExamples && localExamples.length > 0) {
+      for (const example of localExamples) {
+        await addDoc(colRef, {
+          name: example.name ?? 'Untitled',
+          data: JSON.parse(example.data ?? '{}'),
+          initialized: true,
+        });
+      }
+      console.log(`Uploaded ${localExamples.length} exampleWorkoutTemplates to Firestore`);
+    } else {
+      console.warn('No local exampleWorkoutTemplates found to upload.');
+    }
+  } catch (err) {
+    console.error('Failed to ensure exampleWorkoutTemplates:', err);
+  }
+}
 
 export async function syncFirestoreToSQLite({ firestoreUserId, userId, db }) {
   if (!firestoreUserId || !userId || !db) {
@@ -11,12 +44,15 @@ export async function syncFirestoreToSQLite({ firestoreUserId, userId, db }) {
 
   console.log(`Starting Firestore→SQLite sync for user: ${firestoreUserId}`);
 
+  await ensureExampleWorkoutTemplates(firestoreUserId, db);
+
   const collectionsToSync = [
     'customExercises',
     'historyLog',
     'userStats',
     'workoutLog',
     'workoutTemplates',
+    'exampleWorkoutTemplates',
     'userStreaks',
   ];
 
@@ -176,6 +212,22 @@ export async function syncFirestoreToSQLite({ firestoreUserId, userId, db }) {
             if (!exists) {
               await db.runAsync(
                 `INSERT INTO workoutTemplates (user_id, name, data)
+                 VALUES (?, ?, ?)`,
+                [userId, data.name ?? 'Untitled', JSON.stringify(data.data ?? {})]
+              );
+              imported++;
+            }
+            break;
+          }
+
+          case 'exampleWorkoutTemplates': {
+            const exists = await db.getFirstAsync(
+              'SELECT id FROM exampleWorkoutTemplates WHERE name = ? AND user_id = ?',
+              [data.name, userId]
+            );
+            if (!exists) {
+              await db.runAsync(
+                `INSERT INTO exampleWorkoutTemplates (user_id, name, data)
                  VALUES (?, ?, ?)`,
                 [userId, data.name ?? 'Untitled', JSON.stringify(data.data ?? {})]
               );
