@@ -7,6 +7,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { data } from './nutsplash';
 import { useSQLiteContext } from 'expo-sqlite';
 import standards from '../components/ui/appStandards'
+import { useUser } from '../UserContext';
 
 
 const { height: ScreenHeight } = Dimensions.get('window');
@@ -16,7 +17,7 @@ const userData = data
 
 export let cals = 0
 
-const calcCalories = ({ goal, speed }) => {
+const calcCalories = ({ goal, speed, userId }) => {
     const weight = (data.find(item => item.id === 'weight').val) / 2.205 // in kg
     const height = ((data.find(item => item.id === 'height').val)[0] * 12 + (data.find(item => item.id === 'height').val)[1]) * 2.54 // in centimeters
 
@@ -67,6 +68,7 @@ function calculateAge(birthDateString, referenceDateString = new Date().toISOStr
 
 const SetGoalSpeed = ({ goal, onBack }) => {
     const [sliderValue, setSliderValue] = React.useState(.25);
+    const {userId} = useUser();
 
     const db = useSQLiteContext()
     
@@ -94,59 +96,55 @@ const SetGoalSpeed = ({ goal, onBack }) => {
     }
 
     return (
-                    <View style={[styles.inputContainer, {alignSelf:'center', height:'35%'}]}>
-                        <Text style={[standards.headerText, {fontSize:24, textAlign:'center'}]}>How fast do you want to {goal} weight?</Text>
-                        <Text style={[standards.regularText, {fontSize:24}]}>{sliderValue} lbs/week</Text>
-                        <Slider
-                            style={{width:200, height:40}}
-                            minimumValue={.25}
-                            maximumValue={2}
-                            minimumTrackTintColor="#FFFFFF"
-                            maximumTrackTintColor="#000000"
-                            step={.25}
-                            tapToSeek
-                            onValueChange={setSliderValue}
-                        />
-                        <View style={{flexDirection:'row', justifyContent:'space-between'}}>
-                            <TouchableOpacity
-                                style={[styles.saveButton, styles.nextButton]}
-                                onPress={onBack}
-                            >
-                                <Text style={[standards.regularText, { fontSize:20 }]}>Back</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.saveButton, styles.nextButton]}
-                                onPress={() => {
-                                    cals = Math.round(calcCalories({ goal, speed: sliderValue }));
-
-                                    const saveDailyCals = async () => {
-                                      try {
-                                        const user = await db.getFirstAsync('SELECT id FROM users');
-                                        await db.runAsync('UPDATE userStats SET dailyCals = ? WHERE user_id = ?', [cals.toString(), user.id]);
-                                        console.log('Daily calories saved:', cals);
-                                      } catch (error) {
-                                        console.error('Error saving dailyCals:', error);
-                                      }
-                                    };
-
-                                    saveDailyCals();
-
-                                    handleOnboarded();
-                                    insertGoalSpeed();
-                                    router.navigate({
-                                        pathname: '/home',
-                                        params: { refresh: Date.now() } 
-                                    });
-            
-                                    setTimeout(() => {
-                                        router.replace('/(tabs)/home');
-                                    }, 800);
-                                }}  
-                            >
-                                <Text style={[standards.regularText, { fontSize:20 }]}>Save</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
+            <View style={[styles.inputContainer, {alignSelf:'center', height:'35%'}]}>
+                <Text style={[standards.headerText, {fontSize:24, textAlign:'center'}]}>How fast do you want to {goal} weight?</Text>
+                <Text style={[standards.regularText, {fontSize:24}]}>{sliderValue} lbs/week</Text>
+                <Slider
+                    style={{width:200, height:40}}
+                    minimumValue={.25}
+                    maximumValue={2}
+                    minimumTrackTintColor="#FFFFFF"
+                    maximumTrackTintColor="#000000"
+                    step={.25}
+                    tapToSeek
+                    onValueChange={setSliderValue}
+                />
+                <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                    <TouchableOpacity
+                        style={[styles.saveButton, styles.nextButton]}
+                        onPress={onBack}
+                    >
+                        <Text style={[standards.regularText, { fontSize:20 }]}>Back</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.saveButton, styles.nextButton]}
+                        onPress={() => {
+                            cals = Math.round(calcCalories({ goal, speed: sliderValue }))
+                            const saveDailyCals = async () => {
+                              try {
+                                await db.runAsync('UPDATE userStats SET dailyCals = ? WHERE user_id = ?', [cals.toString(), userId]);
+                                console.log('Daily calories saved:', cals);
+                              } catch (error) {
+                                console.error('Error saving dailyCals:', error);
+                              }
+                            }
+                            saveDailyCals()
+                            handleOnboarded();
+                            insertGoalSpeed();
+                            router.navigate({
+                                pathname: '/home',
+                                params: { refresh: Date.now() } 
+                            });
+    
+                            setTimeout(() => {
+                                router.replace('/(tabs)/home');
+                            }, 800);
+                        }}  
+                    >
+                        <Text style={[standards.regularText, { fontSize:20 }]}>Save</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
     );
 }
 
