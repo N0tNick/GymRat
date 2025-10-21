@@ -13,6 +13,8 @@ import { HomeModal } from '../../components/Onboarding/onboard';
 import { updateStreakOnAppOpen } from '../../components/streak';
 import { useUser } from '../../UserContext';
 import { cals } from '../goal';
+import { doc, setDoc } from 'firebase/firestore';
+import { fbdb } from '../../firebaseConfig.js';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -281,6 +283,15 @@ export default function HomeScreen() {
       if (streakData) {
         setStreak(streakData.current_streak);
         setBestStreak(streakData.best_streak);
+      }
+
+      if (firestoreUserId) {
+        const streakRef = doc(fbdb, "users", firestoreUserId, "userStreaks", "streakData");
+        await setDoc(streakRef, {
+          current_streak: streakData.current_streak,
+          best_streak: streakData.best_streak,
+          last_open_date: streakData.last_open_date,
+        }, { merge: true });
       }
     } catch (e) {
       console.error('Error updating streak on app open:', e);

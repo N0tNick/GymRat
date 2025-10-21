@@ -2,15 +2,18 @@ import React, { useState } from 'react'
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native';
 import { Platform } from 'react-native';
+import { Image } from 'expo-image';
+import googleLogo from '../assets/images/googlebutton.png';
+
 // Lazy imports to avoid crashing Expo Go
-let GoogleSigninButton;
+//let GoogleSigninButton;
 let useGoogleSignIn;
 
 import * as Application from 'expo-application';
 
 const isExpoGo = Application.applicationName === "Expo Go";
 if (Platform.OS === "android" && !isExpoGo) {
-  GoogleSigninButton = require('@react-native-google-signin/google-signin').GoogleSigninButton;
+  //GoogleSigninButton = require('@react-native-google-signin/google-signin').GoogleSigninButton;
   useGoogleSignIn = require('../app/gogsignIn.jsx').useGoogleSignIn;
 }
 
@@ -31,6 +34,8 @@ export default function RegistrationScreen() {
 
     return (
         <View style={styles.container}>
+            <Text style={styles.title}>Create an Account</Text>
+
             <Text style={styles.label}>Name</Text>
             <TextInput style={styles.input} value={name} onChangeText={setName} />
 
@@ -60,7 +65,7 @@ export default function RegistrationScreen() {
                 <Text style={styles.linkText}>Already have an account? Login</Text>
             </TouchableOpacity>
             
-            {GoogleSigninButton && googleSignIn && (
+            {/* {GoogleSigninButton && googleSignIn && (
               <View style={{ alignItems: "center", marginTop: 20 }}>
                 <GoogleSigninButton
                   style={{ width: 192, height: 48 }}
@@ -69,6 +74,12 @@ export default function RegistrationScreen() {
                   onPress={googleSignIn}
                 />
               </View>
+            )} */}
+
+            {googleSignIn && (
+              <TouchableOpacity style={styles.googleCircle} onPress={googleSignIn}>
+                <Image source={googleLogo} style={styles.googleIcon} />
+              </TouchableOpacity>
             )}
             
         </View>
@@ -83,29 +94,61 @@ const styles = StyleSheet.create({
         paddingHorizontal: 30,
     },
     label: {
-        color: '#fff',
+        color: '#e0e0e0',
         marginBottom: 5,
     },
     input: {
-        backgroundColor: '#fff',
+        backgroundColor: '#e0e0e0',
         borderRadius: 8,
         padding: 12,
         marginBottom: 15,
     },
     button: {
-        backgroundColor: '#4CAF50',
-        borderRadius: 8,
-        paddingVertical: 12,
-        alignItems: 'center',
-        marginTop: 10,
+      backgroundColor: "rgba(255,255,255,0.08)",
+      borderColor: "#888",
+      borderWidth: 2,
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 8,
+      marginTop: 10,
+      alignItems: 'center'
     },
     buttonText: {
-        color: '#fff',
+        color: '#e0e0e0',
         fontWeight: 'bold',
+        fontSize: 16
     },
     linkText: {
-        color: '#ccc',
+        color: '#e0e0e0',
         textAlign: 'center',
         marginTop: 15,
+    },
+    title: {
+      color: '#e0e0e0',
+      fontSize: 35,
+      fontWeight: 'bold',
+      textAlign: 'center',
+      marginBottom: 80,
+    },
+    googleCircle: {
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      backgroundColor: '#e0e0e0',
+      alignItems: 'center',
+      justifyContent: 'center',
+      alignSelf: 'center',
+      marginTop: 20,
+      overflow: 'hidden',   
+      shadowColor: '#000',
+      shadowOpacity: 0.25,
+      shadowOffset: { width: 0, height: 2 },
+      shadowRadius: 3,
+      elevation: 4,         
+    },
+    googleIcon: {
+      width: '65%',
+      height: '65%',
+      resizeMode: 'center', 
     },
 });

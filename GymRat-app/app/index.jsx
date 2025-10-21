@@ -5,26 +5,52 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useUser } from '../UserContext.js';
+import { syncFirestoreToSQLite } from '../components/syncUser.jsx';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SplashScreen() {
   const router = useRouter();
   const [checkingAuth, setCheckingAuth] = useState(true);
   const db = useSQLiteContext();
-  const { setUserId } = useUser();
+  const { setUserId, setFirestoreUserId } = useUser();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user && user.emailVerified) {
       try {
+        const email = user.email;
+        const username = email.split('@')[0];
+
+        // fFind or create Firestore user ID
+          let firestoreUserId = await AsyncStorage.getItem('firestoreUserId');
+          if (!firestoreUserId) {
+            const usersRef = collection(fbdb, 'users');
+            const q = query(usersRef, where('email', '==', email));
+            const snapshot = await getDocs(q);
+
+            if (!snapshot.empty) {
+              firestoreUserId = snapshot.docs[0].id;
+              console.log('Found Firestore user ID for persistent login:', firestoreUserId);
+            } else {
+              console.warn('No Firestore user found for:', email);
+              setCheckingAuth(false);
+              return;
+            }
+          }
+
           // Lookup user ID by email
           const result = await db.getFirstAsync(
             'SELECT id FROM users WHERE email = ?',
-            [user.email]
+            [email]
           );
 
           if (result) {
-            setUserId(result.id);
-            console.log('Persistent login user ID:', result.id);
+            const userId = result.id;
+            setUserId(userId);
+            setFirestoreUserId(firestoreUserId);
+            await AsyncStorage.setItem('firestoreUserId', firestoreUserId);
+            console.log('Persistent login user ID:', userId);
+            await syncFirestoreToSQLite({ firestoreUserId, userId, db });
           } else {
             console.warn('No local SQLite user found for:', user.email);
           }
@@ -44,7 +70,7 @@ export default function SplashScreen() {
   if (checkingAuth) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#4CAF50" />
+        <ActivityIndicator size="large" color="#e0e0e0" />
         <Text style={{ color: '#fff', fontSize: 18, marginTop: 10 }}>Checking login...</Text>
       </View>
     );
@@ -53,7 +79,6 @@ export default function SplashScreen() {
   // Show splash screen content if not logged in
   return (
     <View style={styles.container}>
-      <Image source={require('../assets/images/undraw_athletes-training_koqa.png')} style={styles.logo} />
       <Text style={styles.title}>Welcome to GymRat</Text>
       <Text style={{color: '#fff', fontSize: 19, padding: 10, textAlign: 'center'}}>Track workouts. Plan meals. Crush goals.</Text>
       <Text style={{color: '#fff', fontSize: 19, padding: 10, textAlign: 'center'}}>All in one place.</Text>
@@ -62,12 +87,6 @@ export default function SplashScreen() {
       </Text>
       <TouchableOpacity style={styles.customButton} onPress={() => router.replace('/registration')}>
         <Text style={styles.buttonText}>Get Started</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => Linking.openURL("https://www.fatsecret.com")}>
-        {/*<!-- Begin fatsecret Platform API HTML Attribution Snippet -->*/}
-        <Text href="https://www.fatsecret.com">Powered by fatsecret</Text>
-        {/*<!-- End fatsecret Platform API HTML Attribution Snippet -->*/}
       </TouchableOpacity>
     </View>
   );
@@ -82,20 +101,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 20,
   },
   customButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 30,
-    marginTop: 20,
+      backgroundColor: "rgba(255,255,255,0.08)",
+      borderColor: "#888",
+      borderWidth: 2,
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 8,
+      marginTop: 10,
+      alignItems: 'center'
   },
   buttonText: {
-    color: '#fff',
+    color: '#e0e0e0',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',

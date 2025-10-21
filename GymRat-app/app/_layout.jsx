@@ -238,9 +238,9 @@ export default function App() {
           headerShown: false,
           animationMatchesGesture: true,
           animationDuration:100,
-          }} initialRouteName="splash">
+          }} initialRouteName="index">
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="splash"/>
+          {/* <Stack.Screen name="splash"/> */}
           <Stack.Screen name="index"/>
           <Stack.Screen name="login"/>
           <Stack.Screen name="registration"/>
