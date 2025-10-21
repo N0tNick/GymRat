@@ -73,10 +73,9 @@ export default function JimRat({ dailyTotals, targets, hasEntries, hasWorkout, s
 
   //determines which image to use with what streak
   const getJimRatImage = () => {
-    if (streak === 1) return jimRatImages[1];
-    if (streak === 2) return jimRatImages[2];
-    if (streak >= 3) return jimRatImages[3];
-    return jimRatImages[1];
+    if (streak < 14) return jimRatImages[1];
+    if (streak < 28) return jimRatImages[2];
+    return jimRatImages[3];
   }
 
   useEffect(() => {
