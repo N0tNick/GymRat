@@ -134,6 +134,7 @@ export default function EditTemplateScreen() {
     }
 
     setSelectedExercises(newExercises)
+    setUpdatedExercises(newExercises)
     //console.log('updated exercises: ' + selectedExercises)
   }
 
@@ -299,7 +300,7 @@ export default function EditTemplateScreen() {
 
       <DraggableFlatList
       data={selectedExercises}
-      onDragEnd={({data}) => setSelectedExercises(data)}
+      onDragEnd={({data}) => {setSelectedExercises(data);setUpdatedExercises(data)}}
       keyExtractor={(item, index) => String(item.id ?? index)}
       renderItem={renderItem}
       containerStyle={{height: screenHeight * 0.775, paddingBottom: 10}}
