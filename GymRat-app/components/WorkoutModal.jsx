@@ -99,10 +99,10 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
     fetchWorkout();
   }, [template]);
 
-  const updateWorkoutTemplateInFirestore = async (userId, name, updatedExercises, isExample = false) => {
+  const updateWorkoutTemplateInFirestore = async (userId, workoutKey, updatedExercises, isExample = false) => {
     try {
       const targetCollection = isExample ? 'exampleWorkoutTemplates' : 'workoutTemplates';
-      const docRef = doc(dbFirestore, `users/${userId}/${targetCollection}/${name}`);
+      const docRef = doc(dbFirestore, `users/${userId}/${targetCollection}/${workoutKey}`);
 
       await setDoc(
         docRef,
@@ -113,9 +113,9 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
         { merge: true }
       );
 
-      console.log(`Workout template updated in Firestore (${targetCollection})`);
+      console.log(`updated Firestore template at ${targetCollection}/${workoutKey}`);
     } catch (error) {
-      console.error('Error updating Firestore template:', error);
+      console.error('error updating Firestore template:', error);
     }
   };
 
@@ -292,7 +292,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
           if (firestoreUserId) {
             await updateWorkoutTemplateInFirestore(
               firestoreUserId,
-              workoutData.name,
+              workoutData.id,
               updatedExercises,
               true
             );
