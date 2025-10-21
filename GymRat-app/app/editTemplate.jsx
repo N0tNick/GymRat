@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { doc, getFirestore, setDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
@@ -8,6 +9,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import exercises from '../assets/exercises.json';
 import schema from '../assets/schema.json';
 import ExerciseListModal from '../components/ExerciseListModal';
+import { app } from '../firebaseConfig';
+import { useUser } from '../UserContext';
 import { usePersistedWorkout } from './ongoingWorkout';
 
 const { height: screenHeight } = Dimensions.get('window');
@@ -16,63 +19,51 @@ const { width: screenWidth } = Dimensions.get('window');
 
 export default function EditTemplateScreen() {
   const db = useSQLiteContext();
+  const { firestoreUserId } = useUser();
+  const dbFirestore = getFirestore(app);
   const router = useRouter();
-  const [workoutData, setWorkoutData] = useState(null)
   const [selectedExercises, setSelectedExercises] = useState([])
   // Track user-updated values for each set
   const [updatedExercises, setUpdatedExercises] = useState([])
   // Read the persisted selected template using the hook
   const [selectedTemplate] = usePersistedWorkout('selectedTemplate', null);
-  const [userTemplates, setUserTemplates] = useState(null)
+  const [template, setTemplate] = useState(null)
   const [templateName, setTemplateName] = useState(null)
   const [modalVisible, setModalVisible] = useState(false)
-  const [updatedTemplate, setUpdatedTemplate] = useState(null)
 
   useEffect(() => {
-    if (!selectedTemplate) {
-      setWorkoutData(null);
-      setSelectedExercises([]);
-      setUpdatedExercises([]);
-      return;
-    }
-    const fetchWorkout = async () => {
+    if (!selectedTemplate) return; // wait until it's loaded
+
+    const parsedTemplate = {
+      ...selectedTemplate,
+      data: JSON.parse(selectedTemplate.data)
+    };
+    setTemplate(parsedTemplate);
+
+    //console.log("template to edit: ", selectedTemplate); // even though this log doesnt show that the entire object is an object IT IS
+  }, [selectedTemplate]);
+
+  useEffect(() => {
+    if (!template) return; // wait until template is ready
+
+    setSelectedExercises(template.data.exercises)
+    setUpdatedExercises(template.data.exercises)
+
+    const fetchTemplates = async () => {
       try {
-        setUserTemplates(await db.getAllAsync(
-          `SELECT * FROM workoutTemplates`
-        ))
         const rows = await db.getAllAsync(
           `SELECT * FROM workoutTemplates WHERE id = ?`,
-          [selectedTemplate.id]
+          [template.id]
         );
-        if (rows && rows.length > 0) {
-          const workout = rows[0]
-          setWorkoutData(workout)
-          console.log('Found row:', rows[0]);
-          if (workout.data) {
-            const parsed = JSON.parse(workout.data);
-            setSelectedExercises(parsed.exercises || []);
-            // Deep copy for user editing
-            setUpdatedExercises(JSON.parse(JSON.stringify(parsed.exercises || [])));
-          }
-          else { 
-            setSelectedExercises([])
-            setUpdatedExercises([])
-          }
-        } else {
-          setWorkoutData(null);
-          setSelectedExercises([]);
-          setUpdatedExercises([]);
-          //console.log(`No row found with id = ${template.id}`);
-        }
-      } catch (err) {
-        console.error(err.message);
-        setWorkoutData(null);
-        setSelectedExercises([]);
-        setUpdatedExercises([]);
+        //setUserTemplates(rows)
+        //console.log("rows: ", JSON.stringify(rows));
+      } catch (error) {
+        console.log("Failed to get user workout templates: ", error);
       }
-    }
-    fetchWorkout();
-  }, [selectedTemplate]);
+    };
+
+    fetchTemplates();
+  }, [template]); // <-- updated dependency
 
   const updateWorkoutTemplateInFirestore = async (userId, name, updatedExercises) => {
     try {
@@ -91,38 +82,59 @@ export default function EditTemplateScreen() {
 
   // Save updated workout to DB
   const saveUpdatedWorkout = async () => {
-    console.log("old template: ", selectedTemplate)
-    console.log("updated exercises: ", updatedExercises)
-    console.log("updated template name: ", templateName)
-    // setUpdatedTemplate({
-    //   ...selectedTemplate,
-    //   data: JSON.parse(selectedTemplate.data),
-    // });
-    // setUpdatedTemplate({...updatedTemplate, name: templateName, data: {exercises: updatedExercises}})
-    // try {
-    //   await db.runAsync(
-    //     `UPDATE workoutTemplates SET name = ? data = ? WHERE id = ?`,
-    //     [updatedTemplate.name, updatedTemplate.data, workoutData.id]
-    //   )
-    // }
-    // catch (err) {
-    //   console.error('Failed to update workout:', err.message);
-    // }
+    // const oldTemplate = JSON.stringify(template)
+    // console.log("old template: ", oldTemplate)
+    // const newExercises = JSON.stringify(updatedExercises)
+    // console.log("updated exercises: ", newExercises)
+    // console.log("updated template name: ", templateName)
+    const newTemplateObj = {
+      ...template,
+      name: templateName || template.name,
+      data: { exercises: updatedExercises },
+    };
+
+    //console.log("updated template: ", JSON.stringify(newTemplateObj));
+    
+    try {
+      // Save to SQLite
+      await db.runAsync(
+        `UPDATE workoutTemplates SET name = ?, data = ? WHERE id = ?`,
+        [
+          newTemplateObj.name,
+          JSON.stringify(newTemplateObj.data), // store JSON as string
+          newTemplateObj.id,
+        ]
+      );
+      console.log("Workout template updated in SQLite");
+      if (firestoreUserId) {
+        await updateWorkoutTemplateInFirestore(
+          firestoreUserId,
+          newTemplateObj.name,
+          newTemplateObj.data.exercises
+        );
+      } else {
+        console.warn('⚠️ No Firestore user ID found; skipping cloud update');
+      }
+    }
+    catch (err) {
+      console.error('Failed to update workout:', err.message);
+    }
   };
 
   const deleteExercise = (exercise) => {
-    let updatedExercises = []
+    let newExercises = []
 
     let j = 0;
     for (let i = 0; i < selectedExercises.length; i++) {
       if (exercise != selectedExercises[i]) {
-        updatedExercises[j] = selectedExercises[i]
+        newExercises[j] = selectedExercises[i]
         console.log('Exercise ' + i + ' not deleted')
         j++
       }
     }
 
-    setSelectedExercises(updatedExercises)
+    setSelectedExercises(newExercises)
+    setUpdatedExercises(newExercises)
     //console.log('updated exercises: ' + selectedExercises)
   }
 
@@ -161,7 +173,7 @@ export default function EditTemplateScreen() {
           return {
             ...exercise,
             sets: (exercise.sets || []).map((set, i) => {
-              if (i + 1 === setIndex) {
+              if (i === setIndex) {
                 return { ...set, weight: newWeight }
               }
               return set
@@ -183,7 +195,7 @@ export default function EditTemplateScreen() {
           return {
             ...exercise,
             sets: (exercise.sets || []).map((set, i) => {
-              if (i + 1 === setIndex) {
+              if (i === setIndex) {
                 return { ...set, reps: newReps }
               }
               return set
@@ -220,43 +232,39 @@ export default function EditTemplateScreen() {
             </View>
 
 
-            {item.sets.map((set) => {
-              setIndex++
+            {item.sets.map((set, i) => (
+              <View key={`${item.id}-set-${i}`} style={{flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 10, paddingLeft: 10}}>
 
-              return(
-                <View key={setIndex} style={{flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 10, paddingLeft: 10}}>
+                <Text style={[standards.regularText, {flex: 3}]}>{i + 1}</Text>
 
-                  <Text style={[standards.regularText, {flex: 3}]}>{setIndex}</Text>
+                {set.weight ? 
+                  <Text style={[standards.regularText, {flex: 3}]}>{set.weight + ' x ' + set.reps}</Text>
+                  :
+                  <Text style={[standards.regularText, {flex: 2}]}>-</Text>
+                }
 
-                  {set.weight ? 
-                    <Text style={[standards.regularText, {flex: 3}]}>{set.weight + ' x ' + set.reps}</Text>
-                    :
-                    <Text style={[standards.regularText, {flex: 2}]}>-</Text>
-                  }
+                <TextInput
+                style={[styles.templateInput, {flex: 2, marginHorizontal: 10}]}
+                onChangeText={(text) => {handleWeightInput(text, item.id, i)}}
+                onEndEditing={() => {}}
+                defaultValue={set.weight}
+                placeholder='-'
+                keyboardType='numeric'
+                placeholderTextColor={'#000'}
+                />
 
-                  <TextInput
-                  style={[styles.templateInput, {flex: 2, marginHorizontal: 10}]}
-                  onChangeText={() => {}}
-                  onEndEditing={(text) => {handleWeightInput(text, item.id, setIndex)}}
-                  defaultValue={set.weight}
-                  placeholder='-'
-                  keyboardType='numeric'
-                  placeholderTextColor={'#000'}
-                  />
+                <TextInput
+                style={[styles.templateInput, {flex: 2, marginHorizontal: 10}]}
+                onChangeText={(text) => {handleRepsInput(text, item.id, i)}}
+                onEndEditing={() => {}}
+                defaultValue={set.reps}
+                placeholder='-'
+                keyboardType='numeric'
+                placeholderTextColor={'#000'}
+                />
 
-                  <TextInput
-                  style={[styles.templateInput, {flex: 2, marginHorizontal: 10}]}
-                  onChangeText={() => {}}
-                  onEndEditing={(text) => {handleRepsInput(text, item.id, setIndex)}}
-                  defaultValue={set.reps}
-                  placeholder='-'
-                  keyboardType='numeric'
-                  placeholderTextColor={'#000'}
-                  />
-
-                </View>
-              )
-            })}
+              </View>
+            ))}
 
             <TouchableOpacity 
             style={{backgroundColor: '#375573', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
@@ -279,7 +287,7 @@ export default function EditTemplateScreen() {
 
         <Text style={standards.headerText}>Edit Template</Text>
 
-        <TouchableOpacity onPress={() => {saveUpdatedWorkout()}}>
+        <TouchableOpacity onPress={() => {saveUpdatedWorkout();router.back()}}>
           <Image style={{width: '25', height: '25'}} source={require('../assets/images/check-mark.png')}/>
         </TouchableOpacity>
       </View>
@@ -287,12 +295,12 @@ export default function EditTemplateScreen() {
       <TextInput
       style={[standards.headerText, {padding: 20}]}
       onChangeText={setTemplateName}
-      defaultValue={workoutData ? workoutData.name : 'No Workout found'}
+      defaultValue={template?.name ?? 'No Workout found'}
       />
 
       <DraggableFlatList
       data={selectedExercises}
-      onDragEnd={({data}) => setSelectedExercises(data)}
+      onDragEnd={({data}) => {setSelectedExercises(data);setUpdatedExercises(data)}}
       keyExtractor={(item, index) => String(item.id ?? index)}
       renderItem={renderItem}
       containerStyle={{height: screenHeight * 0.775, paddingBottom: 10}}
