@@ -9,7 +9,6 @@ import Svg, { Circle, G, Path, Text as SvgText, TSpan } from 'react-native-svg';
 import JimRatNutrition from '../../components/jimRatNutrition';
 import { NutOnboardModal } from '../../components/Onboarding/onboard';
 import { UserContext, useUser } from '../../UserContext';
-import { cals } from '../goal';
 import FoodModal from '../../components/FoodModal.jsx';
 
 const { height: screenHeight } = Dimensions.get('window');
@@ -132,6 +131,21 @@ export default function Nutrition() {
   const [foodModalVisible, setFoodModalVisible] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const sex = String((user?.sex || user?.gender || 'male')).toLowerCase();
+
+  const [cals, setCals] = useState(0);
+  
+  useEffect(() => {
+    (async () => {
+      try {
+        const userCals = await db.getFirstAsync('SELECT dailyCals FROM userStats WHERE user_id = ?',
+          [userId]
+        );
+        if (userCals) setCals(Number(userCals.dailyCals));
+      } catch (e) {
+        console.error('Error loading cals from userStats:', e);
+      }
+    })();
+  }, [db]);
 
   const totalCalories = dailyTotals?.totalCalories || 0;
   const proteinTotal = dailyTotals?.totalProtein || 0;

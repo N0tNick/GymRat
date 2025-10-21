@@ -12,7 +12,6 @@ import JimRat from '../../components/jimRat';
 import { HomeModal } from '../../components/Onboarding/onboard';
 import { updateStreakOnAppOpen } from '../../components/streak';
 import { useUser } from '../../UserContext';
-import { cals } from '../goal';
 import { doc, setDoc } from 'firebase/firestore';
 import { fbdb } from '../../firebaseConfig.js';
 
@@ -66,6 +65,91 @@ export default function HomeScreen() {
   // check if daily log has entries for Jim rat
   const [hasEntries, setHasEntries] = useState(false);
   const [hasWorkout, setHasWorkout] = useState(false);
+
+  const [cals, setCals] = useState(0);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const userCals = await db.getFirstAsync('SELECT dailyCals FROM userStats WHERE user_id = ?',
+          [userId]
+        );
+        if (userCals) setCals(Number(userCals.dailyCals));
+      } catch (e) {
+        console.error('Error loading cals from userStats:', e);
+      }
+    })();
+  }, [db]);
+
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const refreshHomeData = async () => {
+      try {
+        // Refresh daily cals target
+        const userCals = await db.getFirstAsync(
+          'SELECT dailyCals FROM userStats WHERE user_id = ?',
+          [userId]
+        );
+        if (userCals) setCals(Number(userCals.dailyCals));
+
+        // Refresh daily totals
+        const todayTotals = await loadTotalsForDate(new Date(), "dailyNutLog");
+        setDailyTotals(todayTotals);
+
+        // Refresh streak
+        const streakRes = await db.getAllAsync(
+          'SELECT current_streak, best_streak FROM userStreaks WHERE user_id = ?',
+          [userId]
+        );
+        if (streakRes && streakRes[0]) {
+          setStreak(streakRes[0].current_streak);
+          setBestStreak(streakRes[0].best_streak);
+        }
+
+        // Refresh week data
+        const startOfWeek = new Date();
+        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+        const days = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(startOfWeek);
+          d.setDate(d.getDate() + i);
+          return d;
+        });
+
+        const results = [];
+        for (const dateObj of days) {
+          const dateStr = dateObj.toISOString().split("T")[0];
+          const nutRes = await db.getAllAsync(
+            `SELECT COUNT(*) as count FROM historyLog WHERE user_id = ? AND date = ?`,
+            [userId, dateStr]
+          );
+          const workoutRes = await db.getAllAsync(
+            `SELECT COUNT(*) as count FROM workoutLog WHERE user_id = ? AND date = ?`,
+            [userId, dateStr]
+          );
+          results.push({
+            date: dateObj,
+            hasLog: nutRes[0]?.count > 0,
+            hasWorkout: workoutRes[0]?.count > 0,
+          });
+        }
+        setWeekData(results);
+
+      } catch (err) {
+        console.error("Auto-refresh HomeScreen failed:", err);
+      }
+    };
+
+    // Run immediately once
+    refreshHomeData();
+
+    // Then run every 5 seconds
+    const intervalId = setInterval(refreshHomeData, 5000);
+
+    // Cleanup on unmount
+    return () => clearInterval(intervalId);
+  }, [db, userId]);
 
   useEffect(() => {
     const loadUser = async () => {

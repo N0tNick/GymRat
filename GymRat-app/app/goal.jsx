@@ -118,6 +118,19 @@ const SetGoalSpeed = ({ goal, onBack }) => {
                                 style={[styles.saveButton, styles.nextButton]}
                                 onPress={() => {
                                     cals = Math.round(calcCalories({ goal, speed: sliderValue }));
+
+                                    const saveDailyCals = async () => {
+                                      try {
+                                        const user = await db.getFirstAsync('SELECT id FROM users');
+                                        await db.runAsync('UPDATE userStats SET dailyCals = ? WHERE user_id = ?', [cals.toString(), user.id]);
+                                        console.log('Daily calories saved:', cals);
+                                      } catch (error) {
+                                        console.error('Error saving dailyCals:', error);
+                                      }
+                                    };
+
+                                    saveDailyCals();
+
                                     handleOnboarded();
                                     insertGoalSpeed();
                                     router.navigate({
