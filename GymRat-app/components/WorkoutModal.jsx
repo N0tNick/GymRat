@@ -392,7 +392,6 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
                   data={exercises}
                   keyExtractor={(item, index) => String(item.id ?? index)}
                   renderItem={renderItem}
-                  containerStyle={{height: screenHeight * 0.775, paddingBottom: 10}}
                   />
                 :
                   <DraggableFlatList
@@ -400,9 +399,19 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
                   onDragEnd={({data}) => {setExercises(data)}}
                   keyExtractor={(item, index) => String(item.id ?? index)}
                   renderItem={renderItem}
-                  containerStyle={{height: screenHeight * 0.775, paddingBottom: 10}}
+                  containerStyle={{flex: 1, paddingBottom: 10}}
                   />
                 }
+
+                <TouchableOpacity 
+                onPress={() => {
+                  setWorkoutModal(false);
+                  finishWorkout(true);
+                  resetStopwatch();
+                }} 
+                style={[styles.button, {backgroundColor: '#fa4646', borderWidth: 0}]}>
+                  <Text style={standards.regularText}>Cancel Workout</Text>
+                </TouchableOpacity>
 
                 </View>
             </View>
@@ -502,8 +511,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   button: {
-    backgroundColor: '#1478db',
-    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#375573',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     padding: 10,
     justifyContent: 'center',
     fontSize: 20,
