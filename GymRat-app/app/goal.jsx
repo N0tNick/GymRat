@@ -69,26 +69,20 @@ function calculateAge(birthDateString, referenceDateString = new Date().toISOStr
 const SetGoalSpeed = ({ goal, onBack }) => {
     const [sliderValue, setSliderValue] = React.useState(.25);
     const {userId} = useUser();
-
     const db = useSQLiteContext()
     
     const handleOnboarded = async () => {
         try {
-            await db.runAsync('UPDATE users SET hasOnboarded = ?', [1])
+            await db.runAsync('UPDATE users SET hasOnboarded = ?', [userId])
         } catch (error) {
         console.error(error) }
     }
     
     const insertGoalSpeed = async () => {
         try {
-            const user = await db.getFirstAsync('SELECT id FROM users')
-            console.log(user.id)
-
             await db.runAsync('UPDATE userStats SET gain_speed = ? WHERE user_id = ?',
-                [sliderValue.toString(), user.id]
+                [sliderValue.toString(), userId]
             )
-            console.log(sliderValue.toString())
-            [sliderValue.toString(), user.id]
             console.log('gain speed logged')
         } catch (error) {
             console.log(error)
@@ -150,9 +144,13 @@ const SetGoalSpeed = ({ goal, onBack }) => {
 
 const SetGoalWeight = ({ currentWeight, goal, onBack }) => {
     const [tempWeight, setTempWeight] = React.useState('')
+    const {userId} = useUser();
+    const db = useSQLiteContext()
+
     const Increase = () => setTempWeight(prevWeight => {
         return Number(prevWeight) + 1;
     });
+
     const Decrease = () => setTempWeight(prevWeight => {
         if (prevWeight <= 0) {
             return 0; // Prevent going below 0
@@ -161,6 +159,16 @@ const SetGoalWeight = ({ currentWeight, goal, onBack }) => {
         }
     });
 
+    const insertGoalWeight = async () => {
+        try {
+            await db.runAsync('UPDATE userStats SET goal_weight = ? WHERE user_id = ?',
+                [tempWeight.toString(), userId]
+            )
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
     
     const [showGoalSpeed, setShowGoalSpeed] = React.useState(false);
 
@@ -209,7 +217,10 @@ const SetGoalWeight = ({ currentWeight, goal, onBack }) => {
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.saveButton, styles.nextButton]}
-                            onPress={() => setShowGoalSpeed(true)}
+                            onPress={ () =>  {
+                                    setShowGoalSpeed(true)
+                                    insertGoalWeight()
+                            }}
                         >
                             <Text style={[standards.regularText, { fontSize:20 }]}>Next</Text>
                         </TouchableOpacity>
@@ -223,20 +234,37 @@ const Goal = () => {
     const [lose, setLose] = React.useState(false);
     const [maintain, setMaintain] = React.useState(false);
     const [gain, setGain] = React.useState(false);
+    const [goal, SetGoal] = React.useState(false);
+    const {userId} = useUser()
+    const db = useSQLiteContext()
 
     const handlePress = (goal) => {
         if (goal === 'lose') {
+            SetGoal('lose')
             setLose(true);
             setMaintain(false);
             setGain(false);
         } else if (goal === 'maintain') {
+            SetGoal('maintain')
             setLose(false);
             setMaintain(true);
             setGain(false);
         } else if (goal === 'gain') {
+            SetGoal('gain')
             setLose(false);
             setMaintain(false);
             setGain(true);
+        }
+    }
+
+    const insertGoal = async () => {
+        try {
+            await db.runAsync('UPDATE userStats SET nut_goal = ? WHERE user_id = ?',
+                [goal.toString(), userId]
+            )
+
+        } catch (error) {
+            console.log(error)
         }
     }
 
@@ -271,7 +299,14 @@ const Goal = () => {
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         style={[styles.saveButton, {alignSelf: 'center', borderRadius: 10}]}
-                                        onPress={() => setShowGoalWeight(true)}
+                                        onPress={() => {
+                                            if (maintain) {
+                                                router.navigate('/home')
+                                            } else {
+                                                setShowGoalWeight(true)
+                                                insertGoal()
+                                            }
+                                        }}
                                     >
                                         <Text style={[standards.regularText, {fontSize: 20}]}>Next</Text>
                                     </TouchableOpacity>

@@ -57,7 +57,7 @@ const TopTab = () => {
 
       const result = await db.getFirstAsync('SELECT * FROM userStats WHERE user_id = ?', [user.id]);
 
-      //console.log(result)
+      console.log(result)
       if (result) {
         setLastWeight(result['weight']) 
         setLastGoalWeight(result['goal_weight'])
