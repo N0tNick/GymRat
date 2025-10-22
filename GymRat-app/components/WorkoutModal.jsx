@@ -196,6 +196,50 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
       });
     };
 
+    const handleWeightInput = (newWeight, exerciseId, setIndex) => {
+    setUpdatedExercises(prev =>
+      (prev || []).map(exercise => {
+        // If this is the exercise to update
+        if (exercise.id === exerciseId) {
+          return {
+            ...exercise,
+            sets: (exercise.sets || []).map((set, i) => {
+              if (i === setIndex) {
+                return { ...set, weight: newWeight }
+              }
+              return set
+            }),
+          }
+        }
+
+        // Return unchanged exercise
+        return exercise
+      })
+    )
+  }
+
+  const handleRepsInput = (newReps, exerciseId, setIndex) => {
+    setUpdatedExercises(prev =>
+      (prev || []).map(exercise => {
+        // If this is the exercise to update
+        if (exercise.id === exerciseId) {
+          return {
+            ...exercise,
+            sets: (exercise.sets || []).map((set, i) => {
+              if (i === setIndex) {
+                return { ...set, reps: newReps }
+              }
+              return set
+            }),
+          }
+        }
+
+        // Return unchanged exercise
+        return exercise
+      })
+    )
+  }
+
     const renderItem = ({ item, index: exerciseIdx, drag }) => {
       if (isExampleTemplate) {
         return (
@@ -210,7 +254,42 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
                 <Text style={standards.regularText}>Reps</Text>
               </View>
 
-              {(item.sets || []).map((set, setIdx) => (
+              {item.sets ? 
+                item.sets.map((set, i) => (
+                  <View key={`${item.id}-set-${i}`} style={{flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 10, paddingLeft: 10}}>
+    
+                    <Text style={[standards.regularText, {flex: 3}]}>{i + 1}</Text>
+    
+                    {set.weight ? 
+                      <Text style={[standards.regularText, {flex: 3}]}>{set.weight + ' x ' + set.reps}</Text>
+                      :
+                      <Text style={[standards.regularText, {flex: 2}]}>-</Text>
+                    }
+    
+                    <TextInput
+                    style={[styles.templateInput, {flex: 2, marginHorizontal: 10}]}
+                    onChangeText={(text) => {handleWeightInput(text, item.id, i)}}
+                    onEndEditing={() => {}}
+                    defaultValue={set.weight}
+                    placeholder='-'
+                    keyboardType='numeric'
+                    placeholderTextColor={'#000'}
+                    />
+    
+                    <TextInput
+                    style={[styles.templateInput, {flex: 2, marginHorizontal: 10}]}
+                    onChangeText={(text) => {handleRepsInput(text, item.id, i)}}
+                    onEndEditing={() => {}}
+                    defaultValue={set.reps}
+                    placeholder='-'
+                    keyboardType='numeric'
+                    placeholderTextColor={'#000'}
+                    />
+    
+                  </View>
+                )) : null}
+
+              {/* {(item.sets || []).map((set, setIdx) => (
                 <View key={setIdx} style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5}}>
                   <Text style={standards.regularText}>{'  ' + (setIdx + 1) + ' '}</Text>
                   <Text style={standards.regularText}>{set.weight ? (set.weight + 'x' + set.reps).padStart(15,' ') : '                 -          '}</Text>
@@ -229,7 +308,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
                     keyboardType='numeric'
                   />
                 </View>
-              ))}
+              ))} */}
 
             </TouchableOpacity>
           </View>
@@ -249,7 +328,42 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
                   <Text style={standards.regularText}>Reps</Text>
                 </View>
 
-                {(item.sets || []).map((set, setIdx) => (
+                {item.sets ? 
+                  item.sets.map((set, i) => (
+                    <View key={`${item.id}-set-${i}`} style={{flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 10, paddingLeft: 10}}>
+      
+                      <Text style={[standards.regularText, {flex: 3}]}>{i + 1}</Text>
+      
+                      {set.weight ? 
+                        <Text style={[standards.regularText, {flex: 3}]}>{set.weight + ' x ' + set.reps}</Text>
+                        :
+                        <Text style={[standards.regularText, {flex: 2}]}>-</Text>
+                      }
+      
+                      <TextInput
+                      style={[styles.templateInput, {flex: 2, marginHorizontal: 10}]}
+                      onChangeText={(text) => {handleWeightInput(text, item.id, i)}}
+                      onEndEditing={() => {}}
+                      defaultValue={set.weight}
+                      placeholder='-'
+                      keyboardType='numeric'
+                      placeholderTextColor={'#000'}
+                      />
+      
+                      <TextInput
+                      style={[styles.templateInput, {flex: 2, marginHorizontal: 10}]}
+                      onChangeText={(text) => {handleRepsInput(text, item.id, i)}}
+                      onEndEditing={() => {}}
+                      defaultValue={set.reps}
+                      placeholder='-'
+                      keyboardType='numeric'
+                      placeholderTextColor={'#000'}
+                      />
+      
+                    </View>
+                  )) : null}
+
+                {/* {(item.sets || []).map((set, setIdx) => (
                   <View key={setIdx} style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5}}>
                     <Text style={standards.regularText}>{'  ' + (setIdx + 1) + ' '}</Text>
                     <Text style={standards.regularText}>{set.weight ? (set.weight + 'x' + set.reps).padStart(15,' ') : '                 -          '}</Text>
@@ -268,7 +382,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
                       keyboardType='numeric'
                     />
                   </View>
-                ))}
+                ))} */}
 
               </TouchableOpacity>
             </View>
@@ -280,9 +394,10 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
     // Save updated workout to DB
     const saveUpdatedWorkout = async () => {
       if (!workoutData) return
-      else if (userTemplates.includes(template)) {
+      else if (!isExampleTemplate) {
         try {
           const updatedData = JSON.stringify({ exercises: updatedExercises });
+          //console.log("updated data: ", updatedData)
           const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
           await db.runAsync(
             `UPDATE workoutTemplates SET data = ? WHERE id = ?`,
@@ -387,7 +502,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
 
                 <Text style={[standards.headerText, {padding: 20}]}>{workoutData ? workoutData.name : 'No Workout found'}</Text>
 
-                {isExampleTemplate ? 
+                {isExampleTemplate ?
                   <FlatList
                   data={exercises}
                   keyExtractor={(item, index) => String(item.id ?? index)}
@@ -396,7 +511,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
                 :
                   <DraggableFlatList
                   data={exercises}
-                  onDragEnd={({data}) => {setExercises(data)}}
+                  onDragEnd={({data}) => {setExercises(data);setUpdatedExercises(data)}}
                   keyExtractor={(item, index) => String(item.id ?? index)}
                   renderItem={renderItem}
                   containerStyle={{flex: 1, paddingBottom: 10}}
@@ -452,17 +567,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)'
   },
-  alertView: {
-    backgroundColor: '#1a1b1c',
-    borderRadius: 15,
-    padding: 10,
-    alignSelf: 'center',
-    maxWidth: '80%',
-  },
   xButton: {
     flex: 1,
     fontSize: 20,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   card: {
     flex: 1,
@@ -503,7 +611,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#999',
     borderRadius: 10,
     justifyContent: 'center',
-    maxHeight: '70%'
+    maxHeight: '75%'
   },
   filterButtonText: {
     flex: 1,
@@ -521,12 +629,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     fontSize: 20,
   },
-  templateBox: {
-    padding: 10,
-    backgroundColor: '#666',
-    borderWidth: '1',
-    borderRadius: 10,
-  },
   whiteText: {
     color: '#fff', 
     fontSize: 20,
@@ -542,7 +644,7 @@ const styles = StyleSheet.create({
     fontWeight:'600',
     letterSpacing:0.3
   }
-})
+});
 
 const standards = StyleSheet.create({
   background: {

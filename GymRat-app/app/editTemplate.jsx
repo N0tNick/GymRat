@@ -299,7 +299,7 @@ export default function EditTemplateScreen() {
       onDragEnd={({data}) => {setSelectedExercises(data);setUpdatedExercises(data)}}
       keyExtractor={(item, index) => String(item.id ?? index)}
       renderItem={renderItem}
-      containerStyle={{height: screenHeight * 0.775, paddingBottom: 10}}
+      containerStyle={{flex: 1, paddingBottom: 10}}
       />
 
       <TouchableOpacity 
