@@ -58,13 +58,14 @@ export default function HomeScreen() {
   const [foodName, setFoodName] = useState('');
   const [nutrientEntries, setNutrientEntries] = useState([]);
   const [showNutritionSummary, setShowNutritionSummary] = useState(true);
-  const [moduleOrder, setModuleOrder] = useState(['nutritionSummary', 'tasks', 'nutrition', 'weekly', 'weightLog', 'streak']);
+  const [moduleOrder, setModuleOrder] = useState(['nutritionSummary', 'tasks', 'nutrition', 'weekly', 'weightLog', 'streak', 'buildWorkout']);
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
   const [bestStreak, setBestStreak] = useState(0);
   const [showStreak, setShowStreak] = useState(true);
   const [showWeightLog, setShowWeightLog] = useState(true);
   const [weightModalVisible, setWeightModalVisible] = useState(false);
   const [currentWeight, setCurrentWeight] = useState(null);
+  const [showBuildWorkout, setShowBuildWorkout] = useState(true);
 
   // check if daily log has entries for Jim rat
   const [hasEntries, setHasEntries] = useState(false);
@@ -556,7 +557,7 @@ const initializeModulePreferences = async () => {
         show_weekly INTEGER DEFAULT 1,
         show_streak INTEGER DEFAULT 1,
         show_weight_log INTEGER DEFAULT 1,
-        module_order TEXT DEFAULT '["nutritionSummary","tasks","nutrition","weekly","streak","weightLog"]'
+        module_order TEXT DEFAULT '["nutritionSummary","tasks","nutrition","weekly","streak","weightLog","buildWorkout"]'
       )
     `);
   } catch (e) {
@@ -582,6 +583,16 @@ const initializeModulePreferences = async () => {
       console.error('Add show_weight_log failed:', e);
     }
   }
+  try {
+    await db.getFirstAsync(`SELECT show_build_workout FROM modulePreferences LIMIT 1`);
+  } catch {
+    try {
+      await db.runAsync(`ALTER TABLE modulePreferences ADD COLUMN show_build_workout INTEGER DEFAULT 1`);
+      await db.runAsync(`UPDATE modulePreferences SET show_build_workout = 1 WHERE show_build_workout IS NULL`);
+    } catch (e) {
+      console.error('Add show_build_workout failed:', e);
+    }
+  }
 };
 
 
@@ -591,8 +602,8 @@ const saveModulePreferences = async () => {
   try {
     await db.runAsync(
       `INSERT OR REPLACE INTO modulePreferences 
-       (user_id, show_nutrition_summary, show_tasks, show_nutrition, show_weekly, show_streak, show_weight_log, module_order) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+       (user_id, show_nutrition_summary, show_tasks, show_nutrition, show_weekly, show_streak, show_weight_log, show_build_workout, module_order) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         userId,
         showNutritionSummary ? 1 : 0,
@@ -601,6 +612,7 @@ const saveModulePreferences = async () => {
         showWeekly ? 1 : 0,
         showStreak ? 1 : 0,
         showWeightLog ? 1 : 0,
+        showBuildWorkout ? 1 : 0,
         JSON.stringify(moduleOrder)
       ]
     );
@@ -627,6 +639,7 @@ const loadModulePreferences = async () => {
       const yes = v => v === 1 || v === null || v === undefined;
       setShowStreak(yes(prefs.show_streak));
       setShowWeightLog(yes(prefs.show_weight_log));
+      setShowBuildWorkout(prefs.show_build_workout === 1);
 
 
       try {
@@ -636,6 +649,9 @@ const loadModulePreferences = async () => {
         }
         if (!order.includes('weightLog')) {
           order.push('weightLog');
+        }
+        if (!order.includes('buildWorkout')) {
+          order.push('buildWorkout');
         }
         setModuleOrder(order);
       } catch (e) {
@@ -658,9 +674,10 @@ const allModules = useMemo(() => {
   if (showWeekly) enabled.push('weekly');
   if (showStreak) enabled.push('streak');
   if (showWeightLog) enabled.push('weightLog');
+  if (showBuildWorkout) enabled.push('buildWorkout');
 
   return moduleOrder.filter(k => enabled.includes(k)).map(k => ({ key: k }));
-  }, [showNutritionSummary, showTasks, showNutrition, showWeekly, showStreak, showWeightLog, moduleOrder]);
+  }, [showNutritionSummary, showTasks, showNutrition, showWeekly, showStreak, showWeightLog, showBuildWorkout, moduleOrder]);
 
   const renderItem = useCallback(({ item, drag, isActive }) => {
     switch (item.key) {
@@ -922,6 +939,35 @@ const allModules = useMemo(() => {
               </ScaleDecorator>
             );
 
+            case 'buildWorkout':
+              return (
+                <ScaleDecorator>
+                  <TouchableOpacity
+                    activeOpacity={0.9}
+                    onLongPress={drag}
+                    disabled={isActive}
+                    style={styles.gridItem}
+                  >
+                    <View style={[styles.homeModule, { minHeight: 100, justifyContent: 'center' }]}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Text style={styles.moduleTitle}>Create Template</Text>
+
+                        <View style={{ gap: 8 }}>
+                          <TouchableOpacity
+                            style={styles.actionButton}
+                            onPress={() => router.push('/createTemplate')}
+                            activeOpacity={0.85}
+                          >
+                            <Text style={styles.actionButtonText}>+ Template</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                </ScaleDecorator>
+              );
+
+
 
       default:
         return null;
@@ -965,105 +1011,6 @@ const allModules = useMemo(() => {
             activationDistance={10}
           />
         </View>
-
-        {/* <View style={styles.homeModule}>
-          <Text style={styles.moduleTitle}>Tasks to do today</Text>
-          <ScrollView contentContainerStyle={styles.taskList}>
-            {events.length === 0 ? (
-              <Text style={styles.noTask}>No events for today</Text>
-            ) : (
-              events.map((event, index) => (
-                <View key={event.id}>
-                  {index === 0 && <View style={styles.divider} />}
-                  <View  style={styles.taskRow}>
-                    <View style={styles.timeWrapper}>
-                      <Text style={styles.time}>{formatTime(event.startDate)}</Text>
-                    </View>
-                    <View style={styles.textWrapper}>
-                      <Text style={styles.task}>{event.title}</Text>
-                    </View>
-                  </View>
-                  {index < events.length - 1 && <View style={styles.divider} />}
-                </View>
-              ))
-            }
-          </ScrollView>
-          <TouchableOpacity style={styles.addEventButton} onPress={() => setModalVisible(true)}>
-            <Text style={styles.addEventText}>Add Event</Text>
-          </TouchableOpacity>
-        </View>
-      
-
-        
-        <View style={styles.homeModule}>
-          <Text style={styles.moduleTitle}>Nutrition Rundown</Text>
-
-          <View style={styles.nutrientRow}>
-            <Text style={styles.nutrientLabel}>Energy - {dailyTotals.totalCalories} / {cals} kcal</Text>
-            <View style={styles.barContainer}>
-              <View style={[styles.barFill, { backgroundColor: '#00eaff', width: `${Math.min((dailyTotals.totalCalories / cals) * 100, 100)}%` }]} />
-            </View>
-          </View>
-            
-          <View style={styles.nutrientRow}>
-            <Text style={styles.nutrientLabel}>Protein - {dailyTotals.totalProtein} / {Math.round((cals * 0.25) / 4)}g</Text>
-            <View style={styles.barContainer}>
-              <View style={[styles.barFill, { backgroundColor: '#ff00ff', width: `${Math.min((dailyTotals.totalProtein / ((cals * 0.25) / 4)) * 100, 100)}%` }]} />
-            </View>
-          </View>
-            
-          <View style={styles.nutrientRow}>
-            <Text style={styles.nutrientLabel}>Carbs - {dailyTotals.totalCarbs} / {Math.round((cals * 0.45) / 4)}g</Text>
-            <View style={styles.barContainer}>
-              <View style={[styles.barFill, { backgroundColor: '#00ff00', width: `${Math.min((dailyTotals.totalCarbs / ((cals * 0.45) / 4)) * 100, 100)}%` }]} />
-            </View>
-          </View>
-            
-          <View style={styles.nutrientRow}>
-            <Text style={styles.nutrientLabel}>Fat - {dailyTotals.totalFat} / {Math.round((cals * 0.30) / 9)}g</Text>
-            <View style={styles.barContainer}>
-              <View style={[styles.barFill, { backgroundColor: '#ff0000', width: `${Math.min((dailyTotals.totalFat / ((cals * 0.30) / 9)) * 100, 100)}%` }]} />
-            </View>
-          </View>
-        </View>
-        
-
-        
-        <View style={styles.homeModule}>
-          <Text style={styles.moduleTitle}>Weekly Calendar</Text>
-          <View style={styles.weekRow}>
-            {weekData.map((dayInfo, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.dayColumn}
-                onPress={async () => {
-                  setSelectedDate(dayInfo.date);
-                  if (dayInfo.hasLog) {
-                    const totals = await loadTotalsForDate(dayInfo.date, "historyLog"); // change to STOREDNUTLOG when it works
-                    setDayTotals(totals);
-                  } else {
-                    setDayTotals(null); // no logs for that day
-                  }
-                  setDayModalVisible(true);
-                }}
-              >
-                <Text style={styles.dayLabel}>
-                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dayInfo.date.getDay()]}
-                </Text>
-                <View style={styles.dayContent}>
-                  <Text style={{ color: "#fff" }}>{dayInfo.date.getDate()}</Text>
-                  <View
-                    style={[
-                      styles.logIndicator,
-                      { backgroundColor: dayInfo.hasLog ? "green" : "transparent" }
-                    ]}
-                  />
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View> */}
-        
 
         {/* Day Modal */}
         <Modal
@@ -1290,6 +1237,13 @@ const allModules = useMemo(() => {
                 {showWeightLog ? '✔ ' : '○ '}Weight Log
               </Text>
             </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setShowBuildWorkout(!showBuildWorkout)}>
+              <Text style={{ color: showBuildWorkout ? '#32a852' : '#888', marginBottom: 10 }}>
+                {showBuildWorkout ? '✔ ' : '○ '}Create Template
+              </Text>
+            </TouchableOpacity>
+
 
             <TouchableOpacity onPress={() => {saveModulePreferences();
               setCustomizeModalVisible(false)}}>
@@ -1776,4 +1730,22 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginTop: 2,
   },
+  actionButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#375573',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    minWidth: 120,
+  },
+  actionButtonText: {
+    color: '#e0e0e0',
+    fontWeight: '700',
+    fontSize: 14,
+    letterSpacing: 0.3,
+  },
+
 });
