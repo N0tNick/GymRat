@@ -1,13 +1,14 @@
 import { Image } from 'expo-image';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useRef, useState } from 'react';
-import { Dimensions, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useStatePersist } from 'use-state-persist';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
 import { addDoc, collection, doc, getFirestore, setDoc } from 'firebase/firestore';
+import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { app } from '../firebaseConfig'; // adjust path if needed
 import { useUser } from '../UserContext';
 
@@ -188,39 +189,43 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
       });
     };
 
-    const renderItem = ({ item, index: exerciseIdx }) => (
-      <View>
-        <Text style={[standards.regularText, {paddingVertical: 10}]}>{item.name}</Text>
+    const renderItem = ({ item, index: exerciseIdx, drag }) => (
+      <ScaleDecorator>
+        <View style={{marginBottom: '2.5%'}}>
+          <TouchableOpacity onLongPress={drag} style={styles.exerciseContainer}>
+            <Text style={[standards.regularText, {paddingVertical: 10}]}>{item.name}</Text>
 
-        <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 5}}>
-          <Text style={standards.regularText}>Set</Text>
-          <Text style={standards.regularText}>Previous</Text>
-          <Text style={standards.regularText}>lbs</Text>
-          <Text style={standards.regularText}>Reps</Text>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 5}}>
+              <Text style={standards.regularText}>Set</Text>
+              <Text style={standards.regularText}>Previous</Text>
+              <Text style={standards.regularText}>lbs</Text>
+              <Text style={standards.regularText}>Reps</Text>
+            </View>
+
+            {(item.sets || []).map((set, setIdx) => (
+              <View key={setIdx} style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5}}>
+                <Text style={standards.regularText}>{'  ' + (setIdx + 1) + ' '}</Text>
+                <Text style={standards.regularText}>{set.weight ? (set.weight + 'x' + set.reps).padStart(15,' ') : '                 -          '}</Text>
+                <TextInput
+                  style={styles.templateInput}
+                  value={updatedExercises[exerciseIdx]?.sets[setIdx]?.weight?.toString() || ''}
+                  onChangeText={val => handleSetChange(exerciseIdx, setIdx, 'weight', val)}
+                  placeholder='-'
+                  keyboardType='numeric'
+                />
+                <TextInput
+                  style={styles.templateInput}
+                  value={updatedExercises[exerciseIdx]?.sets[setIdx]?.reps?.toString() || ''}
+                  onChangeText={val => handleSetChange(exerciseIdx, setIdx, 'reps', val)}
+                  placeholder='-'
+                  keyboardType='numeric'
+                />
+              </View>
+            ))}
+
+          </TouchableOpacity>
         </View>
-
-        {(item.sets || []).map((set, setIdx) => (
-          <View key={setIdx} style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5}}>
-            <Text style={standards.regularText}>{'  ' + (setIdx + 1) + ' '}</Text>
-            <Text style={standards.regularText}>{set.weight ? (set.weight + 'x' + set.reps).padStart(15,' ') : '                 -          '}</Text>
-            <TextInput
-              style={styles.templateInput}
-              value={updatedExercises[exerciseIdx]?.sets[setIdx]?.weight?.toString() || ''}
-              onChangeText={val => handleSetChange(exerciseIdx, setIdx, 'weight', val)}
-              placeholder='-'
-              keyboardType='numeric'
-            />
-            <TextInput
-              style={styles.templateInput}
-              value={updatedExercises[exerciseIdx]?.sets[setIdx]?.reps?.toString() || ''}
-              onChangeText={val => handleSetChange(exerciseIdx, setIdx, 'reps', val)}
-              placeholder='-'
-              keyboardType='numeric'
-            />
-          </View>
-        ))}
-
-      </View>
+      </ScaleDecorator>
     );
     
     // Save updated workout to DB
@@ -331,10 +336,12 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
 
                 <Text style={[standards.headerText, {padding: 20}]}>{workoutData ? workoutData.name : 'No Workout found'}</Text>
 
-                <FlatList
+                <DraggableFlatList
                 data={exercises}
+                onDragEnd={({data}) => {setExercises(data)}}
                 keyExtractor={(item, index) => String(item.id ?? index)}
-                renderItem={({item, index}) => renderItem({item, index})}
+                renderItem={renderItem}
+                containerStyle={{height: screenHeight * 0.775, paddingBottom: 10}}
                 />
                 </View>
             </View>
@@ -347,6 +354,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  exerciseContainer: {
+    padding: '2%',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#375573',
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
   text: {
     flex: 1,

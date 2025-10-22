@@ -146,6 +146,7 @@ export default function App() {
           potassium TEXT);`
         );
 
+        //db.execAsync(`DROP TABLE IF EXISTS workoutTemplates;`);
         await db.execAsync(
           `CREATE TABLE IF NOT EXISTS workoutTemplates (
           id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -209,30 +209,26 @@ export default function EditTemplateScreen() {
     )
   }
 
-  const renderItem = ({ item, index, drag }) => {
-    let setIndex = 0
-    
-    return (
-      <ScaleDecorator>
-        <View style={{marginBottom: '2.5%'}}>
-          <TouchableOpacity onLongPress={drag} style={styles.exerciseContainer}>
-            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={standards.regularText}>{item.name ? item.name : 'Exercise Not Found'}</Text>
-              {/* {console.log(item.name)} */}
-              <TouchableOpacity onPress = {() => {deleteExercise(item)}}>
-                <Image style={{width: 25, height: 25}} source={require('../assets/images/white-trash-can.png')}/>
-              </TouchableOpacity>
-            </View>
+  const renderItem = ({ item, drag }) => (
+    <ScaleDecorator>
+      <View style={{marginBottom: '2.5%'}}>
+        <TouchableOpacity onLongPress={drag} style={styles.exerciseContainer}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={standards.regularText}>{item.name ? item.name : 'Exercise Not Found'}</Text>
+            <TouchableOpacity onPress = {() => {deleteExercise(item)}}>
+              <Image style={{width: 25, height: 25}} source={require('../assets/images/white-trash-can.png')}/>
+            </TouchableOpacity>
+          </View>
 
-            <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 5}}>
-              <Text style={standards.regularText}>Set</Text>
-              <Text style={standards.regularText}>Previous</Text>
-              <Text style={standards.regularText}>lbs</Text>
-              <Text style={standards.regularText}>Reps</Text>
-            </View>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 5}}>
+            <Text style={standards.regularText}>Set</Text>
+            <Text style={standards.regularText}>Previous</Text>
+            <Text style={standards.regularText}>lbs</Text>
+            <Text style={standards.regularText}>Reps</Text>
+          </View>
 
-
-            {item.sets.map((set, i) => (
+          {item.sets ? 
+            item.sets.map((set, i) => (
               <View key={`${item.id}-set-${i}`} style={{flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 10, paddingLeft: 10}}>
 
                 <Text style={[standards.regularText, {flex: 3}]}>{i + 1}</Text>
@@ -264,19 +260,19 @@ export default function EditTemplateScreen() {
                 />
 
               </View>
-            ))}
+            )) : null}
 
-            <TouchableOpacity 
-            style={{backgroundColor: '#375573', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
-            onPress={() => {handleAddSets(item.id)}}
-            >
-              <Text style={standards.regularText}>Add Set</Text>
-            </TouchableOpacity>
-
+          <TouchableOpacity 
+          style={{backgroundColor: '#375573', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
+          onPress={() => {handleAddSets(item.id)}}
+          >
+            <Text style={standards.regularText}>Add Set</Text>
           </TouchableOpacity>
-        </View>
-      </ScaleDecorator>
-  )};
+
+        </TouchableOpacity>
+      </View>
+    </ScaleDecorator>
+  );
 
   return(
     <SafeAreaView style={{flex: 1, backgroundColor: '#1a1b1c', padding: 10}}>
