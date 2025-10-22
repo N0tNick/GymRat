@@ -395,7 +395,7 @@ const pieColors = ['#ff8800ff', '#c05208ff', '#f5d833ff'];
   
   const handleOnboarding = async () => {
     try {
-      const result = await db.getFirstAsync('SELECT * FROM users')
+      const result = await db.getFirstAsync('SELECT * FROM users WHERE id = ?', [userId])
       console.log(result)
       if (result['hasOnboarded'] == 0) {
         setNutOnboardModal(true)

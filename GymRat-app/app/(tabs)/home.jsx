@@ -187,13 +187,15 @@ export default function HomeScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      if(!userId) return;
       handleOnboarding()
     }, [])
   )
   
   const handleOnboarding = async () => {
     try {
-      const result = await db.getFirstAsync('SELECT * FROM users')
+      const result = await db.getFirstAsync('SELECT * FROM users WHERE id = ?', [userId])
+      console.log(`the current user signed in is ${result['username']}`)
       console.log(result)
       if (result['hasOnboarded'] == 0) {
         setHomeModal(true)

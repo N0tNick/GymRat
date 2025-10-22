@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ProfileOnboardModal } from '../../components/Onboarding/onboard';
 import TopTab from '../../components/Profile/ProfileTopTab';
 import SettingsWheel from '../../components/Profile/SettingsWheel';
+import { useUser } from '../../UserContext';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -15,6 +16,7 @@ export default function ProfileScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [isProfileOnboardModal, setProfileOnboardModal] = useState(false);
   const db = useSQLiteContext();
+  const { userId } = useUser();
   
   useFocusEffect(
     useCallback(() => {
@@ -24,7 +26,7 @@ export default function ProfileScreen() {
   
   const handleOnboarding = async () => {
     try {
-      const result = await db.getFirstAsync('SELECT * FROM users')
+      const result = await db.getFirstAsync('SELECT * FROM users WHERE id = ?', [userId])
       console.log(result)
       if (result['hasOnboarded'] == 0) {
         setProfileOnboardModal(true)
