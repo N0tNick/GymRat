@@ -41,7 +41,7 @@ export async function updateStreakOnAppOpen(db, userId){
 
 if (!rows || rows.length === 0) {
     await db.runAsync(
-        'INSERT INTO userStreaks (user_id, current_streak, best_streak, last_open_date) VALUES (?, ?, ?, ?)',
+        'INSERT OR IGNORE INTO userStreaks (user_id, current_streak, best_streak, last_open_date) VALUES (?, ?, ?, ?)',
         [userId, 1, 1, today]
     );
     return {current_streak: 1, best_streak: 1, last_open_date: today};

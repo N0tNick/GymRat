@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Button, Keyboard, Linking, Modal, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { ActivityIndicator, Button, Keyboard, Linking, Modal, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View, Dimensions} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useUser } from '../../UserContext';
 import FoodModal from '../../components/FoodModal';
@@ -79,6 +79,9 @@ export default function BarcodeScannerScreen() {
   const currentDate = new Date();
   const day = currentDate.getDate();
   const todayLocal = () => new Date().toLocaleDateString('en-CA'); // "YYYY-MM-DD"
+
+  const { height: screenHeight } = Dimensions.get('window');
+  const { width: screenWidth } = Dimensions.get('window');
 
   // helper to get servings
   const getServingsArray = () => {
@@ -477,9 +480,9 @@ export default function BarcodeScannerScreen() {
   };
 
   return (
-    <SafeAreaProvider>
+    <View style={styles.container}>
         <LinearGradient colors={['#1a1b1c', '#1a1b1c']} style={styles.container}>
-          <SafeAreaView style={{ flex: 1 }}>
+          <SafeAreaView style={{ flex: 1, height: screenHeight, width: screenWidth}}>
             <View style={styles.overlay}>
             <View style={styles.header}>
               <TouchableOpacity onPress={() => router.back()}>
@@ -680,7 +683,7 @@ export default function BarcodeScannerScreen() {
           mode={manualModalVisible} // "search" or "manual"
           onClose={() => { setManualModalVisible(false); resetScanner() }}
         />
-    </SafeAreaProvider>
+    </View>
   );
 }
 

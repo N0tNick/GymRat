@@ -75,9 +75,16 @@ export default function App() {
           body_fat TEXT DEFAULT '0' NOT NULL, 
           nut_goal TEXT DEFAULT 'maintenance' NOT NULL, 
           goal_weight TEXT DEFAULT '0' NOT NULL,
-          gain_speed TEXT DEFAULT 'moderate' NOT NULL, 
+          gain_speed TEXT DEFAULT 'moderate' NOT NULL,
+          dailyCals TEXT DEFAULT '0' NOT NULL, 
           FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE);`
         );
+        try {
+          await db.execAsync(`ALTER TABLE userStats ADD COLUMN dailyCals TEXT DEFAULT '0';`);
+          console.log("Added dailyCals column to userStats");
+        } catch (err) {
+          console.log("ℹdailyCals column already exists or migration skipped:", err.message);
+        }
 
         await db.execAsync(
           `CREATE TABLE IF NOT EXISTS dailyNutLog (
@@ -239,9 +246,9 @@ export default function App() {
           headerShown: false,
           animationMatchesGesture: true,
           animationDuration:100,
-          }} initialRouteName="splash">
+          }} initialRouteName="index">
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="splash"/>
+          {/* <Stack.Screen name="splash"/> */}
           <Stack.Screen name="index"/>
           <Stack.Screen name="login"/>
           <Stack.Screen name="registration"/>

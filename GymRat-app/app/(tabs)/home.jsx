@@ -4,15 +4,17 @@ import { Picker } from '@react-native-picker/picker';
 import * as Calendar from 'expo-calendar';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { doc, setDoc } from 'firebase/firestore';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dimensions, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import JimRat from '../../components/jimRat';
 import { HomeModal } from '../../components/Onboarding/onboard';
+import { WeightTouchable } from '../../components/Profile/bodyTabModals';
 import { updateStreakOnAppOpen } from '../../components/streak';
+import { fbdb } from '../../firebaseConfig.js';
 import { useUser } from '../../UserContext';
-import { cals } from '../goal';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -56,14 +58,121 @@ export default function HomeScreen() {
   const [foodName, setFoodName] = useState('');
   const [nutrientEntries, setNutrientEntries] = useState([]);
   const [showNutritionSummary, setShowNutritionSummary] = useState(true);
-  const [moduleOrder, setModuleOrder] = useState(['nutritionSummary', 'tasks', 'nutrition', 'weekly']);
+  const [moduleOrder, setModuleOrder] = useState(['nutritionSummary', 'tasks', 'nutrition', 'weekly', 'weightLog', 'streak']);
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
   const [bestStreak, setBestStreak] = useState(0);
   const [showStreak, setShowStreak] = useState(true);
+  const [showWeightLog, setShowWeightLog] = useState(true);
+  const [weightModalVisible, setWeightModalVisible] = useState(false);
+  const [currentWeight, setCurrentWeight] = useState(null);
 
   // check if daily log has entries for Jim rat
   const [hasEntries, setHasEntries] = useState(false);
   const [hasWorkout, setHasWorkout] = useState(false);
+
+  const [cals, setCals] = useState(0);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const userCals = await db.getFirstAsync('SELECT dailyCals FROM userStats WHERE user_id = ?',
+          [userId]
+        );
+        if (userCals) setCals(Number(userCals.dailyCals));
+      } catch (e) {
+        console.error('Error loading cals from userStats:', e);
+      }
+    })();
+  }, [db]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const userWeight = await db.getFirstAsync('SELECT weight FROM userStats WHERE user_id = ?',
+          [userId]
+        );
+        if (userWeight) setCurrentWeight(Number(userWeight.weight));
+      } catch (e) {
+        console.error('Error loading weight from userStats:', e);
+      }
+    })();
+  }, [db, userId]);
+
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const refreshHomeData = async () => {
+      try {
+        // Refresh daily cals target
+        const userCals = await db.getFirstAsync(
+          'SELECT dailyCals FROM userStats WHERE user_id = ?',
+          [userId]
+        );
+        if (userCals) setCals(Number(userCals.dailyCals));
+
+        const userWeight = await db.getFirstAsync(
+          'SELECT weight FROM userStats WHERE user_id = ?',
+          [userId]
+        );
+        if (userWeight) setCurrentWeight(Number(userWeight.weight));
+
+        // Refresh daily totals
+        const todayTotals = await loadTotalsForDate(new Date(), "dailyNutLog");
+        setDailyTotals(todayTotals);
+
+        // Refresh streak
+        const streakRes = await db.getAllAsync(
+          'SELECT current_streak, best_streak FROM userStreaks WHERE user_id = ?',
+          [userId]
+        );
+        if (streakRes && streakRes[0]) {
+          setStreak(streakRes[0].current_streak);
+          setBestStreak(streakRes[0].best_streak);
+        }
+
+        // Refresh week data
+        const startOfWeek = new Date();
+        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+        const days = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(startOfWeek);
+          d.setDate(d.getDate() + i);
+          return d;
+        });
+
+        const results = [];
+        for (const dateObj of days) {
+          const dateStr = dateObj.toISOString().split("T")[0];
+          const nutRes = await db.getAllAsync(
+            `SELECT COUNT(*) as count FROM historyLog WHERE user_id = ? AND date = ?`,
+            [userId, dateStr]
+          );
+          const workoutRes = await db.getAllAsync(
+            `SELECT COUNT(*) as count FROM workoutLog WHERE user_id = ? AND date = ?`,
+            [userId, dateStr]
+          );
+          results.push({
+            date: dateObj,
+            hasLog: nutRes[0]?.count > 0,
+            hasWorkout: workoutRes[0]?.count > 0,
+          });
+        }
+        setWeekData(results);
+
+      } catch (err) {
+        console.error("Auto-refresh HomeScreen failed:", err);
+      }
+    };
+
+    // Run immediately once
+    refreshHomeData();
+
+    // Then run every 5 seconds
+    const intervalId = setInterval(refreshHomeData, 5000);
+
+    // Cleanup on unmount
+    return () => clearInterval(intervalId);
+  }, [db, userId]);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -282,6 +391,15 @@ export default function HomeScreen() {
         setStreak(streakData.current_streak);
         setBestStreak(streakData.best_streak);
       }
+
+      if (firestoreUserId) {
+        const streakRef = doc(fbdb, "users", firestoreUserId, "userStreaks", "streakData");
+        await setDoc(streakRef, {
+          current_streak: streakData.current_streak,
+          best_streak: streakData.best_streak,
+          last_open_date: streakData.last_open_date,
+        }, { merge: true });
+      }
     } catch (e) {
       console.error('Error updating streak on app open:', e);
     }
@@ -435,21 +553,35 @@ const initializeModulePreferences = async () => {
         show_nutrition INTEGER DEFAULT 1,
         show_weekly INTEGER DEFAULT 1,
         show_streak INTEGER DEFAULT 1,
-        module_order TEXT DEFAULT '["nutritionSummary","tasks","nutrition","weekly","streak"]'
-      );
+        show_weight_log INTEGER DEFAULT 1,
+        module_order TEXT DEFAULT '["nutritionSummary","tasks","nutrition","weekly","streak","weightLog"]'
+      )
     `);
-    const tableInfo = await db.getAllAsync("PRAGMA table_info('modulePreferences');");
-    const hasStreakColumn = tableInfo.some(col => col.name === 'show_streak');
-    if (!hasStreakColumn) {
-      await db.runAsync(`
-        ALTER TABLE modulePreferences ADD COLUMN show_streak INTEGER DEFAULT 1;
-      `);
-      console.log('Added show_streak column to modulePreferences table');
+  } catch (e) {
+    console.error('Create modulePreferences failed:', e);
+  }
+  try {
+    await db.getFirstAsync(`SELECT show_streak FROM modulePreferences LIMIT 1`);
+  } catch {
+    try {
+      await db.runAsync(`ALTER TABLE modulePreferences ADD COLUMN show_streak INTEGER DEFAULT 1`);
+      await db.runAsync(`UPDATE modulePreferences SET show_streak = 1 WHERE show_streak IS NULL`);
+    } catch (e) {
+      console.error('Add show_streak failed:', e);
     }
-  } catch (error) {
-    console.error('Error creating modulePreferences table:', error);
+  }
+  try {
+    await db.getFirstAsync(`SELECT show_weight_log FROM modulePreferences LIMIT 1`);
+  } catch {
+    try {
+      await db.runAsync(`ALTER TABLE modulePreferences ADD COLUMN show_weight_log INTEGER DEFAULT 1`);
+      await db.runAsync(`UPDATE modulePreferences SET show_weight_log = 1 WHERE show_weight_log IS NULL`);
+    } catch (e) {
+      console.error('Add show_weight_log failed:', e);
+    }
   }
 };
+
 
 
 const saveModulePreferences = async () => {
@@ -457,8 +589,8 @@ const saveModulePreferences = async () => {
   try {
     await db.runAsync(
       `INSERT OR REPLACE INTO modulePreferences 
-       (user_id, show_nutrition_summary, show_tasks, show_nutrition, show_weekly, show_streak, module_order) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+       (user_id, show_nutrition_summary, show_tasks, show_nutrition, show_weekly, show_streak, show_weight_log, module_order) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         userId,
         showNutritionSummary ? 1 : 0,
@@ -466,6 +598,7 @@ const saveModulePreferences = async () => {
         showNutrition ? 1 : 0,
         showWeekly ? 1 : 0,
         showStreak ? 1 : 0,
+        showWeightLog ? 1 : 0,
         JSON.stringify(moduleOrder)
       ]
     );
@@ -488,11 +621,19 @@ const loadModulePreferences = async () => {
       setShowNutrition(prefs.show_nutrition === 1);
       setShowWeekly(prefs.show_weekly === 1);
       setShowStreak(prefs.show_streak === 1);
+      setShowWeightLog(prefs.show_weight_log === 1);
+      const yes = v => v === 1 || v === null || v === undefined;
+      setShowStreak(yes(prefs.show_streak));
+      setShowWeightLog(yes(prefs.show_weight_log));
+
 
       try {
         const order = JSON.parse(prefs.module_order);
         if (!order.includes('streak')) {
           order.push('streak');
+        }
+        if (!order.includes('weightLog')) {
+          order.push('weightLog');
         }
         setModuleOrder(order);
       } catch (e) {
@@ -502,6 +643,7 @@ const loadModulePreferences = async () => {
     setPreferencesLoaded(true);
   } catch (error) {
     console.error('Error loading module preferences:', error);
+    setModuleOrder(['nutritionSummary', 'tasks', 'nutrition', 'weekly', 'streak', 'weightLog']);
     setPreferencesLoaded(true);
   }
 };
@@ -513,9 +655,10 @@ const allModules = useMemo(() => {
   if (showNutrition) enabled.push('nutrition');
   if (showWeekly) enabled.push('weekly');
   if (showStreak) enabled.push('streak');
+  if (showWeightLog) enabled.push('weightLog');
 
   return moduleOrder.filter(k => enabled.includes(k)).map(k => ({ key: k }));
-  }, [showNutritionSummary, showTasks, showNutrition, showWeekly, showStreak, moduleOrder]);
+  }, [showNutritionSummary, showTasks, showNutrition, showWeekly, showStreak, showWeightLog, moduleOrder]);
 
   const renderItem = useCallback(({ item, drag, isActive }) => {
     switch (item.key) {
@@ -698,7 +841,7 @@ const allModules = useMemo(() => {
           </ScaleDecorator>
         );
 
-                case 'streak':
+        case 'streak':
           return (
             <ScaleDecorator>
               <TouchableOpacity
@@ -734,6 +877,49 @@ const allModules = useMemo(() => {
               </TouchableOpacity>
             </ScaleDecorator>
           );
+
+          case 'weightLog':
+            return (
+              <ScaleDecorator>
+                <TouchableOpacity
+                  style={[styles.gridItem]}
+                  onLongPress={drag}
+                  disabled={isActive}
+                  activeOpacity={0.9}
+                >
+                  <View style={styles.homeModule}>
+                    <Text style={[styles.cardTitle, { alignSelf: 'center' , color: '#e0e0e0', fontSize: 16, fontWeight: 'bold' }]}>Weight Log</Text>
+                    <View style={styles.nutritionSummaryContent}>
+                      <View style={styles.calorieInfo}>
+                        <Text style={styles.calorieLabel}>Current Weight</Text>
+                        <Text style={styles.calorieValue}>
+                          {currentWeight ? `${currentWeight} lbs` : '-- lbs'}
+                        </Text>
+                      </View>
+
+                      <TouchableOpacity
+                        onPress={() => setWeightModalVisible(true)}
+                        style={{
+                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                          borderColor: '#32a852',
+                          borderWidth: 1,
+                          paddingVertical: 8,
+                          paddingHorizontal: 12,
+                          borderRadius: 8,
+                          alignSelf: 'center',
+                        }}
+                        activeOpacity={0.8}
+                      >
+                        <Text style={{ color: '#e0e0e0', fontWeight: 'bold', fontSize: 14 }}>
+                          Log Weight
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              </ScaleDecorator>
+            );
+
 
       default:
         return null;
@@ -911,6 +1097,10 @@ const allModules = useMemo(() => {
           </View>
         </Modal>
 
+        <WeightTouchable
+          isVisible={weightModalVisible}
+          onClose={() => setWeightModalVisible(false)}
+        />
         
         <TouchableOpacity
           style={styles.customizeButton}
@@ -1093,6 +1283,12 @@ const allModules = useMemo(() => {
               </Text>
             </TouchableOpacity>
 
+            <TouchableOpacity onPress={() => setShowWeightLog(!showWeightLog)}>
+              <Text style={{ color: showWeightLog ? '#32a852' : '#888', marginBottom: 10 }}>
+                {showWeightLog ? '✔ ' : '○ '}Weight Log
+              </Text>
+            </TouchableOpacity>
+
             <TouchableOpacity onPress={() => {saveModulePreferences();
               setCustomizeModalVisible(false)}}>
               <Text style={styles.cancelText}>Close</Text>
@@ -1100,6 +1296,21 @@ const allModules = useMemo(() => {
           </View>
         </View>
       </Modal>
+
+      <WeightTouchable
+        isVisible={weightModalVisible}
+        onClose={() =>{
+          setWeightModalVisible(false);
+          (async () => {
+            try {
+              const userWeight = await db.getFirstAsync('SELECT weight FROM userStats WHERE user_id = ?', [userId]);
+              if (userWeight) setCurrentWeight(Number(userWeight.weight));
+            } catch (e) {
+              console.error('Error refreshing weight:', e);
+            }
+          })();
+        }}
+        />
 
     </SafeAreaView>
   );
@@ -1318,7 +1529,7 @@ const styles = StyleSheet.create({
   },
   gridItem: { 
     width: screenWidth * 0.90, 
-    alignItems: 'center' 
+    alignItems: 'center'
   },
   smallItem: {
     flexBasis: (screenWidth - 12*2 - 12) / 2,

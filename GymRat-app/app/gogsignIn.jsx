@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import * as Application from 'expo-application';
 const isExpoGo = Application.applicationName === "Expo Go";
 
-// Lazy require variables
+// require variables
 let GoogleSignin, isErrorWithCode, statusCodes;
 
 if (Platform.OS === 'android' && !isExpoGo) {
@@ -29,6 +29,7 @@ import { useRouter } from 'expo-router';
 import { fbdb } from '../firebaseConfig.js';
 import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { syncFirestoreToSQLite } from '../components/syncUser.jsx'
 
 export const useGoogleSignIn = () => {
   const db = useSQLiteContext();
@@ -101,10 +102,12 @@ export const useGoogleSignIn = () => {
         console.log('Created new SQLite user with ID:', userId);
       }
 
-      // 💾 Save context + AsyncStorage
+      // Save context + AsyncStorage
       setUserId(userId);
       setFirestoreUserId(firestoreUserId);
       await AsyncStorage.setItem('firestoreUserId', firestoreUserId);
+      // sync with firestore
+      await syncFirestoreToSQLite({ firestoreUserId, userId, db });
 
       router.replace('/home');
     } catch (error) {

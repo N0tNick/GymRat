@@ -23,7 +23,7 @@ export default function SplashScreen() {
   if (checkingAuth) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#4CAF50" />
+        <ActivityIndicator size="large" color="#e0e0e0" />
         <Text style={{ color: '#fff', fontSize: 18, marginTop: 10 }}>Checking login...</Text>
       </View>
     );
@@ -32,7 +32,6 @@ export default function SplashScreen() {
   // Show splash screen content if not logged in
   return (
     <View style={styles.container}>
-      <Image source={require('../assets/images/undraw_athletes-training_koqa.png')} style={styles.logo} />
       <Text style={styles.title}>Welcome to GymRat</Text>
       <Text style={{color: '#fff', fontSize: 19, padding: 10, textAlign: 'center'}}>Track workouts. Plan meals. Crush goals.</Text>
       <Text style={{color: '#fff', fontSize: 19, padding: 10, textAlign: 'center'}}>All in one place.</Text>
@@ -61,11 +60,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   customButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#e6e6e6ff',
     paddingVertical: 12,
     paddingHorizontal: 40,
     borderRadius: 30,
-    marginTop: 20,
+    marginTop: 40,
   },
   buttonText: {
     color: '#fff',
