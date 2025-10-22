@@ -3,6 +3,7 @@ import { StyleSheet, View, Dimensions, Modal, Text, TouchableOpacity, Pressable,
 import {Calendar, CalendarUtils} from 'react-native-calendars';
 import { useSQLiteContext } from 'expo-sqlite';
 import dayjs from 'dayjs';
+import { useUser} from '../../UserContext';
 
 const { width: screenWidth } = Dimensions.get('window');
 const { height: screenHeight } = Dimensions.get('window');
@@ -16,6 +17,7 @@ const ProfileCalendar = () => {
     const [dayData, setDayData] = useState(null);
     const [markedDates, setMarkedDates] = useState({});
     const db = useSQLiteContext();
+    const { userId } = useUser();
 
     useEffect(() => {
         loadTotalsForDate()
@@ -32,8 +34,8 @@ const ProfileCalendar = () => {
                 SUM(CAST(total_Fat AS REAL)) AS totalFat,
                 SUM(CAST(sugar AS REAL)) AS totalSugar
                 FROM historyLog
-                WHERE date = ?`,
-                [dateString]
+                WHERE user_id = ? AND date = ?`,
+                [userId, dateString]
             );
 
             const totals = result[0];
@@ -76,8 +78,8 @@ const ProfileCalendar = () => {
         try {
             const workoutResult = await db.getAllAsync(
                 `SELECT workout_name FROM workoutLog
-                WHERE date = ?`,
-                [adjustedDate]
+                WHERE user_id = ? AND date = ?`,
+                [userId, adjustedDate]
             );
             workoutName = workoutResult[0]?.workout_name || null;
         } catch (error) {
@@ -98,12 +100,12 @@ const ProfileCalendar = () => {
         try {
             // Get all dates with nutrition logs
             const nutritionDates = await db.getAllAsync(
-                `SELECT DISTINCT date FROM historyLog WHERE calories > 0`
+                `SELECT DISTINCT date FROM historyLog WHERE calories > 0 AND user_id = ?`, [userId]
             );
             
             // Get all dates with workout logs
             const workoutDates = await db.getAllAsync(
-                `SELECT DISTINCT date FROM workoutLog`
+                `SELECT DISTINCT date FROM workoutLog WHERE user_id = ?`, [userId]
             );
             
             // Create marked dates object
