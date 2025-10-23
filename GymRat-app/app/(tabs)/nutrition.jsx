@@ -1,15 +1,14 @@
-import { Picker } from '@react-native-picker/picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Dimensions, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, G, Path, Text as SvgText, TSpan } from 'react-native-svg';
+import FoodModal from '../../components/FoodModal.jsx';
 import JimRatNutrition from '../../components/jimRatNutrition';
 import { NutOnboardModal } from '../../components/Onboarding/onboard';
 import { UserContext, useUser } from '../../UserContext';
-import FoodModal from '../../components/FoodModal.jsx';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -56,6 +55,26 @@ function PieChart({ size = 220, values, colors, labels, valueLabels }) {
       <Svg width={size} height={size}>
         <G>
           <Circle cx={cx} cy={cy} r={radius - 2} fill="rgba(255,255,255,0.15)" />
+        </G>
+      </Svg>
+    );
+  }
+
+  const positives = values.map((v, i) => ({ v: isFinite(v) ? v : 0, i })).filter(x => x.v > 0);
+  if (positives.length === 1) {
+    const { i} = positives[0];
+    return (
+      <Svg width={size} height={size}>
+        <G>
+          <Circle cx={cx} cy={cy} r={radius} fill={colors[i]} />
+          <SvgText x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
+            <TSpan fontSize="12" fontWeight="bold" fill="#e0e0e0">
+              {labels?.[i] ?? ''}
+            </TSpan>
+            <TSpan x={cx} dy={14} fontSize="11" fill="#e0e0e0">
+              {valueLabels?.[i] ?? ''}
+            </TSpan>
+          </SvgText>
         </G>
       </Svg>
     );
@@ -1258,70 +1277,54 @@ useEffect(() => {
                 <>
                 {/* Main Nutrients */}
                 <View style={styles.detailSection}>
-                  <Text style={styles.detailSectionTitle}>Main Nutrients</Text>
-                  {['calories', 'protein', 'sugar', 'cholesterol', 'total_fat'].map(key => {
-                    const val = selectedFood[key];
-                    if (val > 0) {
-                      const formatted = formatNutrientDisplay(key, val);
-                      return (
-                        <View key={key} style={styles.nutrientRow}>
-                          <Text style={styles.nutrientName}>{formatted.name}</Text>
-                          <Text style={styles.nutrientValue}>
-                            {formatted.value} {formatted.unit}
-                          </Text>
-                        </View>
-                      );
-                    }
-                    return null;
+                  <Text style={[styles.detailSectionTitle, { fontWeight: '600' }]}>Main Nutrients</Text>
+                  {['calories', 'protein', 'sugar', 'cholesterol', 'fat'].map(key => {
+                    const val = key === 'fat' ? selectedFood.total_fat : selectedFood[key];
+                    const formatted = formatNutrientDisplay(key, Number(val) || 0);
+                    return (
+                      <View key={key} style={styles.nutrientRow}>
+                        <Text style={styles.nutrientName}>{formatted.name}</Text>
+                        <Text style={styles.nutrientValue}>
+                          {formatted.value} {formatted.unit}
+                        </Text>
+                      </View>
+                    );
                   })}
                 </View>
 
                 {/* Minerals */}
-                {(selectedFood.calcium > 0 || selectedFood.sodium > 0 || 
-                  selectedFood.fiber > 0 || selectedFood.iron > 0 || selectedFood.potassium > 0) && (
-                  <View style={styles.detailSection}>
-                    <Text style={styles.sectionTitle}>Minerals</Text>
-                    {['calcium', 'sodium', 'fiber', 'iron', 'potassium'].map(key => {
-                      const val = selectedFood[key];
-                      if (val > 0) {
-                        const formatted = formatNutrientDisplay(key, val);
-                        return (
-                          <View key={key} style={styles.nutrientRow}>
-                            <Text style={styles.nutrientName}>{formatted.name}</Text>
-                            <Text style={styles.nutrientValue}>
-                              {formatted.value} {formatted.unit}
-                            </Text>
-                          </View>
-                        );
-                      }
-                      return null;
-                    })}
-                  </View>
-                )}
+                <View style={styles.detailSection}>
+                  <Text style={[styles.sectionTitle, { fontWeight: 'bold' }]}>Minerals</Text>
+                  {['calcium', 'sodium', 'fiber', 'iron', 'potassium'].map(key => {
+                    const val = Number(selectedFood[key]) || 0;
+                    const formatted = formatNutrientDisplay(key, val);
+                    return (
+                      <View key={key} style={styles.nutrientRow}>
+                        <Text style={styles.nutrientName}>{formatted.name}</Text>
+                        <Text style={styles.nutrientValue}>
+                          {formatted.value} {formatted.unit}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
 
                 {/* Vitamins */}
-                {(selectedFood.vitamin_A > 0 || selectedFood.vitamin_B6 > 0 || 
-                  selectedFood.vitamin_B12 > 0 || selectedFood.vitamin_C > 0 ||
-                  selectedFood.vitamin_D > 0 || selectedFood.vitamin_E > 0) && (
-                  <View style={styles.detailSection}>
-                    <Text style={styles.sectionTitle}>Vitamins</Text>
-                    {['vitamin_A', 'vitamin_B6', 'vitamin_B12', 'vitamin_C', 'vitamin_D', 'vitamin_E'].map(key => {
-                      const val = selectedFood[key];
-                      if (val > 0) {
-                        const formatted = formatNutrientDisplay(key, val);
-                        return (
-                          <View key={key} style={styles.nutrientRow}>
-                            <Text style={styles.nutrientName}>{formatted.name}</Text>
-                            <Text style={styles.nutrientValue}>
-                              {formatted.value} {formatted.unit}
-                            </Text>
-                          </View>
-                        );
-                      }
-                      return null;
-                    })}
-                  </View>
-                )}
+                <View style={styles.detailSection}>
+                  <Text style={styles.sectionTitle}>Vitamins</Text>
+                  {['vitamin_A', 'vitamin_B6', 'vitamin_B12', 'vitamin_C', 'vitamin_D', 'vitamin_E'].map(key => {
+                    const val = Number(selectedFood[key]) || 0;
+                    const formatted = formatNutrientDisplay(key, val);
+                    return (
+                      <View key={key} style={styles.nutrientRow}>
+                        <Text style={styles.nutrientName}>{formatted.name}</Text>
+                        <Text style={styles.nutrientValue}>
+                          {formatted.value} {formatted.unit}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
               </>
             )}
           </ScrollView>
@@ -1775,6 +1778,7 @@ const styles = StyleSheet.create({
   },
   detailSection: {
     marginBottom: 20,
+    fontSize: 16,
     backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: 12,
     padding: 15,
