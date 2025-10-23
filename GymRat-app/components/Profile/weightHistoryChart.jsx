@@ -32,7 +32,10 @@ const lineChart = () => {
         try {
             const user = await db.getFirstAsync('SELECT id from users')
 
-            if (!user) { console.log('no user found - weightHistoryChart'); }
+            if (!user) { 
+                console.log('no user found - weightHistoryChart'); 
+                return;
+            }
 
             const result = await db.getAllAsync('SELECT * FROM weightHistory WHERE user_id = ? ORDER BY date', [user.id])
 

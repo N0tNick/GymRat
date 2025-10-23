@@ -378,7 +378,7 @@ useEffect(() => {
   fetchNutritionData();
 
   // Then run every 2 seconds
-  const intervalId = setInterval(fetchNutritionData, 5000);
+  const intervalId = setInterval(fetchNutritionData, 2000);
 
   // Cleanup on unmount
   return () => clearInterval(intervalId);

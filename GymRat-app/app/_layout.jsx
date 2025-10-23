@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { syncStorage } from 'use-state-persist';
 import exampleTemplates from '../assets/presetWorkoutTemplates.json';
+import { useEnsureTables } from '../components/useEnsureTables.jsx';
 
 // required for userId's
 import { SQLiteProvider } from 'expo-sqlite';
@@ -241,6 +242,7 @@ export default function App() {
          }}
         options={{useNewConnection: true, enableCRSQLite: false}}
       >
+      <EnsureTablesWrapper>
       <UserProvider>
         <Stack screenOptions={{ 
           headerShown: false,
@@ -258,10 +260,15 @@ export default function App() {
           <Stack.Screen name="editTemplate"/>
         </Stack>
       </UserProvider>
+      </EnsureTablesWrapper>
     </SQLiteProvider>
     </ApplicationProvider>
     </GestureHandlerRootView>
     </SafeAreaProvider>
   );
 }
-  
+
+function EnsureTablesWrapper({children}) {
+  useEnsureTables(); // rebuilds missing tables (if you dropped them)
+  return <>{children}</>;
+}

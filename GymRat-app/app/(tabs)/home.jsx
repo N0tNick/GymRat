@@ -120,7 +120,9 @@ export default function HomeScreen() {
 
         // Refresh daily totals
         const todayTotals = await loadTotalsForDate(new Date(), "dailyNutLog");
-        setDailyTotals(todayTotals);
+        if (JSON.stringify(todayTotals) !== JSON.stringify(dailyTotals)) {
+          setDailyTotals(todayTotals);
+        }
 
         // Refresh streak
         const streakRes = await db.getAllAsync(
@@ -168,8 +170,8 @@ export default function HomeScreen() {
     // Run immediately once
     refreshHomeData();
 
-    // Then run every 5 seconds
-    const intervalId = setInterval(refreshHomeData, 5000);
+    // Then run every 2 seconds
+    const intervalId = setInterval(refreshHomeData, 2000);
 
     // Cleanup on unmount
     return () => clearInterval(intervalId);
@@ -355,22 +357,24 @@ export default function HomeScreen() {
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      const today = new Date().toISOString().split("T")[0];
-      const res = await db.getAllAsync(
-        `SELECT COUNT(*) as count FROM workoutLog WHERE user_id = ? AND date = ?`,
-        [userId, today]
-      );
-      setHasWorkout(res[0]?.count > 0);
-
-      const todayTotals = await loadTotalsForDate(new Date(), "dailyNutLog");
-      setDailyTotals(todayTotals);
-
-      const entriesExist = await checkIfFoodLoggedToday(db, userId);
-      setHasEntries(entriesExist);
-    })();
-  }, [db, userId, foodModalVisible]);
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        const today = new Date().toISOString().split("T")[0];
+        const res = await db.getAllAsync(
+          `SELECT COUNT(*) as count FROM workoutLog WHERE user_id = ? AND date = ?`,
+          [userId, today]
+        );
+        setHasWorkout(res[0]?.count > 0);
+      
+        const todayTotals = await loadTotalsForDate(new Date(), "dailyNutLog");
+        setDailyTotals(todayTotals);
+      
+        const entriesExist = await checkIfFoodLoggedToday(db, userId);
+        setHasEntries(entriesExist);
+      })();
+    }, [db, userId])
+  );
 
   useEffect(() => {
     (async () => {
@@ -981,10 +985,6 @@ const allModules = useMemo(() => {
         <Text style={styles.text}>GymRat</Text>
         
         <HomeModal isVisible={isHomeModal} onClose={() => setHomeModal(false)}/>
-        {/* uncomment to see current gym streak for user. just a bandaid view till jim art is done or streak module done */}
-        {/* {streak > 0 && (
-          <Text style={styles.streakText}> {streak} day streak</Text>
-        )} */}
 
         {dailyTotals && (
           <JimRat

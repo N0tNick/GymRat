@@ -44,7 +44,7 @@ const tips = [
     id: "low_carbs",
     weight: 70,
     getMessage: (totals, targets) =>
-      `Carbs are only ${totals.totalCarbs}/${targets.carbsTarget}g. Try adding some healthy carbs`,
+      `Carbs are low (${totals.totalCarbs}/${targets.carbsTarget}g). Try adding some healthy carbs`,
     condition: (totals, targets) =>
       totals.totalCalories > 0 &&
       totals.totalCarbs < targets.carbsTarget * 0.5,
@@ -81,8 +81,15 @@ export default function JimRat({ dailyTotals, targets, hasEntries, hasWorkout, s
   useEffect(() => {
     if (dailyTotals && targets) {
       const results = getApplicableTips(dailyTotals, targets, hasEntries, hasWorkout);
-      setMessages(results);
-      setIndex(0);
+      setMessages((prev) => {
+        const prevIds = prev.map((m) => m.id).join(",");
+        const newIds = results.map((m) => m.id).join(",");
+        if (prevIds !== newIds) {
+          setIndex(0);
+          return results;
+        }
+        return prev; // don't overwrite if same
+      });
     }
   }, [dailyTotals, targets, hasEntries, hasWorkout]);
 

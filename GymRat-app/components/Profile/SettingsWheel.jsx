@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react'
-import {Animated, TouchableOpacity, View, StyleSheet, TouchableWithoutFeedback, Modal, Image, Dimensions, Text} from 'react-native';
+import {Animated, TouchableOpacity, View, StyleSheet, Modal, Image, Dimensions, Text, TextInput, Platform } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { signOut } from 'firebase/auth';
+import { signOut, deleteUser, reauthenticateWithCredential, EmailAuthProvider, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '../../firebaseConfig';
 import { useSQLiteContext } from 'expo-sqlite';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,27 +12,50 @@ import wheelIcon from '../../assets/images/wheelIcon.png'
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const SIDEBAR_WIDTH = screenWidth * 0.90; //Exactly half the screen
+import { doc, deleteDoc } from 'firebase/firestore';
+import { fbdb } from '../../firebaseConfig';
+import * as Application from 'expo-application';
+const isExpoGo = Application.applicationName === "Expo Go";
+let GoogleSignin, isErrorWithCode, statusCodes;
+if (Platform.OS === 'android' && !isExpoGo) {
+  const googleModule = require('@react-native-google-signin/google-signin');
+  GoogleSignin = googleModule.GoogleSignin;
+  isErrorWithCode = googleModule.isErrorWithCode;
+  statusCodes = googleModule.statusCodes;
+}
 
 const SettingsWheel = () => {
     const db = useSQLiteContext();
-    const {setUserId, setFirestoreUserId} = useUser();
+    const {userId, setUserId, setFirestoreUserId} = useUser();
+    const [passwordModalVisible, setPasswordModalVisible] = useState(false);
+    const [passwordInput, setPasswordInput] = useState('');
+    const [deletePending, setDeletePending] = useState(false);
+
     const [isAccountModal, setAccountModal] = useState(false);
 
 
     //delete account & userData
     const resetAccountData = async () => {
-        await db.getAllAsync('DROP TABLE IF EXISTS users;');
-        await db.getAllAsync('DROP TABLE IF EXISTS userSettings;')
-        await db.getAllAsync('DROP TABLE IF EXISTS userStats;')
-        await db.getAllAsync('DROP TABLE IF EXISTS dailyNutLog;')
-        await db.getAllAsync('DROP TABLE IF EXISTS historyLog;')
-        await db.getAllAsync('DROP TABLE IF EXISTS workoutTemplates;')
-        await db.getAllAsync('DROP TABLE IF EXISTS exampleWorkoutTemplates;')
-        await db.getAllAsync('DROP TABLE IF EXISTS customExercises;')
-        await db.getAllAsync('DROP TABLE IF EXISTS workoutLog;')
-        await db.getAllAsync('DROP TABLE IF EXISTS weightHistory;')
+      const tables = [
+        'userSettings', 'userStats', 'dailyNutLog',
+        'historyLog', 'workoutTemplates',
+        'customExercises', 'workoutLog', 'weightHistory'
+      ];
 
-        console.log(`Account data reset.`);
+    for (const table of tables) {
+        try {
+            await db.runAsync(`DELETE FROM ${table} WHERE user_id = ?;`, [userId]);
+        } catch (err) {
+            console.warn(`Table ${table} might not exist yet:`, err.message);
+        }
+    }
+
+        try {
+            await db.runAsync(`DELETE FROM users WHERE id = ?;`, [userId]);
+        } catch (err) {
+            console.warn('Could not delete from users table:', err.message);
+        }
+    console.log('Account data reset.');
     };
 
     const more = true
@@ -61,6 +84,108 @@ const SettingsWheel = () => {
         console.error('Error signing out:', err);
       }
     };
+
+    const handleDeleteAccount = async () => {
+      try {
+        const user = auth.currentUser;
+        const firestoreUserId = await AsyncStorage.getItem('firestoreUserId');
+
+        if (!user) {
+          alert('No user logged in.');
+          return;
+        }
+
+        const providerId = user.providerData[0]?.providerId;
+        console.log('User provider:', providerId);
+
+        // EMAIL USERS
+        if (providerId === 'password') {
+          setPasswordModalVisible(true);
+          return;
+        }
+
+        // GOOGLE USERS
+        if (providerId === 'google.com') {
+          if (!GoogleSignin || isExpoGo) {
+            Alert.alert(
+              'Unsupported in Expo Go',
+              'Google reauthentication and account deletion are only supported in a standalone build.'
+            );
+            return;
+          }
+
+          try {
+            await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+            await GoogleSignin.signOut();
+            const googleUser = await GoogleSignin.signIn();
+            const idToken = googleUser?.data?.idToken || googleUser?.idToken;
+
+            if (!idToken) throw new Error('No ID token returned from Google reauthentication.');
+
+            const credential = GoogleAuthProvider.credential(idToken);
+            await reauthenticateWithCredential(user, credential);
+            console.log('Reauthenticated via native Google Sign-In.');
+
+            await proceedWithDeletion(firestoreUserId, user);
+          } catch (error) {
+            if (isErrorWithCode?.(error)) {
+              switch (error.code) {
+                case statusCodes.SIGN_IN_CANCELLED:
+                  alert('Google reauthentication cancelled.');
+                  break;
+                case statusCodes.IN_PROGRESS:
+                  alert('Google reauthentication already in progress.');
+                  break;
+                case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+                  alert('Play Services not available.');
+                  break;
+                default:
+                  console.error('Google reauth error:', error);
+                  alert('Google reauthentication failed.');
+              }
+            } else {
+              console.error('Reauth failed:', error);
+              alert('Google reauthentication error.');
+            }
+          }
+          return;
+        }
+
+        alert('Unsupported sign-in provider.');
+      } catch (err) {
+        console.error('Error deleting account:', err);
+        alert('Account deletion failed. Please try again.');
+      }
+    };
+
+
+    const proceedWithDeletion = async (firestoreUserId, user) => {
+      try {
+        // Delete Firestore user doc
+        if (firestoreUserId) {
+          await deleteDoc(doc(fbdb, 'users', firestoreUserId));
+          console.log('Firestore user document deleted.');
+        }
+
+        // Delete local SQLite data
+        await resetAccountData();
+
+        // Delete Firebase Auth account
+        await deleteUser(user);
+        console.log('Firebase Auth account deleted.');
+
+        // Clear storage and context
+        await AsyncStorage.removeItem('firestoreUserId');
+        setUserId(null);
+        setFirestoreUserId(null);
+        router.replace('/login');
+      } catch (err) {
+        console.error('Final deletion step failed:', err);
+        alert('Error during account cleanup.');
+      }
+    };
+
+
 
     const renderMore = () => {
         if(more) {
@@ -128,7 +253,7 @@ const SettingsWheel = () => {
                             <Image style={styles.logo} source={wheelIcon} />
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.deleteAccountButton} onPress={() => { resetAccountData(1); handleSignOut(); }}>
+                        <TouchableOpacity style={styles.deleteAccountButton} onPress={handleDeleteAccount}>
                             <Text style={styles.logoutButtonText}>Delete Account</Text>
                         </TouchableOpacity>
 
@@ -211,7 +336,76 @@ const SettingsWheel = () => {
         <View>
             {renderMore()}
             {renderSidebar()}
-            {/* Removed the separate account modal call */}
+            <Modal visible={passwordModalVisible} transparent animationType="fade">
+              <View style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'rgba(0,0,0,0.6)',
+              }}>
+                <View style={{
+                  backgroundColor: '#222',
+                  padding: 20,
+                  borderRadius: 10,
+                  width: '80%',
+                  alignItems: 'center'
+                }}>
+                  <Text style={{ color: 'white', fontSize: 16, marginBottom: 10 }}>
+                    Enter your password to confirm deletion
+                  </Text>
+                  <TextInput
+                    secureTextEntry
+                    placeholder="Password"
+                    placeholderTextColor="#999"
+                    style={{
+                      backgroundColor: '#333',
+                      color: 'white',
+                      borderRadius: 8,
+                      width: '100%',
+                      paddingHorizontal: 10,
+                      paddingVertical: 8,
+                      marginBottom: 10
+                    }}
+                    value={passwordInput}
+                    onChangeText={setPasswordInput}
+                  />
+                  <TouchableOpacity
+                    style={{ backgroundColor: '#a83232', paddingVertical: 8, paddingHorizontal: 20, borderRadius: 8 }}
+                    onPress={async () => {
+                      try {
+                        setDeletePending(true);
+                        const user = auth.currentUser;
+                        const firestoreUserId = await AsyncStorage.getItem('firestoreUserId');
+                        const credential = EmailAuthProvider.credential(user.email, passwordInput);
+                        await reauthenticateWithCredential(user, credential);
+                        console.log('Reauthenticated via password modal.');
+                        setPasswordModalVisible(false);
+                        await proceedWithDeletion(firestoreUserId, user);
+                      } catch (err) {
+                        console.error('Reauth failed:', err);
+                        alert('Invalid password or reauth failed.');
+                      } finally {
+                        setDeletePending(false);
+                        setPasswordInput('');
+                      }
+                    }}
+                  >
+                    <Text style={{ color: 'white', fontWeight: 'bold' }}>
+                      {deletePending ? 'Deleting...' : 'Confirm Delete'}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setPasswordModalVisible(false);
+                      setPasswordInput('');
+                    }}
+                    style={{ marginTop: 10 }}
+                  >
+                    <Text style={{ color: '#aaa' }}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
         </View>
     );
 }

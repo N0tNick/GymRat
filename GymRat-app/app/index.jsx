@@ -16,12 +16,11 @@ export default function SplashScreen() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user && user.emailVerified) {
       try {
-        const email = user.email;
-        const username = email.split('@')[0];
+        if (user && user.emailVerified) {
+          const email = user.email;
+          const username = email.split('@')[0];
 
-        // fFind or create Firestore user ID
           let firestoreUserId = await AsyncStorage.getItem('firestoreUserId');
           if (!firestoreUserId) {
             const usersRef = collection(fbdb, 'users');
@@ -33,12 +32,11 @@ export default function SplashScreen() {
               console.log('Found Firestore user ID for persistent login:', firestoreUserId);
             } else {
               console.warn('No Firestore user found for:', email);
-              setCheckingAuth(false);
+              setCheckingAuth(false); 
               return;
             }
           }
 
-          // Lookup user ID by email
           const result = await db.getFirstAsync(
             'SELECT id FROM users WHERE email = ?',
             [email]
@@ -51,16 +49,22 @@ export default function SplashScreen() {
             await AsyncStorage.setItem('firestoreUserId', firestoreUserId);
             console.log('Persistent login user ID:', userId);
             await syncFirestoreToSQLite({ firestoreUserId, userId, db });
+
+            // route to home
+            router.replace('/home');
           } else {
             console.warn('No local SQLite user found for:', user.email);
+            // login if SQLite record is missing
+            router.replace('/login');
           }
-          // Now route to home
-          router.replace('/home');
-        } catch (err) {
-          console.error('Failed to get user ID on auto-login:', err);
+        } else {
+          // No user or not verified show splash content
+          setCheckingAuth(false);
         }
-      } else {
-        setCheckingAuth(false); // Show splash if not logged in
+      } catch (err) {
+        console.error('Failed to get user ID on auto-login:', err);
+        // If anything fails
+        router.replace('/login');
       }
     });
 

@@ -53,6 +53,7 @@ const TopTab = () => {
 
       if (!user) {
         console.log("no user found")
+        return;
       }
 
       const result = await db.getFirstAsync('SELECT * FROM userStats WHERE user_id = ?', [user.id]);
