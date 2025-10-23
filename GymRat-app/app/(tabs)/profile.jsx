@@ -76,7 +76,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
             <View style={{
               width: screenWidth,
-              marginTop: 150,
+              marginTop: 110,
             }}>
               <TopTab/> 
             </View>

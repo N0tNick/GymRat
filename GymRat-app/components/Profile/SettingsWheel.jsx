@@ -4,18 +4,20 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebaseConfig';
-import UserSettingsTab from './SettingsTabs/UserSettingsTab'
-import UserStatsTab from './SettingsTabs/UserStatsTab'
-import UserGoalsTab from './SettingsTabs/UserGoalsTab'
 import { useSQLiteContext } from 'expo-sqlite';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '@/UserContext';
-const { width: screenWidth } = Dimensions.get('window');
-const SIDEBAR_WIDTH = screenWidth * 0.30; //Exactly half the screen
+import standards from '../ui/appStandards';
+import wheelIcon from '../../assets/images/wheelIcon.png'
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const SIDEBAR_WIDTH = screenWidth * 0.90; //Exactly half the screen
 
 const SettingsWheel = () => {
     const db = useSQLiteContext();
-    const { setUserId, setFirestoreUserId} = useUser();
+    const {setUserId, setFirestoreUserId} = useUser();
+    const [isAccountModal, setAccountModal] = useState(false);
+
 
     //delete account & userData
     const resetAccountData = async () => {
@@ -69,9 +71,7 @@ const SettingsWheel = () => {
                 >
                     <Image
                     style={styles.logo}
-                    source={{
-                        uri: 'https://cdn-icons-png.flaticon.com/512/15/15185.png',
-                    }}
+                    source={wheelIcon}
                     />
                 </TouchableOpacity>
             )
@@ -87,7 +87,7 @@ const SettingsWheel = () => {
         }).start();
     }
     
-     const closeSidebar = () => {
+    const closeSidebar = () => {
         Animated.timing(sidebarTranslateX, {    
             toValue: SIDEBAR_WIDTH,
             duration:150,
@@ -95,48 +95,38 @@ const SettingsWheel = () => {
         }).start(() => setIsSidebarVisible(false));
     }
 
-    const renderSidebar = () => {
-        return(
-            <Modal visible={isSidebarVisible} transparent animationType='none' >
-                <Animated.View style = {{
-                    position: 'absolute',
-                    right: 0,
-                    top: 0,
-                    height: '100%',
-                    backgroundColor:'#1a1b1c',
-                    shadowColor: '#000',
-                    shadowOffset: { width: -2, height: 0 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 5,
-                    elevation: 10,
-                    paddingTop: 50, 
-                    paddingHorizontal: 0,
-                    paddingBottom: 50,
-                    width: SIDEBAR_WIDTH, 
-                    transform:[{ translateX: sidebarTranslateX }]
-                }}>
-                    <View style = {{
-                        flexDirection:'column',
-                        alignItems:'center',
-                        height:'100%',
-                        width:'100%',
-                        justifyContent:'center',
-                    }} >
-                        <TouchableOpacity onPress={closeSidebar}
-                            style={{position: 'absolute', top:0, right:0, padding:10}}>
-                                <Image
-                                style={styles.logo}
-                                source={{
-                                    uri: 'https://cdn-icons-png.flaticon.com/512/15/15185.png',
-                                }}
-                                />
+    // Replace the Modal with an overlay view
+    const accountModal = () => {
+        return (
+            <View style={{position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 2,
+                    elevation: 20,}}>
+                <TouchableOpacity
+                    style={styles.overlayBackdrop}
+                    activeOpacity={1}
+                    onPress={() => setAccountModal(false)}
+                />
+                <View style={{backgroundColor:'#1a1b1c',
+                            shadowColor: '#000',
+                            justifyContent:'space-evenly',
+                            shadowOffset: { width: -2, height: 0 },
+                            shadowOpacity: 0.3,
+                            shadowRadius: 5,
+                            elevation: 10,
+                            borderRadius:10,
+                            borderWidth:2,
+                            borderColor:'#6a5acd',
+                            width: screenWidth * 0.55, 
+                            height: screenHeight * 0.25,}}>
+                    <View style={{ flexDirection:'column', alignItems:'center',}} >
+                        <TouchableOpacity 
+                            onPress={() => setAccountModal(false)}
+                            style={{position:'absolute', right:10, top:0}}>
+                            <Image style={styles.logo} source={wheelIcon} />
                         </TouchableOpacity>
-                        
-                        <View style={{gap:10, alignItems:'center'}}>
-                            <UserSettingsTab/>  
-                            <UserStatsTab/>
-                            <UserGoalsTab/>
-                        </View>
 
                         <TouchableOpacity style={styles.deleteAccountButton} onPress={() => { resetAccountData(1); handleSignOut(); }}>
                             <Text style={styles.logoutButtonText}>Delete Account</Text>
@@ -149,12 +139,71 @@ const SettingsWheel = () => {
                         <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
                             <Text style={styles.logoutButtonText}>Sign Out</Text>
                         </TouchableOpacity>
-                        
                     </View>
-                    
+                </View>
+            </View>
+        )
+    }
 
+    const renderSidebar = () => {
+        return(
+            <Modal visible={isSidebarVisible} transparent animationType='none'>
+                <Animated.View style ={{
+                    backgroundColor:'#1a1b1c',
+                    alignSelf:'center',
+                    shadowColor: '#000',
+                    shadowOffset: { width: -2, height: 0 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 5,
+                    elevation: 10,
+                    borderRadius:10,
+                    borderWidth:2,
+                    borderColor:'#6a5acd',
+                    width: screenWidth * 0.95, 
+                    height: screenHeight * 0.7,
+                    margin:screenHeight * 0.06,
+                    transform:[{ translateX: sidebarTranslateX }]
+                }}>
+                    <View style ={{
+                        flexDirection:'column',
+                        alignItems:'center',
+                        height: screenHeight * 0.7,
+                        width: screenWidth * 0.95, 
+                    }} >
+                        <Text style = {[standards.headerText, {position:'absolute', fontSize:28, marginTop:15}]}>Settings</Text>
+                        <TouchableOpacity onPress={closeSidebar}
+                            style={{position:'absolute', right:10, marginTop:18}}>
+                            <Image
+                                style={styles.logo}
+                                source= {wheelIcon}
+                            />
+                        </TouchableOpacity>
+
+                        <View style={{backgroundColor:'#2c2c2e', borderRadius:10, width:screenWidth*0.85, height:screenHeight*0.15, marginTop:65}}>
+
+                        </View>
+
+                        <View style={{backgroundColor:'#2c2c2e', borderRadius:10, width:screenWidth*0.85, height:screenHeight*0.15, marginTop:15}}>
+
+                        </View>
+
+                        <View style={{backgroundColor:'#2c2c2e', borderRadius:10, width:screenWidth*0.85, height:screenHeight*0.15, marginTop:15}}>
+
+                        </View>
+
+                        <TouchableOpacity 
+                            onPress={() => {
+                                setAccountModal(true)
+                            }}
+                            style={{backgroundColor:'#a83232', borderRadius:10, width:screenWidth*0.4, height:screenHeight*0.06, marginTop:10, justifyContent:'center'}}>
+                            <Text style = {{textAlign:'center',fontSize:22, fontWeight:'700', color:'#e0e0e0', letterSpacing:0.3}}>Account</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Overlay rendered inside the sidebar modal */}
+                    {isAccountModal && accountModal()}
                 </Animated.View>
-            </Modal>                      
+            </Modal>  
         )
     }
     
@@ -162,6 +211,7 @@ const SettingsWheel = () => {
         <View>
             {renderMore()}
             {renderSidebar()}
+            {/* Removed the separate account modal call */}
         </View>
     );
 }
@@ -207,22 +257,19 @@ const styles = StyleSheet.create ({
         gap: 20,
     },
     onboardingButton: { 
-        position: 'absolute', 
         justifyContent:'center',
-        bottom: 50, 
         backgroundColor: '#a83232',
-        paddingVertical: 8, 
-        width:100,
+        width:180,
+        margin:5,
+        padding:10,
         borderRadius: 8, 
         alignItems: 'center' 
     },
     logoutButton: { 
-        position: 'absolute', 
-        bottom: 0, 
         backgroundColor: '#a83232', 
-        paddingVertical: 8, 
-        paddingHorizontal: 12, 
+        padding:10,
         borderRadius: 8, 
+        margin:5,
         alignItems: 'center' 
     },
     logoutButtonText: { 
@@ -231,14 +278,19 @@ const styles = StyleSheet.create ({
         textAlign:'center'
     },
     deleteAccountButton: { 
-        position: 'absolute', 
         justifyContent:'center',
-        bottom: 120, 
         backgroundColor: '#a83232',
-        paddingVertical: 8, 
-        width:100,
+        padding:10,
+        width:150,
         borderRadius: 8, 
+        margin:5,
+        marginTop:45,
         alignItems: 'center' 
+    },
+    overlayBackdrop: {
+        position: 'absolute',
+        top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.4)',
     },
 });
 
