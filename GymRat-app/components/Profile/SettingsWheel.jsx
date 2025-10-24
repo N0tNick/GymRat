@@ -34,6 +34,9 @@ const SettingsWheel = () => {
     const [isAccountModal, setAccountModal] = useState(false);
     const [currentPass, setCurrentPass] = useState('');
     const [pass, setPass] = useState('');
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+
 
     //delete account & userData
     const resetAccountData = async () => {
@@ -191,7 +194,10 @@ const SettingsWheel = () => {
             return(
                 <TouchableOpacity
                 style = {styles.logo}
-                onPress={() => openSidebar()}
+                onPress={() => {
+                  loadUser()
+                  openSidebar()
+                }}
                 >
                     <Image
                     style={styles.logo}
@@ -356,6 +362,15 @@ const SettingsWheel = () => {
         )
     }
 
+    const loadUser = async () => {
+      const results = await db.getFirstAsync('SELECT * from users WHERE id = ?',
+        [userId]
+      )
+      console.log(results)
+      setName(results.username)
+      setEmail(results.email)
+    }
+
     const renderSidebar = () => {
         return(
             <Modal visible={isSidebarVisible} transparent animationType='none'>
@@ -391,10 +406,16 @@ const SettingsWheel = () => {
                         </TouchableOpacity>
 
                         <View style={{backgroundColor:'#2c2c2e', flexDirection:'column', justifyContent: 'space-between', borderRadius:10, 				width:screenWidth*0.85, height:screenHeight*0.15, marginTop:65, padding:10}}>
-                            <Text style ={[standards.regularText, {margin:5}]}>Name: </Text>
-                            <Text style ={[standards.regularText, {margin:5}]}>Email: </Text>
+                            <View style={{flexDirection:'row'}}>
+                              <Text style ={[standards.regularText, {margin:5}]}>Name:</Text>
+                              <Text style = {[standards.regularText, {margin:5}]}>{name ? `${name}` : '____'}</Text>
+                            </View>
+                            <View style={{flexDirection:'row'}}>
+                              <Text style ={[standards.regularText, {margin:5}]}>Email:</Text>
+                              <Text style = {[standards.regularText, {margin:5}]}>{email ? `${email}` : '____'}</Text>
+                            </View>                            
                             <View style={{flexDirection:'row', justifyContent:'space-between'}}>
-                                <Text style ={[standards.regularText, {margin:5}]}>Password: </Text>
+                                <Text style ={[standards.regularText, {margin:5}]}>Password: ******</Text>
                                 <TouchableOpacity 
                                   style={{backgroundColor:'#a83232', padding:8, borderRadius:8 }}
                                   onPress={() => setPassModal(true)}>
