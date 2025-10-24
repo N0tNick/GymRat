@@ -16,15 +16,13 @@ import { WorkoutOnboardModal } from '../../components/Onboarding/onboard';
 import WorkoutModal from '../../components/WorkoutModal';
 import { fbdb } from "../../firebaseConfig";
 import { useUser } from '../../UserContext';
-import { cals } from '../goal';
+
 import { usePersistedBoolean, usePersistedWorkout } from '../ongoingWorkout';
-
-
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function WorkoutScreen() {
-  const db = useSQLiteContext()
+
   const [isWorkoutOnboardModal, setWorkoutOnboardModal] = useState(false)
   const [userTemplates, setUserTemplates] = useState([])
   const [presetTemplates, setPresetTemplates] = useState([])
@@ -36,6 +34,21 @@ export default function WorkoutScreen() {
   const [dailyTotals, setDailyTotals] = useState(null);
   const [hasEntries, setHasEntries] = useState(false);
   const [hasWorkout, setHasWorkout] = useState(false);
+  const db = useSQLiteContext();
+  const [cals, setCals] = useState(0);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const userCals = await db.getFirstAsync('SELECT dailyCals FROM userStats WHERE user_id = ?',
+          [userId]
+        );
+        if (userCals) setCals(Number(userCals.dailyCals));
+      } catch (e) {
+        console.error('Error loading cals from userStats:', e);
+      }
+    })();
+  }, [db]);
 
   const loadTemplates = async() => {
     const result = await db.getAllAsync("SELECT * FROM workoutTemplates WHERE user_Id =?;", [userId])
@@ -145,6 +158,7 @@ export default function WorkoutScreen() {
             totalCarbs: totals?.totalCarbs || 0,
             totalFat: totals?.totalFat || 0,
           });
+          console.log(totals);
           const entriesRes = await db.getAllAsync(
             `SELECT COUNT(*) as count FROM dailyNutLog WHERE user_id = ? AND date = ?`,
             [userId, date]
