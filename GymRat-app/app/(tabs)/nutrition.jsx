@@ -1898,6 +1898,6 @@ fabRow: {
   alignItems: 'center',
   marginTop: 14,
   marginBottom: 8,
-  marginTop: 20,
+  marginTop: 50,
 },
 });
