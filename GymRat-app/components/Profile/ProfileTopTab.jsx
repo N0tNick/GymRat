@@ -59,7 +59,15 @@ const TopTab = () => {
   
   const db = useSQLiteContext()
 
-  // New state for Exercise Goal modal and inputs
+  useEffect(() => {
+        const filtered = exercises.filter((exercise) =>
+          exercise.name.toLowerCase().includes(searchText.toLowerCase())
+        )
+        setFilteredExercises(filtered)
+        setEFilterButtonVal('Any Equipment')
+        setMFilterButtonVal('Any Muscle')
+  }, [searchText])
+
   const [exerciseGoalModalVisible, setExerciseGoalModalVisible] = useState(false);
   const [goalWeightInput, setGoalWeightInput] = useState('');
   const [goalRepsInput, setGoalRepsInput] = useState('');
@@ -79,7 +87,6 @@ const TopTab = () => {
     setExerciseGoalModalVisible(true);
   };
 
-  // Persist the goal to the DB
   const saveExerciseGoal = async () => {
     try {
       setGoalError(null);
@@ -129,7 +136,6 @@ const TopTab = () => {
     }
   };
 
-  // New: fetch saved exercise goals
   const fetchExerciseGoals = async () => {
     try {
       await db.runAsync(`
@@ -190,7 +196,6 @@ const TopTab = () => {
       
   }
 
-  // Implement the goal modal (rendered below)
   const exerciseGoalModal = () => (
     <Modal
       visible={exerciseGoalModalVisible}
@@ -308,13 +313,12 @@ const TopTab = () => {
     }
   }
 
-  // either putting values in during onboarding will fix this or a 
-  // merger needs to be put in layour to force the table to exist
-  
-    useFocusEffect(
+  useFocusEffect(
       useCallback(() => {
       }, [])
-    )
+  )
+
+
   return (
       <TabView 
       selectedIndex={selectedIndex} 
