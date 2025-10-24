@@ -6,7 +6,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { doc, setDoc } from 'firebase/firestore';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Dimensions, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import JimRat from '../../components/jimRat';
@@ -1194,64 +1194,184 @@ const allModules = useMemo(() => {
       </Modal>
 
       <Modal
-        transparent={true}
+        transparent
         visible={customizeModalVisible}
         onRequestClose={() => setCustomizeModalVisible(false)}
+        animationType="slide"
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Customize Home Modules</Text>
-
-            <TouchableOpacity onPress={() => setShowNutritionSummary(!showNutritionSummary)}>
-              <Text style={{ color: showNutritionSummary ? '#32a852' : '#888', marginBottom: 10 }}>
-                {showNutritionSummary ? '✔ ' : '○ '}Nutrition Summary
+          <View style={styles.sheetContainer}>
+            <View style={styles.sheetHeader}>
+              <Text style={styles.sheetTitle}>Customize Home</Text>
+              <Text style={styles.sheetSubtitle}>
+                Toggle modules on/off. Long-press on Home to reorder.
               </Text>
-            </TouchableOpacity>
+            </View>
+            <ScrollView style={{maxHeight: screenHeight * 0.55}} contentContainerStyle={{paddingBottom: 12}}>
 
-            <TouchableOpacity onPress={() => setShowTasks(!showTasks)}>
-              <Text style={{ color: showTasks ? '#32a852' : '#888', marginBottom: 10 }}>
-                {showTasks ? '✔ ' : '○ '}Tasks
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => setShowNutrition(!showNutrition)}>
-              <Text style={{ color: showNutrition ? '#00eaff' : '#888', marginBottom: 10 }}>
-                {showNutrition ? '✔ ' : '○ '}Nutrition Rundown
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => setShowWeekly(!showWeekly)}>
-              <Text style={{ color: showWeekly ? '#ffa500' : '#888', marginBottom: 10 }}>
-                {showWeekly ? '✔ ' : '○ '}Weekly Calendar
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => setShowStreak(!showStreak)}>
-              <Text style={{ color: showStreak ? '#ff4500' : '#888', marginBottom: 10 }}>
-                {showStreak ? '✔ ' : '○ '}Streak Stats
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => setShowWeightLog(!showWeightLog)}>
-              <Text style={{ color: showWeightLog ? '#32a852' : '#888', marginBottom: 10 }}>
-                {showWeightLog ? '✔ ' : '○ '}Weight Log
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => setShowBuildWorkout(!showBuildWorkout)}>
-              <Text style={{ color: showBuildWorkout ? '#32a852' : '#888', marginBottom: 10 }}>
-                {showBuildWorkout ? '✔ ' : '○ '}Create Template
-              </Text>
-            </TouchableOpacity>
+              <View style={styles.sheetDivider} />
 
 
-            <TouchableOpacity onPress={() => {saveModulePreferences();
-              setCustomizeModalVisible(false)}}>
-              <Text style={styles.cancelText}>Close</Text>
-            </TouchableOpacity>
+              <Text style={styles.sectionTitle}>Modules</Text>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setShowNutritionSummary(!showNutritionSummary)}
+                style={styles.row}
+              >
+                <View style={styles.rowLeft}>
+                  <Text style={styles.rowLabel}>🍽️ Nutrition Summary</Text>
+                  <Text style={styles.rowSub}>Quick calories viewer + food log</Text>
+                </View>
+                <Switch
+                  value={showNutritionSummary}
+                  onValueChange={setShowNutritionSummary}
+                  trackColor={{false:'#444', true:'#e0e0e062'}}
+                  thumbColor={showNutritionSummary ? '#e0e0e0' : '#999'}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setShowTasks(!showTasks)}
+                style={styles.row}
+              >
+                <View style={styles.rowLeft}>
+                  <Text style={styles.rowLabel}>🗓️ Tasks</Text>
+                  <Text style={styles.rowSub}>Current Tasks</Text>
+                </View>
+                <Switch
+                  value={showTasks}
+                  onValueChange={setShowTasks}
+                  trackColor={{false:'#444', true:'#e0e0e062'}}
+                  thumbColor={showTasks ? '#e0e0e0' : '#999'}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setShowNutrition(!showNutrition)}
+                style={styles.row}
+              >
+                <View style={styles.rowLeft}>
+                  <Text style={styles.rowLabel}>📊 Nutrition Rundown</Text>
+                  <Text style={styles.rowSub}>Calories / Protein / Carbs / Fat bars</Text>
+                </View>
+                <Switch
+                  value={showNutrition}
+                  onValueChange={setShowNutrition}
+                  trackColor={{false:'#444', true:'#e0e0e062'}}
+                  thumbColor={showNutrition ? '#e0e0e0' : '#999'}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setShowWeekly(!showWeekly)}
+                style={styles.row}
+              >
+                <View style={styles.rowLeft}>
+                  <Text style={styles.rowLabel}>🗂️ Weekly Calendar</Text>
+                  <Text style={styles.rowSub}>7-day activity view</Text>
+                </View>
+                <Switch
+                  value={showWeekly}
+                  onValueChange={setShowWeekly}
+                  trackColor={{false:'#444', true:'#e0e0e062'}}
+                  thumbColor={showWeekly ? '#e0e0e0' : '#999'}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setShowStreak(!showStreak)}
+                style={styles.row}
+              >
+                <View style={styles.rowLeft}>
+                  <Text style={styles.rowLabel}>🔥 Streak Stats</Text>
+                  <Text style={styles.rowSub}>Current & best streak</Text>
+                </View>
+                <Switch
+                  value={showStreak}
+                  onValueChange={setShowStreak}
+                  trackColor={{false:'#444', true:'#e0e0e062'}}
+                  thumbColor={showStreak ? '#e0e0e0' : '#999'}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setShowWeightLog(!showWeightLog)}
+                style={styles.row}
+              >
+                <View style={styles.rowLeft}>
+                  <Text style={styles.rowLabel}>⚖️ Weight Log</Text>
+                  <Text style={styles.rowSub}>Latest weight + log button</Text>
+                </View>
+                <Switch
+                  value={showWeightLog}
+                  onValueChange={setShowWeightLog}
+                  trackColor={{false:'#444', true:'#e0e0e062'}}
+                  thumbColor={showWeightLog ? '#e0e0e0' : '#999'}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setShowBuildWorkout(!showBuildWorkout)}
+                style={styles.row}
+              >
+                <View style={styles.rowLeft}>
+                  <Text style={styles.rowLabel}>🏋️‍♂️ Create Template</Text>
+                  <Text style={styles.rowSub}>Quick jump to Template Creation</Text>
+                </View>
+                <Switch
+                  value={showBuildWorkout}
+                  onValueChange={setShowBuildWorkout}
+                  trackColor={{false:'#444', true:'#e0e0e062'}}
+                  thumbColor={showBuildWorkout ? '#e0e0e0' : '#999'}
+                />
+              </TouchableOpacity>
+            </ScrollView>
+
+            <View style={styles.sheetButtonsRow}>
+              <TouchableOpacity
+                style={styles.buttonSecondary}
+                onPress={() => {
+                  setShowNutritionSummary(true);
+                  setShowTasks(true);
+                  setShowNutrition(true);
+                  setShowWeekly(true);
+                  setShowStreak(true);
+                  setShowWeightLog(true);
+                  setShowBuildWorkout(true);
+                  setModuleOrder(defaultOrder);
+                }}
+              >
+                <Text style={styles.buttonSecondaryText}>Reset</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.buttonSecondary}
+                onPress={() => setCustomizeModalVisible(false)}
+              >
+                <Text style={styles.buttonSecondaryText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.buttonPrimary}
+                onPress={() => {
+                  saveModulePreferences();
+                  setCustomizeModalVisible(false);
+                }}
+              >
+                <Text style={styles.buttonPrimaryText}>Apply</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
+
 
       <WeightTouchable
         isVisible={weightModalVisible}
@@ -1747,5 +1867,98 @@ const styles = StyleSheet.create({
     fontSize: 14,
     letterSpacing: 0.3,
   },
-
+  sheetContainer: {
+    backgroundColor: '#2c2c2e',
+    width: '90%',
+    borderRadius: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+  sheetHeader: {
+    paddingHorizontal: 4,
+    paddingTop: 6,
+    paddingBottom: 8,
+  },
+  sheetTitle: {
+    color: '#e0e0e0',
+    fontSize: 16,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
+  sheetSubtitle: {
+    color: '#aaa',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 6,
+  },
+  sectionTitle: {
+    color: '#e0e0e0',
+    fontSize: 14,
+    fontWeight: '700',
+    marginTop: 14,
+    marginBottom: 8,
+    paddingHorizontal: 2,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  chip: {
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  chipText: {
+    color: '#e0e0e0',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  sheetDivider: {
+    height: 1,
+    backgroundColor: '#3a3a3c',
+    marginVertical: 12,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderColor: '#3a3a3c',
+  },
+  rowLeft: { flexShrink: 1, paddingRight: 12 },
+  rowLabel: { color: '#e0e0e0', fontSize: 16, fontWeight: '700' },
+  rowSub: { color: '#9a9a9a', fontSize: 12, marginTop: 2 },
+  sheetButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 12,
+  },
+  buttonSecondary: {
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#4b4b4d',
+  },
+  buttonSecondaryText: {
+    color: '#e0e0e0',
+    fontWeight: '700',
+  },
+  buttonPrimary: {
+    backgroundColor: '#32a852',
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 10,
+  },
+  buttonPrimaryText: {
+    color: '#0b0b0c',
+    fontWeight: '800',
+  },
 });
