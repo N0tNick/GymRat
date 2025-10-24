@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react'
-import {Animated, TouchableOpacity, View, StyleSheet, Modal, Image, Dimensions, Text, TextInput, Platform } from 'react-native';
+import React, { useState, useRef } from 'react'
+import {Animated, TouchableOpacity, View, StyleSheet, Modal, Image, Dimensions, Text, TextInput, Platform, Alert } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { signOut, deleteUser, reauthenticateWithCredential, EmailAuthProvider, GoogleAuthProvider } from 'firebase/auth';
-import { auth, getAuth, updatePassword  } from '../../firebaseConfig';
+import { signOut, deleteUser, reauthenticateWithCredential, EmailAuthProvider, GoogleAuthProvider, updatePassword } from 'firebase/auth';
+import { auth } from '../../firebaseConfig';
 import { useSQLiteContext } from 'expo-sqlite';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '@/UserContext';
@@ -30,22 +30,12 @@ const SettingsWheel = () => {
     const [passwordModalVisible, setPasswordModalVisible] = useState(false);
     const [passwordInput, setPasswordInput] = useState('');
     const [deletePending, setDeletePending] = useState(false);
-    const [pass, SetPass] = useState('')
-
+    const [isPassModal, setPassModal] = useState(false);
     const [isAccountModal, setAccountModal] = useState(false);
+    const [currentPass, setCurrentPass] = useState('');
+    const [pass, setPass] = useState('');
 
-    const resetPassword = async (pass) => {
-        auth = getAuth()
-        const user = auth.currentUser
-
-        updatePassword(user, pass).then(() => {
-            console.log("password updated")
-        }).catch((error) => {
-            console.log("error updating password")
-        });
-    }
-
-
+    //delete account & userData
     const resetAccountData = async () => {
       const tables = [
         'userSettings', 'userStats', 'dailyNutLog',
@@ -196,8 +186,6 @@ const SettingsWheel = () => {
       }
     };
 
-
-
     const renderMore = () => {
         if(more) {
             return(
@@ -231,6 +219,94 @@ const SettingsWheel = () => {
         }).start(() => setIsSidebarVisible(false));
     }
 
+    const passResetModal = () => {
+        return (
+            <View style={{position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 2,
+                    elevation: 20,}}>
+                <TouchableOpacity
+                    style={styles.overlayBackdrop}
+                    activeOpacity={1}
+                    onPress={() => setPassModal(false)}
+                />
+                <View style={{backgroundColor:'#1a1b1c',
+                            shadowColor: '#000',
+                            justifyContent:'space-evenly',
+                            shadowOffset: { width: -2, height: 0 },
+                            shadowOpacity: 0.3,
+                            shadowRadius: 5,
+                            elevation: 10,
+                            borderRadius:10,
+                            borderWidth:2,
+                            borderColor:'#6a5acd',
+                            width: screenWidth * 0.65, 
+                            height: screenHeight * 0.28,}}>
+                    <View style={{ flexDirection:'column', alignItems:'center', paddingHorizontal: 12 }} >
+                        <Text style={[standards.headerText, { fontSize:20, marginTop: 0 }]}>
+                            Update Password
+                        </Text>
+
+                        {/* Current password input */}
+                        <TextInput
+                            secureTextEntry
+                            placeholder="Current password"
+                            placeholderTextColor="#999"
+                            value={currentPass}
+                            onChangeText={setCurrentPass}
+                            style={{
+                                backgroundColor: '#2a2a2a',
+                                color: '#fff',
+                                borderRadius: 8,
+                                width: '100%',
+                                paddingHorizontal: 10,
+                                paddingVertical: 8,
+                                marginTop: 12,
+                                fontSize:16,
+                                fontWeight:'600'
+                            }}
+                        />
+
+                        {/* New password input */}
+                        <TextInput
+                            secureTextEntry
+                            placeholder="New password"
+                            placeholderTextColor="#999"
+                            value={pass}
+                            onChangeText={setPass}
+                            style={{
+                                backgroundColor: '#2a2a2a',
+                                color: '#fff',
+                                borderRadius: 8,
+                                width: '100%',
+                                paddingHorizontal: 10,
+                                paddingVertical: 8,
+                                marginTop: 10,
+                                marginBottom: 8,
+                                fontSize:16,
+                                fontWeight:'600'
+                            }}
+                        />
+
+                        <View style = {{flexDirection:'row', justifyContent:'space-around', alignItems:'center'}}>
+                            <TouchableOpacity style={{backgroundColor:'#0b8908ea', padding:10, borderRadius:10, marginRight:40}} 
+                                onPress={() => {}}>
+                                <Text style={[standards.regularText, {fontSize:20}]}>Save</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.logoutButton} onPress={() => { setPass(''); setCurrentPass(''); setPassModal(false); }}>
+                                <Text style={[standards.regularText, {fontSize:20}]}>Cancel</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </View>
+        )
+    }
+
+    // Replace the Modal with an overlay view
     const accountModal = () => {
         return (
             <View style={{position: 'absolute',
@@ -263,7 +339,7 @@ const SettingsWheel = () => {
                             <Image style={styles.logo} source={wheelIcon} />
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.deleteAccountButton} onPress={() => { resetAccountData(1); handleSignOut(); }}>
+                        <TouchableOpacity style={styles.deleteAccountButton} onPress={handleDeleteAccount}>
                             <Text style={styles.logoutButtonText}>Delete Account</Text>
                         </TouchableOpacity>
 
@@ -314,12 +390,14 @@ const SettingsWheel = () => {
                             />
                         </TouchableOpacity>
 
-                        <View style={{backgroundColor:'#2c2c2e', flexDirection:'column', justifyContent: 'space-between', borderRadius:10, width:screenWidth*0.85, height:screenHeight*0.15, marginTop:65, padding:10}}>
+                        <View style={{backgroundColor:'#2c2c2e', flexDirection:'column', justifyContent: 'space-between', borderRadius:10, 				width:screenWidth*0.85, height:screenHeight*0.15, marginTop:65, padding:10}}>
                             <Text style ={[standards.regularText, {margin:5}]}>Name: </Text>
                             <Text style ={[standards.regularText, {margin:5}]}>Email: </Text>
                             <View style={{flexDirection:'row', justifyContent:'space-between'}}>
                                 <Text style ={[standards.regularText, {margin:5}]}>Password: </Text>
-                                <TouchableOpacity style={{backgroundColor:'#a83232', padding:8, borderRadius:8 }}>
+                                <TouchableOpacity 
+                                  style={{backgroundColor:'#a83232', padding:8, borderRadius:8 }}
+                                  onPress={() => setPassModal(true)}>
                                     <Text style={[standards.regularText, {fontSize:14}]}>Reset Password</Text>
                                 </TouchableOpacity>
                             </View>
@@ -344,6 +422,7 @@ const SettingsWheel = () => {
 
                     {/* Overlay rendered inside the sidebar modal */}
                     {isAccountModal && accountModal()}
+                    {isPassModal && passResetModal()}
                 </Animated.View>
             </Modal>  
         )
@@ -444,7 +523,7 @@ const styles = StyleSheet.create ({
         shadowOpacity: 0.3,
         shadowRadius: 5,
         elevation: 10,
-        width: screenWidth * 0.90,
+        width: SIDEBAR_WIDTH,
     },
     modalContent: {
         flex: 1,

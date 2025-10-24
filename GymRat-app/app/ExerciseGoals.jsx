@@ -9,34 +9,7 @@ import exercises from '../assets/exercises.json';
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function ExerciseGoals() {
-  const router = useRouter();
-  const [modalVisible, setModalVisible] = useState(false);
-  const [searchText, setSearchText] = useState('');
-  const [filteredExercises, setFilteredExercises] = useState(exercises);
-  const [exerciseInfoModal, setExerciseInfoModal] = useState(false);
-  const [exerciseItem, setExerciseItem] = useState('');
-
-  useEffect(() => {
-    const filtered = exercises.filter((exercise) =>
-      exercise.name.toLowerCase().includes(searchText.toLowerCase())
-    );
-    setFilteredExercises(filtered);
-  }, [searchText]);
-
-  const renderItem = ({ item }) => (
-    <TouchableOpacity 
-      style={styles.card}
-      onPress={() => {
-        setExerciseItem(item);
-        setExerciseInfoModal(true);
-      }}
-    >
-      <Text style={styles.cardTitle}>{item.name}</Text>
-      <Text style={styles.subtitle}>Equipment: {item.equipment}</Text>
-      <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscles}</Text>
-    </TouchableOpacity>
-  );
-
+  const router = useRouter()
   return (
     <SafeAreaProvider>
       <LinearGradient colors={['#6a5acd', '#1a1b1c']} style={styles.container}>
@@ -51,43 +24,7 @@ export default function ExerciseGoals() {
             <Text category='h3' style={styles.title}>Exercise Goals</Text>
           </View>
 
-          <TouchableOpacity 
-            style={styles.searchButton}
-            onPress={() => setModalVisible(true)}
-          >
-            <Text style={styles.searchButtonText}>Search Exercises</Text>
-          </TouchableOpacity>
-
-          <Modal
-            visible={modalVisible}
-            transparent={true}
-            onRequestClose={() => setModalVisible(false)}
-          >
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <TouchableOpacity 
-                  style={styles.closeButton} 
-                  onPress={() => setModalVisible(false)}
-                >
-                  <Text style={styles.closeButtonText}>X</Text>
-                </TouchableOpacity>
-
-                <Text style={styles.modalTitle}>Exercises</Text>
-                <TextInput
-                  style={styles.searchBar}
-                  onChangeText={setSearchText}
-                  value={searchText}
-                  placeholder='Search'
-                />
-
-                <FlatList
-                  data={filteredExercises}
-                  keyExtractor={(item) => item.id}
-                  renderItem={renderItem}
-                />
-              </View>
-            </View>
-          </Modal>
+          
         </SafeAreaView>
       </LinearGradient>
     </SafeAreaProvider>
