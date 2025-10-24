@@ -27,6 +27,7 @@ export default function ExerciseListModal({
         style={styles.card}
         onPress={() => {
           setExerciseItem(item)
+          // console.log("exercise item: ", exerciseItem)
           setExerciseInfoModal(true)
           }}>
           <Text style={standards.regularText}>{item.name}</Text>
@@ -40,6 +41,7 @@ export default function ExerciseListModal({
         style={styles.card}
         onPress={() => {
           setExerciseItem(item)
+          // console.log("exercise item: ", exerciseItem)
           setExerciseInfoModal(true)
           }}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -98,12 +100,16 @@ export default function ExerciseListModal({
   };
 
   const displayInstructions = (instructions) => {
-    if (!Array.isArray(instructions)) return 'No instructions available.'
-    let instructionText = ''
-    for (let i = 0; i < instructions.length; i++) {
-      instructionText += i+1 + '. ' + instructions[i] + '\n\n'
+    if (!Array.isArray(instructions)) {
+      if (instructions != null) return instructions
     }
-    return instructionText
+    else {
+      let instructionText = ''
+      for (let i = 0; i < instructions.length; i++) {
+        instructionText += i+1 + '. ' + instructions[i] + '\n\n'
+      }
+      return instructionText
+    }
   }
 
   const [searchText, setSearchText] = useState('')
@@ -130,6 +136,7 @@ export default function ExerciseListModal({
   const loadExercises = async() => {
     const result2 = await db.getAllAsync("SELECT * FROM customExercises;")
     setCustomExercises(result2)
+    // console.log("custom exercises: ", customExercises)
   }
 
   useFocusEffect(

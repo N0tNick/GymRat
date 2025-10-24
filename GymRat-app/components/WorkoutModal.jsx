@@ -3,6 +3,8 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useStatePersist } from 'use-state-persist';
+import listExercises from '../assets/exercises.json';
+import schema from '../assets/schema.json';
 
 const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -11,8 +13,9 @@ import { addDoc, collection, doc, getFirestore, setDoc } from 'firebase/firestor
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { app } from '../firebaseConfig';
 import { useUser } from '../UserContext';
+import ExerciseListModal from './ExerciseListModal';
 
-export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplates,template, finishWorkout}) {
+export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplates, template, finishWorkout}) {
   const db = useSQLiteContext()
   const [workoutData, setWorkoutData] = useState(null)
   const [exercises, setExercises] = useState([])
@@ -21,6 +24,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
   const [isExampleTemplate, setIsExampleTemplate] = useState(null)
   const { firestoreUserId } = useUser();
   const dbFirestore = getFirestore(app);
+  const [exerciseListVisible, setExerciseListVisible] = useState(false)
 
   useEffect(() => {
     if (!template) {
@@ -30,75 +34,40 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
       return;
     }
     const fetchWorkout = async () => {
-      if (userTemplates.includes(template)) {
-        setIsExampleTemplate(false)
-        try {
-          const rows = await db.getAllAsync(
-            `SELECT * FROM workoutTemplates WHERE id = ?`,
-            [template.id]
-          );
-          if (rows && rows.length > 0) {
-            const workout = rows[0]
-            setWorkoutData(workout)
-            //console.log('Found row:', rows[0]);
-            if (workout.data) {
-              const parsed = JSON.parse(workout.data);
-              setExercises(parsed.exercises || []);
-              // Deep copy for user editing
-              setUpdatedExercises(JSON.parse(JSON.stringify(parsed.exercises || [])));
-            }
-            else { 
-              setExercises([])
-              setUpdatedExercises([])
-            }
-          } else {
-            setWorkoutData(null);
-            setExercises([]);
-            setUpdatedExercises([]);
-            //console.log(`No row found with id = ${template.id}`);
-          }
-        } catch (err) {
-          console.error(err.message);
-          setWorkoutData(null);
-          setExercises([]);
-          setUpdatedExercises([]);
+      let workout = null;
+
+      // First try user templates
+      const userRows = await db.getAllAsync(
+        `SELECT * FROM workoutTemplates WHERE id = ?`,
+        [template.id]
+      );
+      if (userRows.length > 0) {
+        workout = userRows[0];
+        setIsExampleTemplate(false);
+      } else {
+        // Fallback to example templates
+        const exampleRows = await db.getAllAsync(
+          `SELECT * FROM exampleWorkoutTemplates WHERE id = ?`,
+          [template.id]
+        );
+        if (exampleRows.length > 0) {
+          workout = exampleRows[0];
+          setIsExampleTemplate(true);
         }
       }
-      else {
-        setIsExampleTemplate(true)
-        try {
-          const rows = await db.getAllAsync(
-            `SELECT * FROM exampleWorkoutTemplates WHERE id = ?`,
-            [template.id]
-          );
-          if (rows && rows.length > 0) {
-            const workout = rows[0]
-            setWorkoutData(workout)
-            //console.log('Found row:', rows[0]);
-            if (workout.data) {
-              const parsed = JSON.parse(workout.data);
-              setExercises(parsed.exercises || []);
-              // Deep copy for user editing
-              setUpdatedExercises(JSON.parse(JSON.stringify(parsed.exercises || [])));
-            }
-            else { 
-              setExercises([])
-              setUpdatedExercises([])
-            }
-          } else {
-            setWorkoutData(null);
-            setExercises([]);
-            setUpdatedExercises([]);
-            //console.log(`No row found with id = ${template.id}`);
-          }
-        } catch (err) {
-          console.error(err.message);
-          setWorkoutData(null);
-          setExercises([]);
-          setUpdatedExercises([]);
-        }
+
+      if (workout) {
+        setWorkoutData(workout);
+        const parsed = JSON.parse(workout.data || '{}');
+        setExercises(parsed.exercises || []);
+        setUpdatedExercises(JSON.parse(JSON.stringify(parsed.exercises || [])));
+      } else {
+        setWorkoutData(null);
+        setExercises([]);
+        setUpdatedExercises([]);
       }
     };
+    
     fetchWorkout();
   }, [template]);
 
@@ -240,6 +209,33 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
     )
   }
 
+  const handleAddSets = (exerciseId) => {
+    // Immutable update: produce a new array and new exercise object
+    setExercises(prev =>
+      (prev || []).map(ex => {
+        if (ex.id === exerciseId) {
+          return {
+            ...ex,
+            sets: [...(Array.isArray(ex.sets) ? ex.sets : []), { weight: null, reps: null }],
+          };
+        }
+        return ex;
+      })
+    );
+
+    setUpdatedExercises(prev =>
+      (prev || []).map(ex => {
+        if (ex.id === exerciseId) {
+          return {
+            ...ex,
+            sets: [...(Array.isArray(ex.sets) ? ex.sets : []), { weight: null, reps: null }],
+          };
+        }
+        return ex;
+      })
+    )
+  };
+
     const renderItem = ({ item, index: exerciseIdx, drag }) => {
       if (isExampleTemplate) {
         return (
@@ -288,27 +284,6 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
     
                   </View>
                 )) : null}
-
-              {/* {(item.sets || []).map((set, setIdx) => (
-                <View key={setIdx} style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5}}>
-                  <Text style={standards.regularText}>{'  ' + (setIdx + 1) + ' '}</Text>
-                  <Text style={standards.regularText}>{set.weight ? (set.weight + 'x' + set.reps).padStart(15,' ') : '                 -          '}</Text>
-                  <TextInput
-                    style={styles.templateInput}
-                    defaultValue={updatedExercises[exerciseIdx]?.sets[setIdx]?.weight?.toString() || ''}
-                    onChangeText={val => handleSetChange(exerciseIdx, setIdx, 'weight', val)}
-                    placeholder='-'
-                    keyboardType='numeric'
-                  />
-                  <TextInput
-                    style={styles.templateInput}
-                    defaultValue={updatedExercises[exerciseIdx]?.sets[setIdx]?.reps?.toString() || ''}
-                    onChangeText={val => handleSetChange(exerciseIdx, setIdx, 'reps', val)}
-                    placeholder='-'
-                    keyboardType='numeric'
-                  />
-                </View>
-              ))} */}
 
             </TouchableOpacity>
           </View>
@@ -363,26 +338,12 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
                     </View>
                   )) : null}
 
-                {/* {(item.sets || []).map((set, setIdx) => (
-                  <View key={setIdx} style={{flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5}}>
-                    <Text style={standards.regularText}>{'  ' + (setIdx + 1) + ' '}</Text>
-                    <Text style={standards.regularText}>{set.weight ? (set.weight + 'x' + set.reps).padStart(15,' ') : '                 -          '}</Text>
-                    <TextInput
-                      style={styles.templateInput}
-                      defaultValue={updatedExercises[exerciseIdx]?.sets[setIdx]?.weight?.toString() || ''}
-                      onChangeText={val => handleSetChange(exerciseIdx, setIdx, 'weight', val)}
-                      placeholder='-'
-                      keyboardType='numeric'
-                    />
-                    <TextInput
-                      style={styles.templateInput}
-                      defaultValue={updatedExercises[exerciseIdx]?.sets[setIdx]?.reps?.toString() || ''}
-                      onChangeText={val => handleSetChange(exerciseIdx, setIdx, 'reps', val)}
-                      placeholder='-'
-                      keyboardType='numeric'
-                    />
-                  </View>
-                ))} */}
+                  <TouchableOpacity 
+                  style={{backgroundColor: '#375573', padding: 10, width: '90%', alignSelf: 'center', borderRadius: 10, alignItems: 'center'}}
+                  onPress={() => {handleAddSets(item.id)}}
+                  >
+                    <Text style={standards.regularText}>Add Set</Text>
+                  </TouchableOpacity>
 
               </TouchableOpacity>
             </View>
@@ -397,7 +358,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
       else if (!isExampleTemplate) {
         try {
           const updatedData = JSON.stringify({ exercises: updatedExercises });
-          //console.log("updated data: ", updatedData)
+          console.log("updated data: ", updatedData)
           const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
           await db.runAsync(
             `UPDATE workoutTemplates SET data = ? WHERE id = ?`,
@@ -517,6 +478,103 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
                   containerStyle={{flex: 1, paddingBottom: 10}}
                   />
                 }
+
+                <TouchableOpacity 
+                style={[styles.button, {marginBottom: 5}]}
+                onPress={() => setExerciseListVisible(true)}
+                >
+                  <Text style={standards.regularText}>Add Exercises</Text>
+                </TouchableOpacity>
+          
+                <ExerciseListModal
+                  visible={exerciseListVisible}
+                  onClose={() => setExerciseListVisible(false)}
+                  exercises={listExercises}
+                  schema={schema}
+                  selectedExercises={exercises}
+                  onSelect={(selected) => {
+                    // The modal may pass either:
+                    //  - a full updated array (e.g. [...selectedExercises, newItem])
+                    //  - or a single exercise object (if modal behavior changes in future)
+                    // Merge into current state and dedupe by `id`, preserving previous items.
+                    setExercises((prev = []) => {
+                      // ensure prev is an array
+                      const prevArr = Array.isArray(prev) ? prev : [];
+          
+                      // helper to push unique by id
+                      const pushIfNew = (out, ex, seen) => {
+                        if (!ex) return;
+                        const id = ex.id ?? ex._id ?? null;
+                        if (id == null) {
+                          // no id: try to avoid duplicates by reference
+                          if (!out.includes(ex)) out.push(ex);
+                          return;
+                        }
+                        if (!seen.has(id)) {
+                          out.push(ex);
+                          seen.add(id);
+                        }
+                      };
+          
+                      const result = [];
+                      const seen = new Set();
+          
+                      // start with existing items
+                      for (const ex of prevArr) {
+                        pushIfNew(result, ex, seen);
+                      }
+          
+                      if (Array.isArray(selected)) {
+                        for (const ex of selected) {
+                          pushIfNew(result, ex, seen);
+                        }
+                      } else {
+                        pushIfNew(result, selected, seen);
+                      }
+          
+                      console.log('selectedExercises merged ->', result);
+                      return result;
+                    });
+                    setUpdatedExercises((prev = []) => {
+                      // ensure prev is an array
+                      const prevArr = Array.isArray(prev) ? prev : [];
+          
+                      // helper to push unique by id
+                      const pushIfNew = (out, ex, seen) => {
+                        if (!ex) return;
+                        const id = ex.id ?? ex._id ?? null;
+                        if (id == null) {
+                          // no id: try to avoid duplicates by reference
+                          if (!out.includes(ex)) out.push(ex);
+                          return;
+                        }
+                        if (!seen.has(id)) {
+                          out.push(ex);
+                          seen.add(id);
+                        }
+                      };
+          
+                      const result = [];
+                      const seen = new Set();
+          
+                      // start with existing items
+                      for (const ex of prevArr) {
+                        pushIfNew(result, ex, seen);
+                      }
+          
+                      if (Array.isArray(selected)) {
+                        for (const ex of selected) {
+                          pushIfNew(result, ex, seen);
+                        }
+                      } else {
+                        pushIfNew(result, selected, seen);
+                      }
+          
+                      console.log('selectedExercises merged ->', result);
+                      return result;
+                    });
+                  }}
+                />
 
                 <TouchableOpacity 
                 onPress={() => {

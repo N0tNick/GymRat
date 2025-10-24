@@ -46,6 +46,12 @@ export default function WorkoutScreen() {
     setPresetTemplates(result3)
   }
 
+  const debugStorage = async () => {
+    const keys = await AsyncStorage.getAllKeys();
+    const entries = await AsyncStorage.multiGet(keys);
+    console.log('AsyncStorage contents:', entries);
+  };
+
   useEffect(() => {
     if (!userId) return;
 
@@ -301,7 +307,7 @@ export default function WorkoutScreen() {
         <View>
           <TouchableOpacity style={styles.templateBox} onPress = {() => {
             setIsTemplatePreset(false)
-            if (!isOngoingWorkout) manageTemplate(item)
+            if (!isOngoingWorkout) manageTemplate(item);/*debugStorage()*/
             }}>
             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <Text style={standards.headerText}>{item.name}</Text>
