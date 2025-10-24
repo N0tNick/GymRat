@@ -48,7 +48,7 @@ export async function syncFirestoreToSQLite({ firestoreUserId, userId, db }) {
     return;
   }
 
-  console.log(`Starting Firestore→SQLite sync for user: ${firestoreUserId}`);
+  console.log(`Starting Firestore -> SQLite sync for user: ${firestoreUserId}`);
 
   await ensureExampleWorkoutTemplates(firestoreUserId, db);
 
