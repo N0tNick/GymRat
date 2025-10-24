@@ -479,12 +479,16 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
                   />
                 }
 
-                <TouchableOpacity 
-                style={[styles.button, {marginBottom: 5}]}
-                onPress={() => setExerciseListVisible(true)}
-                >
-                  <Text style={standards.regularText}>Add Exercises</Text>
-                </TouchableOpacity>
+                {isExampleTemplate ?
+                  null
+                :
+                  <TouchableOpacity 
+                  style={[styles.button, {marginBottom: 5}]}
+                  onPress={() => setExerciseListVisible(true)}
+                  >
+                    <Text style={standards.regularText}>Add Exercises</Text>
+                  </TouchableOpacity>
+                }
           
                 <ExerciseListModal
                   visible={exerciseListVisible}

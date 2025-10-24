@@ -110,6 +110,8 @@ export default function ExerciseCreationModal({visibility, setVisibility}) {
           <View style={{flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-evenly'}}>
             <Text style={standards.regularText}>Instructions: </Text>
             <TextInput 
+            placeholder="(optional)"
+            placeholderTextColor={'#999'}
             style={styles.largeInput}
             onChangeText={setExerciseInstructions}
             multiline={true}

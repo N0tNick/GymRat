@@ -19,7 +19,7 @@ import { useUser } from '../UserContext';
 export default function CreateTemplateScreen() {
   const db = useSQLiteContext();
   const router = useRouter();
-  const [templateName, setTemplateName] = useState('New Template')
+  const [templateName, setTemplateName] = useState('Template Name')
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedExercises, setSelectedExercises] = useState([]);
   const [numOfSets, setNumOfSets] = useState({})
@@ -170,6 +170,12 @@ export default function CreateTemplateScreen() {
             <Text style={standards.regularText}>Reps</Text>
           </View>
 
+          {(!numOfSets[item.id] || numOfSets[item.id].length === 0) ? 
+            <Text style={[standards.regularText, {paddingBottom: 5, alignSelf: 'center'}]}>You have no sets for this exercise. Click to add sets.</Text>
+          :
+            null
+          }
+
           {(numOfSets[item.id] || []).map((_, index) => (
             <ExerciseSetComponent key={`${String(item.id ?? 'noid')}-${index}`} index={index} itemId={item.id}/>
           ))}
@@ -191,11 +197,11 @@ export default function CreateTemplateScreen() {
           >
             <SafeAreaView style={{ flex: 1, width: screenWidth, padding: 10, gap: 10}}>
               <View>
-                <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 10}}>
                   <TouchableOpacity onPress={router.back}>
                     <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
                   </TouchableOpacity>
-
+                  
                   <Text style={standards.headerText}>New Template</Text>
 
                   <TouchableOpacity onPress={handleSave}>
@@ -204,7 +210,7 @@ export default function CreateTemplateScreen() {
                 </View>
 
                 <TextInput
-                style={[standards.headerText, {padding: 10}]}
+                style={[standards.headerText, {padding: 10, backgroundColor: '#666', borderRadius: 10}]}
                 onChangeText={setTemplateName}
                 value={templateName}
                 />
@@ -214,7 +220,7 @@ export default function CreateTemplateScreen() {
                 onDragEnd={({data}) => setSelectedExercises(data)}
                 keyExtractor={(item, index) => String(item.id ?? index)}
                 renderItem={renderItem}
-                containerStyle={{height: screenHeight * 0.775, paddingBottom: 10}}
+                containerStyle={{height: screenHeight * 0.775, paddingVertical: 10}}
                 />
 
                 <TouchableOpacity 

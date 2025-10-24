@@ -276,7 +276,7 @@ export default function EditTemplateScreen() {
 
   return(
     <SafeAreaView style={{flex: 1, backgroundColor: '#1a1b1c', padding: 10}}>
-      <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+      <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 10}}>
         <TouchableOpacity onPress={router.back}>
           <Image style={{width: '20', height: '20'}} source={require('../assets/images/xButton.png')}/>
         </TouchableOpacity>
@@ -289,7 +289,7 @@ export default function EditTemplateScreen() {
       </View>
 
       <TextInput
-      style={[standards.headerText, {padding: 20}]}
+      style={[standards.headerText, {padding: 10, backgroundColor: '#666', borderRadius: 10}]}
       onChangeText={setTemplateName}
       defaultValue={template?.name ?? 'No Workout found'}
       />
@@ -299,7 +299,7 @@ export default function EditTemplateScreen() {
       onDragEnd={({data}) => {setSelectedExercises(data);setUpdatedExercises(data)}}
       keyExtractor={(item, index) => String(item.id ?? index)}
       renderItem={renderItem}
-      containerStyle={{flex: 1, paddingBottom: 10}}
+      containerStyle={{flex: 1, paddingVertical: 10}}
       />
 
       <TouchableOpacity 

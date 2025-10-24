@@ -647,7 +647,7 @@ export default function WorkoutScreen() {
           )}
           </View>
 
-          <Text style={[standards.headerText, {paddingHorizontal: 10}]}>Templates</Text>
+          <Text style={[standards.headerText, {paddingHorizontal: 10}]}>Workout Templates</Text>
           <View style={{flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 5}}>
             <TouchableOpacity style={styles.button} onPress ={() => setExerciseCreation(true)}><Text style={standards.smallText}>+ Exercise</Text></TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress ={() => router.push('/createTemplate')}><Text style={standards.smallText}>+ Template</Text></TouchableOpacity>
@@ -664,7 +664,9 @@ export default function WorkoutScreen() {
                 <Text style={standards.smallText}>View Ongoing Workout</Text>
               </TouchableOpacity>
             </View>
-          ) : null}
+          ) : 
+            <Text style={[standards.regularText, {alignSelf: 'center', paddingTop: 5}]}>Click a template to start a workout!</Text>
+          }
 
           <View style={{paddingVertical: 5}}/>
           
