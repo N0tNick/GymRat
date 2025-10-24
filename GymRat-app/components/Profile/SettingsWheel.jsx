@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import {Animated, TouchableOpacity, View, StyleSheet, Modal, Image, Dimensions, Text, TextInput, Platform } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { signOut, deleteUser, reauthenticateWithCredential, EmailAuthProvider, GoogleAuthProvider } from 'firebase/auth';
-import { auth } from '../../firebaseConfig';
+import { auth, getAuth, updatePassword  } from '../../firebaseConfig';
 import { useSQLiteContext } from 'expo-sqlite';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '@/UserContext';
@@ -30,11 +30,22 @@ const SettingsWheel = () => {
     const [passwordModalVisible, setPasswordModalVisible] = useState(false);
     const [passwordInput, setPasswordInput] = useState('');
     const [deletePending, setDeletePending] = useState(false);
+    const [pass, SetPass] = useState('')
 
     const [isAccountModal, setAccountModal] = useState(false);
 
+    const resetPassword = async (pass) => {
+        auth = getAuth()
+        const user = auth.currentUser
 
-    //delete account & userData
+        updatePassword(user, pass).then(() => {
+            console.log("password updated")
+        }).catch((error) => {
+            console.log("error updating password")
+        });
+    }
+
+
     const resetAccountData = async () => {
       const tables = [
         'userSettings', 'userStats', 'dailyNutLog',
@@ -220,7 +231,6 @@ const SettingsWheel = () => {
         }).start(() => setIsSidebarVisible(false));
     }
 
-    // Replace the Modal with an overlay view
     const accountModal = () => {
         return (
             <View style={{position: 'absolute',
@@ -253,7 +263,7 @@ const SettingsWheel = () => {
                             <Image style={styles.logo} source={wheelIcon} />
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.deleteAccountButton} onPress={handleDeleteAccount}>
+                        <TouchableOpacity style={styles.deleteAccountButton} onPress={() => { resetAccountData(1); handleSignOut(); }}>
                             <Text style={styles.logoutButtonText}>Delete Account</Text>
                         </TouchableOpacity>
 
@@ -304,8 +314,15 @@ const SettingsWheel = () => {
                             />
                         </TouchableOpacity>
 
-                        <View style={{backgroundColor:'#2c2c2e', borderRadius:10, width:screenWidth*0.85, height:screenHeight*0.15, marginTop:65}}>
-
+                        <View style={{backgroundColor:'#2c2c2e', flexDirection:'column', justifyContent: 'space-between', borderRadius:10, width:screenWidth*0.85, height:screenHeight*0.15, marginTop:65, padding:10}}>
+                            <Text style ={[standards.regularText, {margin:5}]}>Name: </Text>
+                            <Text style ={[standards.regularText, {margin:5}]}>Email: </Text>
+                            <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                                <Text style ={[standards.regularText, {margin:5}]}>Password: </Text>
+                                <TouchableOpacity style={{backgroundColor:'#a83232', padding:8, borderRadius:8 }}>
+                                    <Text style={[standards.regularText, {fontSize:14}]}>Reset Password</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
 
                         <View style={{backgroundColor:'#2c2c2e', borderRadius:10, width:screenWidth*0.85, height:screenHeight*0.15, marginTop:15}}>
@@ -427,7 +444,7 @@ const styles = StyleSheet.create ({
         shadowOpacity: 0.3,
         shadowRadius: 5,
         elevation: 10,
-        width: SIDEBAR_WIDTH,
+        width: screenWidth * 0.90,
     },
     modalContent: {
         flex: 1,

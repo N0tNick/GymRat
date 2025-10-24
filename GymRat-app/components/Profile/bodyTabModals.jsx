@@ -436,7 +436,7 @@ export const GoalWeightTouchable = ({ isVisible, onClose })  => {
 
                         <TouchableOpacity 
                         style={{flexDirection:'row',alignSelf:'center',alignItems:'center',justifyContent:'center',margin:6,marginBottom:15,width:screenWidth*0.6,height:screenHeight*0.05,borderWidth:2,borderRadius:6,borderColor:'#6a5acd',backgroundColor:'#2c2c2e'}}
-                        onPress={() => { onClose(); router.push('/goal') }}>
+                        onPress={() => { onClose(); router.push('/nutsplash') }}>
                             <Text style={modalStyles.modalInputText}>Change Goal</Text>
                         </TouchableOpacity>
                     

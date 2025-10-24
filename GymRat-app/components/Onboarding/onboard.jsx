@@ -189,7 +189,7 @@ export const ProfileOnboardModal = ({isVisible, onClose}) => {
                     <Text style={[standards.regularText,{padding:10,textAlign:'center'}]}>This is the profile page. Here you can:</Text>
                     <FlatList
                         data={[
-                            { key: 'See a compelete history of nutritiona and workout logs'},
+                            { key: 'See a compelete history of your nutrition and workout logs'},
                             { key: 'A chart of your weights changes per week'},
                             { key: 'Overview of progress and composition'},
                             { key: 'General settings'},
