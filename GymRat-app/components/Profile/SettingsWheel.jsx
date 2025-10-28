@@ -311,7 +311,6 @@ const SettingsWheel = () => {
             </View>
         )
     }
-
     // Replace the Modal with an overlay view
     const accountModal = () => {
         return (

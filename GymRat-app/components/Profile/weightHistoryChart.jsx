@@ -111,8 +111,6 @@ const lineChart = () => {
             xAxisColor={'#6a5acd'}
             xAxisThickness={2}
             yAxisOffset={yAxisOffset}
-            renderDataPointsAfterAnimationEnds={true}
-            animateOnDataChange={true}
             disableScroll={true}
         />
     ) 
