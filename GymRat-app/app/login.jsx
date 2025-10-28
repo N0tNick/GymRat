@@ -26,7 +26,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { setUserId, setFirestoreUserId } = useUser();
+  const { setUserId, setFirestoreUserId, setUserEmail } = useUser();
   const db = useSQLiteContext();
   const [loading, setLoading] = useState(false);
 
@@ -108,6 +108,8 @@ export default function LoginScreen() {
 
       setUserId(userId);
       setFirestoreUserId(firestoreUserId);
+      setUserEmail(email);
+      
 
       await syncFirestoreToSQLite({ firestoreUserId, userId, db });
       console.log("Firestore to SQLite sync complete for user:", userId);
