@@ -58,7 +58,7 @@ export default function HomeScreen() {
   const [foodName, setFoodName] = useState('');
   const [nutrientEntries, setNutrientEntries] = useState([]);
   const [showNutritionSummary, setShowNutritionSummary] = useState(true);
-  const [moduleOrder, setModuleOrder] = useState(['nutritionSummary', 'tasks', 'nutrition', 'weekly', 'weightLog', 'streak', 'buildWorkout']);
+  const [moduleOrder, setModuleOrder] = useState(DEFAULT_ORDER);
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
   const [bestStreak, setBestStreak] = useState(0);
   const [showStreak, setShowStreak] = useState(true);
@@ -72,6 +72,8 @@ export default function HomeScreen() {
   const [hasWorkout, setHasWorkout] = useState(false);
 
   const [cals, setCals] = useState(0);
+
+  const DEFAULT_ORDER = ['nutritionSummary', 'tasks', 'nutrition', 'weekly', 'streak', 'weightLog', 'buildWorkout'];
 
   useEffect(() => {
     (async () => {
@@ -680,7 +682,7 @@ const allModules = useMemo(() => {
   if (showWeightLog) enabled.push('weightLog');
   if (showBuildWorkout) enabled.push('buildWorkout');
 
-  return moduleOrder.filter(k => enabled.includes(k)).map(k => ({ key: k }));
+  return (moduleOrder ?? []).filter(k => enabled.includes(k)).map(k => ({ key: k }));
   }, [showNutritionSummary, showTasks, showNutrition, showWeekly, showStreak, showWeightLog, showBuildWorkout, moduleOrder]);
 
   const renderItem = useCallback(({ item, drag, isActive }) => {
@@ -1345,7 +1347,7 @@ const allModules = useMemo(() => {
                   setShowStreak(true);
                   setShowWeightLog(true);
                   setShowBuildWorkout(true);
-                  setModuleOrder(defaultOrder);
+                  setModuleOrder(['nutritionSummary', 'tasks', 'nutrition', 'weekly', 'streak', 'weightLog', 'buildWorkout']);
                 }}
               >
                 <Text style={styles.buttonSecondaryText}>Reset</Text>
