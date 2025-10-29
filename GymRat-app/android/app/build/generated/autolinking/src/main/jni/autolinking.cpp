@@ -123,6 +123,7 @@ providerRegistry->add(concreteComponentDescriptorProvider<RNSScreenFooterCompone
 providerRegistry->add(concreteComponentDescriptorProvider<RNSScreenContentWrapperComponentDescriptor>());
 providerRegistry->add(concreteComponentDescriptorProvider<RNSModalScreenComponentDescriptor>());
 providerRegistry->add(concreteComponentDescriptorProvider<RNSBottomTabsComponentDescriptor>());
+providerRegistry->add(concreteComponentDescriptorProvider<RNSSafeAreaViewComponentDescriptor>());
 providerRegistry->add(concreteComponentDescriptorProvider<RNSVGCircleComponentDescriptor>());
 providerRegistry->add(concreteComponentDescriptorProvider<RNSVGClipPathComponentDescriptor>());
 providerRegistry->add(concreteComponentDescriptorProvider<RNSVGDefsComponentDescriptor>());
