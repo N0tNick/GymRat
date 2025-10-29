@@ -167,7 +167,7 @@ export default function LoginScreen() {
       )} */}
 
       {googleSignIn && (
-        <TouchableOpacity style={[styles.googleCircle, loading && styles.disabledButton]} onPress={googleSignIn} disabled={loading}>
+        <TouchableOpacity style={[styles.googleCircle, loading && styles.disabledButton]} onPress={handleGoogleSignIn} disabled={loading}>
           <Image source={googleLogo} style={styles.googleIcon} />
         </TouchableOpacity>
       )}

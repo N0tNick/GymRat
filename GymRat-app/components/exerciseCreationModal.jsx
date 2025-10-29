@@ -111,7 +111,7 @@ export default function ExerciseCreationModal({visibility, setVisibility}) {
             <Text style={standards.regularText}>Instructions: </Text>
             <TextInput 
             placeholder="(optional)"
-            placeholderTextColor={'#999'}
+            placeholderTextColor={'#888'}
             style={styles.largeInput}
             onChangeText={setExerciseInstructions}
             multiline={true}
@@ -131,26 +131,28 @@ const styles = StyleSheet.create({
   },
   smallInput: {
     flex: 1, 
-    backgroundColor: '#fff', 
+    backgroundColor: '#e0e0e0', 
     borderRadius: 5, 
     paddingHorizontal: 5,
     textAlignVertical: 'top',
     fontSize:16,
-    maxWidth: '60%'
+    maxWidth: '60%',
+    color: '#000'
   },
   largeInput: {
     flex: 1, 
-    backgroundColor: '#fff', 
+    backgroundColor: '#e0e0e0', 
     borderRadius: 5, 
     paddingHorizontal: 5,
     textAlignVertical: 'top',
     fontSize: 16,
     maxWidth: '60%',
-    minHeight: '15%'
+    minHeight: '15%',
+    color: '#000'
   },
   text: {
     flex: 1,
-    color: '#fff',
+    color: '#e0e0e0',
     fontSize: 40,
     fontWeight: 'bold',
   },
@@ -180,7 +182,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#e0e0e0',
     padding: 16,
     marginVertical: 8,
     borderRadius: 12,
@@ -238,7 +240,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   whiteText: {
-    color: '#fff', 
+    color: '#e0e0e0', 
     
   },
   templateInput: {

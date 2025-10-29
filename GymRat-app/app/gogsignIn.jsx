@@ -44,7 +44,7 @@ export const useGoogleSignIn = () => {
       const userInfo = await GoogleSignin.signIn();
       const { idToken } = userInfo.data;
 
-      if (!idToken) throw new Error('No ID token returned from Google Sign-In');
+      //if (!idToken) throw new Error('No ID token returned from Google Sign-In');
 
       // convert to firebase credential
       const googleCredential = GoogleAuthProvider.credential(idToken);
@@ -123,8 +123,8 @@ export const useGoogleSignIn = () => {
             console.log('Google Sign-In error:', JSON.stringify(error, null, 2));
         }
       } else {
-        console.error('Non-Google Sign-In error:', error);
-        alert(error.message);
+        //console.error('Non-Google Sign-In error:', error);
+        //alert(error.message);
       }
     }
   };
