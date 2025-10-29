@@ -83,6 +83,7 @@ export default function SplashScreen() {
   // Show splash screen content if not logged in
   return (
     <View style={styles.container}>
+      <Image style={{width: 200, height: 200, resizeMode: 'contain', marginBottom: 30}} source={require('../assets/images/GymRat_Logo.png')}/>
       <Text style={styles.title}>Welcome to GymRat</Text>
       <Text style={{color: '#fff', fontSize: 19, padding: 10, textAlign: 'center'}}>Track workouts. Plan meals. Crush goals.</Text>
       <Text style={{color: '#fff', fontSize: 19, padding: 10, textAlign: 'center'}}>All in one place.</Text>

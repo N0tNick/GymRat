@@ -1602,6 +1602,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 8,
     zIndex: 99,
+    borderWidth: 1,
+    borderColor: '#888',
   },
   gridItem: { 
     width: screenWidth * 0.90, 
