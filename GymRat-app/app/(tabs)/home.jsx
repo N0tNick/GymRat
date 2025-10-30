@@ -58,7 +58,8 @@ export default function HomeScreen() {
   const [foodName, setFoodName] = useState('');
   const [nutrientEntries, setNutrientEntries] = useState([]);
   const [showNutritionSummary, setShowNutritionSummary] = useState(true);
-  const [moduleOrder, setModuleOrder] = useState(DEFAULT_ORDER);
+  const DEFAULT_ORDER = ['nutritionSummary', 'tasks', 'nutrition', 'weekly', 'streak', 'weightLog', 'buildWorkout'];
+  const [moduleOrder, setModuleOrder] = useState([...DEFAULT_ORDER]);
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
   const [bestStreak, setBestStreak] = useState(0);
   const [showStreak, setShowStreak] = useState(true);
@@ -72,8 +73,6 @@ export default function HomeScreen() {
   const [hasWorkout, setHasWorkout] = useState(false);
 
   const [cals, setCals] = useState(0);
-
-  const DEFAULT_ORDER = ['nutritionSummary', 'tasks', 'nutrition', 'weekly', 'streak', 'weightLog', 'buildWorkout'];
 
   useEffect(() => {
     (async () => {
@@ -599,11 +598,24 @@ const initializeModulePreferences = async () => {
       console.error('Add show_build_workout failed:', e);
     }
   }
+  if (userId) {
+    try {
+      await db.runAsync(
+        `INSERT OR IGNORE INTO modulePreferences
+          (user_id, show_nutrition_summary, show_tasks, show_nutrition, show_weekly, show_streak, show_weight_log, show_build_workout, module_order)
+          VALUES (?, 1, 1, 1, 1, 1, 1, 1, ?)`,
+          [userId, JSON.stringify(DEFAULT_ORDER)]
+      );
+    } catch (e) {
+      console.error('Seed default for modulePreferences failed:', e);
+    }
+  }
 };
 
 
 
 const saveModulePreferences = async () => {
+  JSON.stringify(moduleOrder && moduleOrder.length ? moduleOrder : DEFAULT_ORDER)
   if (!userId) return;
   try {
     await db.runAsync(
@@ -627,6 +639,15 @@ const saveModulePreferences = async () => {
   }
 };
 
+const safeParseOrder = (raw) => {
+  try {
+    const parsed = Array.isArray(raw) ? raw : JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length ? parsed : [...DEFAULT_ORDER];
+  } catch {
+    return [...DEFAULT_ORDER];
+  }
+};
+
 const loadModulePreferences = async () => {
   if (!userId) return;
   try {
@@ -634,40 +655,29 @@ const loadModulePreferences = async () => {
       'SELECT * FROM modulePreferences WHERE user_id = ?',
       [userId]
     );
+
     if (result && result[0]) {
       const prefs = result[0];
       setShowNutritionSummary(prefs.show_nutrition_summary === 1);
       setShowTasks(prefs.show_tasks === 1);
       setShowNutrition(prefs.show_nutrition === 1);
       setShowWeekly(prefs.show_weekly === 1);
-      setShowStreak(prefs.show_streak === 1);
-      setShowWeightLog(prefs.show_weight_log === 1);
-      const yes = v => v === 1 || v === null || v === undefined;
-      setShowStreak(yes(prefs.show_streak));
-      setShowWeightLog(yes(prefs.show_weight_log));
-      setShowBuildWorkout(prefs.show_build_workout === 1);
+      setShowStreak(prefs.show_streak === 1 || prefs.show_streak == null);
+      setShowWeightLog(prefs.show_weight_log === 1 || prefs.show_weight_log == null);
+      setShowBuildWorkout(prefs.show_build_workout === 1 || prefs.show_build_workout == null);
 
-
-      try {
-        const order = JSON.parse(prefs.module_order);
-        if (!order.includes('streak')) {
-          order.push('streak');
-        }
-        if (!order.includes('weightLog')) {
-          order.push('weightLog');
-        }
-        if (!order.includes('buildWorkout')) {
-          order.push('buildWorkout');
-        }
-        setModuleOrder(order);
-      } catch (e) {
-        console.error('Error parsing module order:', e);
+      const order = safeParseOrder(prefs.module_order);
+      for (const key of ['streak','weightLog','buildWorkout']) {
+        if (!order.includes(key)) order.push(key);
       }
+      setModuleOrder(order);
+    } else {
+      setModuleOrder([...DEFAULT_ORDER]);
     }
     setPreferencesLoaded(true);
   } catch (error) {
     console.error('Error loading module preferences:', error);
-    setModuleOrder(['nutritionSummary', 'tasks', 'nutrition', 'weekly', 'streak', 'weightLog']);
+    setModuleOrder([...DEFAULT_ORDER]);
     setPreferencesLoaded(true);
   }
 };
