@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useRef, useState } from 'react';
@@ -10,7 +11,6 @@ const { height: screenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
 
 import { addDoc, collection, doc, getFirestore, setDoc } from 'firebase/firestore';
-import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { app } from '../firebaseConfig';
 import { useUser } from '../UserContext';
 import ExerciseListModal from './ExerciseListModal';
@@ -52,6 +52,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
         );
         if (exampleRows.length > 0) {
           workout = exampleRows[0];
+          //console.log("template: ", workout)
           setIsExampleTemplate(true);
         }
       }
@@ -59,6 +60,12 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
       if (workout) {
         setWorkoutData(workout);
         const parsed = JSON.parse(workout.data || '{}');
+        if (isExampleTemplate) {
+          parsed.exercises = parsed.exercises.map((ex, index) => ({
+            ...ex,
+            id: `${ex.id || 'exercise'}-${index}-${Date.now()}`,
+          }));
+        }
         setExercises(parsed.exercises || []);
         setUpdatedExercises(JSON.parse(JSON.stringify(parsed.exercises || [])));
       } else {
@@ -115,17 +122,21 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
     const intervalRef = useRef(null);
     const startTimeRef = useRef(0);
 
-    const startStopwatch = () => {
-    // Set the start time, accounting for any previously elapsed time
-    startTimeRef.current = Date.now() - time * 1000;
-    // Start interval to update time every second
-    intervalRef.current = setInterval(() => {
-        // Update time state with elapsed seconds
-        setTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
-    }, 1000);
-    // Set running state to true
-    setRunning(true);
-    };
+  const startStopwatch = async () => {
+      let savedStart = await AsyncStorage.getItem('@workoutStartTime');
+      if (savedStart) {
+          startTimeRef.current = Number(savedStart);
+      } else {
+          startTimeRef.current = Date.now() - time * 1000;
+          await AsyncStorage.setItem('@workoutStartTime', String(startTimeRef.current));
+      }
+
+      intervalRef.current = setInterval(() => {
+          setTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
+      }, 1000);
+
+      setRunning(true);
+  };
 
     const pauseStopwatch = () => {
     // Clear the interval to stop updating time
@@ -154,18 +165,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
         return () => clearInterval(intervalRef.current);
     }, [workoutModal]);
 
-    // Helper to update user input for a set
-    const handleSetChange = (exerciseIdx, setIdx, field, value) => {
-      setUpdatedExercises(prev => {
-        const updated = [...prev];
-        if (!updated[exerciseIdx] || !updated[exerciseIdx].sets[setIdx]) return prev;
-        updated[exerciseIdx] = { ...updated[exerciseIdx], sets: [...updated[exerciseIdx].sets] };
-        updated[exerciseIdx].sets[setIdx] = { ...updated[exerciseIdx].sets[setIdx], [field]: value };
-        return updated;
-      });
-    };
-
-    const handleWeightInput = (newWeight, exerciseId, setIndex) => {
+  const handleWeightInput = (newWeight, exerciseId, setIndex) => {
     setUpdatedExercises(prev =>
       (prev || []).map(exercise => {
         // If this is the exercise to update
@@ -236,7 +236,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
     )
   };
 
-    const renderItem = ({ item, index: exerciseIdx, drag }) => {
+    const renderItem = ({ item, drag }) => {
       if (isExampleTemplate) {
         return (
           <View style={{marginBottom: '2.5%'}}>
@@ -291,7 +291,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
       }
       else {
         return (
-          <ScaleDecorator>
+          //<ScaleDecorator>
             <View style={{marginBottom: '2.5%'}}>
               <TouchableOpacity onLongPress={drag} style={styles.exerciseContainer}>
                 <Text style={standards.regularText}>{item.name}</Text>
@@ -347,7 +347,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
 
               </TouchableOpacity>
             </View>
-          </ScaleDecorator>
+          //</ScaleDecorator>
         )
       }
     };
@@ -358,7 +358,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
       else if (!isExampleTemplate) {
         try {
           const updatedData = JSON.stringify({ exercises: updatedExercises });
-          console.log("updated data: ", updatedData)
+          //console.log("updated data: ", updatedData)
           const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
           await db.runAsync(
             `UPDATE workoutTemplates SET data = ? WHERE id = ?`,
@@ -402,6 +402,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
             `UPDATE exampleWorkoutTemplates SET data = ? WHERE id = ?`,
             [updatedData, workoutData.id]
           );
+          console.log("updated exercises: ", updatedData)
           await db.runAsync(
             `INSERT INTO workoutLog (user_id, workout_name, date) VALUES (?, ?, ?)`,
             [workoutData.user_id, workoutData.name, today]
@@ -452,6 +453,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
                     <TouchableOpacity
                       onPress={async () => {
                         await saveUpdatedWorkout();
+                        await AsyncStorage.removeItem('@workoutStartTime');
                         setWorkoutModal(false);
                         finishWorkout(true);
                         resetStopwatch();
@@ -463,7 +465,14 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
 
                 <Text style={[standards.headerText, {padding: 20}]}>{workoutData ? workoutData.name : 'No Workout found'}</Text>
 
-                {isExampleTemplate ?
+                <FlatList
+                data={exercises}
+                keyExtractor={(item, index) => String(item.id ?? index)}
+                renderItem={renderItem}
+                />
+
+                {/* Cut Feature due to crashes on android */}
+                {/* {isExampleTemplate ?
                   <FlatList
                   data={exercises}
                   keyExtractor={(item, index) => String(item.id ?? index)}
@@ -477,7 +486,7 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
                   renderItem={renderItem}
                   containerStyle={{flex: 1, paddingBottom: 10}}
                   />
-                }
+                } */}
 
                 {isExampleTemplate ?
                   null
@@ -581,7 +590,8 @@ export default function WorkoutModal({workoutModal, setWorkoutModal, userTemplat
                 />
 
                 <TouchableOpacity 
-                onPress={() => {
+                onPress={async () => {
+                  await AsyncStorage.removeItem('@workoutStartTime');
                   setWorkoutModal(false);
                   finishWorkout(true);
                   resetStopwatch();
