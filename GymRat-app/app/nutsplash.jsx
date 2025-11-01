@@ -5,6 +5,7 @@ import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensio
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useSQLiteContext } from 'expo-sqlite';
 import standards from '../components/ui/appStandards'
+import { useUser } from '../UserContext';
 
 const { height: ScreenHeight } = Dimensions.get('window');
 const { width: screenWidth } = Dimensions.get('window');
@@ -19,12 +20,13 @@ export const data = [
 
 const nutsplash = () => {
     const db = useSQLiteContext()
-    const [userId, setUserId] = useState()
+    //const [userId, setUserId] = useState()
+    const {userId} = useUser()
 
     const saveStats = async() => {
         try {
             const user = await db.getFirstAsync(
-                'SELECT id FROM users',
+                'SELECT id FROM users WHERE id = ?', [userId]
             ); 
             
             const weightFromData = data.find(item => item.id === 'weight').val
@@ -42,20 +44,20 @@ const nutsplash = () => {
              
             const statsRecord = await db.getFirstAsync(
                 'SELECT * FROM userStats WHERE user_id = ?', 
-                [user.id]
+                [userId]
             );
 
             if (statsRecord) {
                 // Record exists, update it
                 await db.runAsync(
                     'UPDATE userStats SET weight = ?, height = ?, sex = ?, activity_lvl = ? WHERE user_id = ?',
-                    [weightFromData, heightString, genderFromData, activityLevelFromData, user.id]
+                    [weightFromData, heightString, genderFromData, activityLevelFromData, userId]
                 );
             } else {
                 // No record exists, insert one
                 await db.runAsync(
                     'INSERT INTO userStats (user_id, weight, height, sex, activity_lvl) VALUES (?, ?, ?, ?, ?)',
-                    [user.id, weightFromData, heightString, genderFromData, activityLevelFromData]
+                    [userId, weightFromData, heightString, genderFromData, activityLevelFromData]
                 );
             }
             
@@ -179,8 +181,8 @@ const nutsplash = () => {
                                     style={[styles.saveButton, styles.nextButton]}
                                     onPress={ () => 
                                         {
-                                        router.replace('/goal')
                                         saveStats()
+                                        router.replace('/goal')
                                         }
                                     }
                                 >
@@ -348,7 +350,8 @@ const DOB = ({ dob }) => {
                                         newMonth = 2
                                         tempDob[1] = 28
                                     }
-                                    else if (newMonth % 2 == 0 && tempDob[1] > 30) { tempDob[1] = 30 }
+                                    else if (newMonth % 2 == 0 && tempDob[1] > 30 && newMonth < 12) { tempDob[1] = 30 }
+                                    else if (newMonth == 12 && tempDob[1] > 31) { tempDob[1] = 31 }
                                     setTempDob([newMonth, tempDob[1], tempDob[2]])
                                 }} // Ensure it stays a number
                                 maxLength={2} // Limit to 2 digits

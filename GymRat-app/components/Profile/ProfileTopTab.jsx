@@ -11,6 +11,7 @@ import standards from '../ui/appStandards'
 import addButton from '../../assets/images/add-button.png'
 import exercises from '../../assets/exercises.json';
 import schema from '../../assets/schema.json';
+import { useUser } from '../../UserContext';
 
 
 const { height: screenHeight } = Dimensions.get('window');
@@ -39,6 +40,7 @@ const TopTab = () => {
   const [exerciseCreation, setExerciseCreation] = useState(null)
   const [customExercises, setCustomExercises] = useState([])
   const [isTemplatePreset, setIsTemplatePreset] = useState(false)
+  const {userId} = useUser()
 
 
   const router = useRouter();
@@ -111,18 +113,18 @@ const TopTab = () => {
       `);
 
       // Get user id
-      const user = await db.getFirstAsync('SELECT id FROM users');
-      if (!user || !user.id) {
-        setGoalError('No user found.');
-        return;
-      }
+      //const user = await db.getFirstAsync('SELECT id FROM users');
+      //if (!user || !user.id) {
+      //  setGoalError('No user found.');
+      //  return;
+      //}
 
       // Insert goal
       setSavingExerciseGoal(true);
       await db.runAsync(
         'INSERT INTO userExerciseGoals (user_id, exercise_id, weight, reps) VALUES (?, ?, ?, ?)',
 
-        [user.id, exerciseItem?.id ?? String(exerciseItem?.name ?? ''), weightVal, repsVal]
+        [userId, exerciseItem?.id ?? String(exerciseItem?.name ?? ''), weightVal, repsVal]
       );
 
       setSavingExerciseGoal(false);
@@ -149,12 +151,12 @@ const TopTab = () => {
         );
       `);
 
-      const user = await db.getFirstAsync('SELECT id FROM users');
-      if (!user || !user.id) return;
+      //const user = await db.getFirstAsync('SELECT id FROM users');
+      //if (!user || !user.id) return;
 
       const rows = await db.getAllAsync(
         'SELECT * FROM userExerciseGoals WHERE user_id = ? ORDER BY created_at DESC, id DESC',
-        [user.id]
+        [userId]
       );
       setExerciseGoals(rows ?? []);
     } catch (e) {
@@ -282,20 +284,20 @@ const TopTab = () => {
     fetchExerciseGoals()
     const intervalId = setInterval(() => {
       fetchUserStats()
-    }, 5000)
+    }, 2000)
     return () => clearInterval(intervalId)
   }, []);
   
   const fetchUserStats = async () => {
     try {
-      const user = await db.getFirstAsync('SELECT id FROM users');
+      // const user = await db.getFirstAsync('SELECT id FROM users');
 
-      if (!user) {
-        console.log("no user found")
-        return;
-      }
+      // if (!user) {
+      //   console.log("no user found")
+      //   return;
+      // }
 
-      const result = await db.getFirstAsync('SELECT * FROM userStats WHERE user_id = ?', [user.id]);
+      const result = await db.getFirstAsync('SELECT * FROM userStats WHERE user_id = ?', [userId]);
 
       //console.log(result)
       if (result) {
@@ -305,7 +307,7 @@ const TopTab = () => {
         setLastBMI(result['BMI']) 
         setLastBMR(result['BMR']) 
       } else {
-        await db.runAsync('INSERT INTO userStats (user_id) VALUES (?)',[user.id]);
+        await db.runAsync('INSERT INTO userStats (user_id) VALUES (?)',[userId]);
       }
 
     } catch (error) {

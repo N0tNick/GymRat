@@ -7,6 +7,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker'
 import { SetGoalSpeed } from '../../app/goal'
 import { useFocusEffect, router } from 'expo-router'
 import { useSQLiteContext } from 'expo-sqlite';
+import { useUser } from '../../UserContext';
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
 
@@ -225,6 +226,7 @@ export const WeightTouchable = ({ isVisible, onClose })  => {
     const [open, setOpen] = useState(false)
     const [weight, setWeight] = useState('')
     const [lastWeight, setLastWeight] = useState(null) 
+    const {userId} = useUser()
 
     const db = useSQLiteContext()
 
@@ -236,7 +238,7 @@ export const WeightTouchable = ({ isVisible, onClose })  => {
 
     const fetchLastWeight = async () => {
         try {
-            const result = await db.getFirstAsync('SELECT weight FROM userStats')
+            const result = await db.getFirstAsync('SELECT weight FROM userStats WHERE user_id = ?', [userId])
             setLastWeight(result.weight)
         } catch (error) {
             console.error('Error fetching last weight:', error)
@@ -251,12 +253,12 @@ export const WeightTouchable = ({ isVisible, onClose })  => {
         }
 
         try {
-            const user = await db.getFirstAsync('SELECT id from users')
+            //const user = await db.getFirstAsync('SELECT id from users WHERE id = ?', [userId])
 
 
             await db.runAsync(
                 'UPDATE userStats SET weight = ? WHERE user_id = ?',
-                [weight.trim(), user.id]
+                [weight.trim(), userId]
             );
 
             const localDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -264,7 +266,7 @@ export const WeightTouchable = ({ isVisible, onClose })  => {
 
             const rowCheck = await db.getAllAsync(
                 'SELECT * FROM weightHistory WHERE date = ? AND user_id = ?', 
-                [localDate, user.id]
+                [localDate, userId]
             )
             console.log(rowCheck)
 
@@ -272,13 +274,13 @@ export const WeightTouchable = ({ isVisible, onClose })  => {
                 console.log("properly updating");
                 await db.runAsync(
                     'REPLACE INTO weightHistory (user_id, date, weight) VALUES (?, ?, ?)',
-                    [user.id, localDate, weight.trim()]
+                    [userId, localDate, weight.trim()]
                 )            
             } else { 
                 console.log("properly inserting");
                 await db.runAsync(
                     'INSERT INTO weightHistory (user_id, date, weight) VALUES (?, ?, ?)',
-                     [user.id, localDate, weight.trim()]           
+                     [userId, localDate, weight.trim()]           
                 )
             }
             

@@ -73,7 +73,7 @@ const SetGoalSpeed = ({ goal, onBack }) => {
     
     const handleOnboarded = async () => {
         try {
-            await db.runAsync('UPDATE users SET hasOnboarded = ?', [userId])
+            await db.runAsync('UPDATE users SET hasOnboarded = ? WHERE id = ?', [1, userId])
         } catch (error) {
         console.error(error) }
     }
@@ -299,8 +299,11 @@ const Goal = () => {
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         style={[styles.saveButton, {alignSelf: 'center', borderRadius: 10}]}
-                                        onPress={() => {
+                                        onPress={async () => {
                                             if (maintain) {
+                                                await db.runAsync('UPDATE users SET hasOnboarded = ? WHERE id = ?', [1, userId])
+                                                await db.runAsync('UPDATE userStats SET goal_weight = weight WHERE user_id = ?', [userId])
+                                                await insertGoal()
                                                 router.navigate('/home')
                                             } else {
                                                 setShowGoalWeight(true)

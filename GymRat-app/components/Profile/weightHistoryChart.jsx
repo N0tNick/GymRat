@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import { useUser } from '../../UserContext';
 
 dayjs.extend(weekOfYear);
 dayjs.extend(isSameOrAfter);
@@ -16,6 +17,7 @@ const { width: screenWidth } = Dimensions.get('window');
 
 const lineChart = () => {
     const db = useSQLiteContext()
+    const {userId} = useUser()
     const [data, setData] = useState([]) // Change data to state
     const [yAxisOffset, setYAxisOffset] = useState(0)
 
@@ -23,21 +25,21 @@ const lineChart = () => {
         fetchWeightHistory()
         const intervalId = setInterval(() => {
           fetchWeightHistory()
-        }, 5000)
+        }, 2000)
         return () => clearInterval(intervalId)
       }, []);
 
 
     const fetchWeightHistory = async () => {
         try {
-            const user = await db.getFirstAsync('SELECT id from users')
+            //const user = await db.getFirstAsync('SELECT id from users')
 
-            if (!user) { 
-                console.log('no user found - weightHistoryChart'); 
-                return;
-            }
+            //if (!user) { 
+            //    console.log('no user found - weightHistoryChart'); 
+            //    return;
+            //}
 
-            const result = await db.getAllAsync('SELECT * FROM weightHistory WHERE user_id = ? ORDER BY date', [user.id])
+            const result = await db.getAllAsync('SELECT * FROM weightHistory WHERE user_id = ? ORDER BY date', [userId])
 
             if (result) {
                 // Get current week's start (Sunday) and end (Saturday)
@@ -74,7 +76,7 @@ const lineChart = () => {
                 }
                 setData(chartData)
             } else {
-                await db.runAsync('INSERT INTO weightHistory (user_id) VALUES (?)',[user.id]);
+                await db.runAsync('INSERT INTO weightHistory (user_id) VALUES (?)',[userId]);
             }
 
             
